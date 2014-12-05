@@ -18,7 +18,7 @@ public class StopCommand implements BasicCommand {
 	public boolean onCommand(Player player, String[] args) {
 
 		if (UpperVoid.hasPermission(player, this.getPermission())) {
-			Arena arena = plugin.am.getArenabyPlayer(player);
+			Arena arena = plugin.arenaManager.getArenabyPlayer(player);
 			if (arena == null) {
 				player.sendMessage(ChatColor.RED
 						+ "Vous n'�tes pas dans une ar�ne!");
@@ -41,7 +41,7 @@ public class StopCommand implements BasicCommand {
 	@Override
 	public String help(Player p) {
 		if (UpperVoid.hasPermission(p, this.getPermission())) {
-			return "/uv stop [Arena] - Force stop une arene.";
+			return "/uv stop [arena] - Force stop une arene.";
 		}
 		return "";
 	}

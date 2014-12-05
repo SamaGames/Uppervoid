@@ -103,7 +103,7 @@ public class ItemChecker implements Runnable {
 		Player p = s.getPlayer();
 		ti.onItemTouchGround(arena, item);
 
-		plugin.ic.removeItem(arena, p, item);
+		plugin.itemChecker.removeItem(arena, p, item);
 		item.remove();
 	}
 

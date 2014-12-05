@@ -5,6 +5,9 @@ import com.Geekpower14.UpperVoid.Block.BlockManager;
 import com.Geekpower14.UpperVoid.UpperVoid;
 import com.Geekpower14.UpperVoid.Utils.StatsNames;
 import com.Geekpower14.UpperVoid.Utils.Utils;
+import net.samagames.gameapi.GameAPI;
+import net.samagames.gameapi.json.Status;
+import net.samagames.gameapi.types.GameArena;
 import net.zyuiop.coinsManager.CoinsManager;
 import net.zyuiop.statsapi.StatsApi;
 import org.bukkit.*;
@@ -27,7 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class Arena {
+public class Arena implements GameArena {
 
 	public UpperVoid plugin;
 
@@ -62,7 +65,7 @@ public class Arena {
 
 	private Starter CountDown = null;
 
-	private BlockManager bm;
+	private BlockManager blockManager;
 
 	private int anticheat;
 
@@ -76,15 +79,16 @@ public class Arena {
 	//private Team spectates;
 
 	public Arena(UpperVoid pl, String name) {
-		plugin = pl;
+
+        plugin = pl;
 
 		this.name = name;
 
-		bm = new BlockManager(pl);
+		blockManager = new BlockManager(pl);
 
 		loadConfig();
 
-        plugin.sf.setDimension(Bukkit.getWorld("world"), dimension);
+        plugin.skyFactory.setDimension(Bukkit.getWorld("world"), dimension);
 
 		tboard = Bukkit.getScoreboardManager().getNewScoreboard();
 
@@ -92,7 +96,7 @@ public class Arena {
 		spectates.setCanSeeFriendlyInvisibles(true);*/
 
 		eta = Status.Available;
-
+        //GameAPI.getManager().refreshArena(this);
 	}
 
 	/*
@@ -189,9 +193,9 @@ public class Arena {
 
 	/*** Mouvement des joueurs ***/
 
-	public String requestJoin(final VPlayer p) {
+	/*public String requestJoin(final VPlayer p) {
 
-		if (plugin.am.getArenabyPlayer(p.getName()) != null) {
+		if (plugin.arenaManager.getArenabyPlayer(p.getName()) != null) {
 			return ChatColor.RED + "Vous êtes en jeux.";
 		}
 
@@ -230,18 +234,10 @@ public class Arena {
 		}, 40L);
 
 		return "good";
-	}
+	}*/
 
 	@SuppressWarnings("deprecation")
 	public void joinArena(Player p) {
-		if (!waitPlayers.contains(p.getUniqueId())) {
-			p.kickPlayer(ChatColor.RED
-					+ "Erreur vous n'avez pas le droit de rejoindre.");
-			return;
-		}
-
-		waitPlayers.remove(p.getUniqueId());
-
 		joinHider(p);
 		p.setFlying(false);
 		p.setAllowFlight(false);
@@ -252,8 +248,6 @@ public class Arena {
 
 		APlayer ap = new APlayer(plugin, this, p);
 		players.add(ap);
-
-        plugin.cm.sendArenasInfos(true);
 
 		this.broadcast(ChatColor.YELLOW + ap.getName() + " a rejoint l'arène "
 				+ ChatColor.DARK_GRAY + "[" + ChatColor.RED + players.size()
@@ -270,6 +264,7 @@ public class Arena {
 			p.updateInventory();
 		} catch (Exception e) {/* LOL */
 		}
+        refresh();
 	}
 
 	public void leaveArena(Player p) {
@@ -277,7 +272,7 @@ public class Arena {
 
 		leaveCleaner(p);
 
-		for (Player pp : Bukkit.getOnlinePlayers()) {
+		for (Player pp : UpperVoid.getOnline()) {
 			p.showPlayer(pp);
 		}
 
@@ -292,8 +287,6 @@ public class Arena {
 		// kickPlayer(p);
 
 		updateScorebords();
-
-        plugin.cm.sendArenasInfos(true);
 
 		if (getActualPlayers() <= 1 && eta == Status.InGame) {
 			if (players.size() >= 1) {
@@ -320,6 +313,8 @@ public class Arena {
 			resetCountdown();
 		}
 
+        refresh();
+
 		return;
 	}
 
@@ -329,7 +324,7 @@ public class Arena {
 
 	public void start() {
 		eta = Status.InGame;
-        plugin.cm.sendArenasInfos(true);
+        refresh();
 
 		for (APlayer ap : players) {
 			Player p = ap.getP();
@@ -348,11 +343,11 @@ public class Arena {
 		}
 
 		int time = 5;// TICKS
-		bm.setActive(false);
+		blockManager.setActive(false);
 		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 			@Override
 			public void run() {
-				bm.setActive(true);
+				blockManager.setActive(true);
 			}
 		}, time * 20L);
 
@@ -393,9 +388,9 @@ public class Arena {
 
 	public void stop() {
 		eta = Status.Stopping;
-        plugin.cm.sendArenasInfos(true);
+        refresh();
 
-		bm.setActive(false);
+		blockManager.setActive(false);
 
 		/*
 		 * TO/DO: Stopper l'ar�ne.
@@ -408,10 +403,10 @@ public class Arena {
 		 * 
 		 * for(Player p : tokick) { //leaveArena(p); kickPlayer(p); }
 		 */
-		for (Player p : Bukkit.getOnlinePlayers())
+		for (Player p : UpperVoid.getOnline())
 			kickPlayer(p);
 
-		// bm.restore();
+		// blockManager.restore();
 
 		reset();
 
@@ -459,6 +454,7 @@ public class Arena {
 		if (!p.isOnline())
 			return;
 
+		p.sendMessage(msg);
 		// kickPlayer(p, "");
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
 		DataOutputStream out = new DataOutputStream(b);
@@ -474,15 +470,84 @@ public class Arena {
 
 	public void win(final Player p) {
 		eta = Status.Stopping;
-        plugin.cm.sendArenasInfos(true);
+        refresh();
 
 		if (p != null) {
+			final int nb = (int) (Time_After * 1.5);
+
+			final int infoxp = Bukkit.getScheduler().scheduleSyncRepeatingTask(
+					this.plugin, new Runnable() {
+						int compteur = 0;
+
+						public void run() {
+
+							if (compteur >= nb) {
+								return;
+							}
+
+							// Spawn the Firework, get the FireworkMeta.
+							Firework fw = (Firework) p.getWorld().spawnEntity(
+									p.getLocation(), EntityType.FIREWORK);
+							FireworkMeta fwm = fw.getFireworkMeta();
+
+							// Our random generator
+							Random r = new Random();
+
+							// Get the type
+							int rt = r.nextInt(4) + 1;
+							Type type = Type.BALL;
+							if (rt == 1)
+								type = Type.BALL;
+							if (rt == 2)
+								type = Type.BALL_LARGE;
+							if (rt == 3)
+								type = Type.BURST;
+							if (rt == 4)
+								type = Type.CREEPER;
+							if (rt == 5)
+								type = Type.STAR;
+
+							// Get our random colours
+							int r1i = r.nextInt(17) + 1;
+							int r2i = r.nextInt(17) + 1;
+							Color c1 = getColor(r1i);
+							Color c2 = getColor(r2i);
+
+							// Create our effect with this
+							FireworkEffect effect = FireworkEffect.builder()
+									.flicker(r.nextBoolean()).withColor(c1)
+									.withFade(c2).with(type).trail(r.nextBoolean())
+									.build();
+
+							// Then apply the effect to the meta
+							fwm.addEffect(effect);
+
+							// Generate some random power and set it
+							int rp = r.nextInt(2) + 1;
+							fwm.setPower(rp);
+
+							// Then apply this to our rocket
+							fw.setFireworkMeta(fwm);
+
+							compteur++;
+
+						}
+					}, 5L, 5L);
+
+			Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin,
+					new Runnable() {
+						public void run() {
+							plugin.getServer().getScheduler().cancelTask(infoxp);
+							stop();
+						}
+					}, (Time_After * 20));
+
 			APlayer ap = getAplayer(p);
 			this.broadcast(ChatColor.AQUA + p.getDisplayName()
 					+ ChatColor.YELLOW + " a gagné !");
 
 			int up = CoinsManager.syncCreditJoueur(ap.getP().getUniqueId(), 30,
-					true, true);
+					true, true, "Victoire !");
 			// On a besoin de la sync pour l'instruction suivante
 			// L'impact sur le lag est minime : une seule requête.
 
@@ -501,90 +566,28 @@ public class Arena {
 		}
 		Bukkit.getScheduler().cancelTask(anticheat);
 
-		bm.setActive(false);
+		blockManager.setActive(false);
 		if (p == null) {
 			stop();
 			return;
 		}
-
-		final int nb = (int) (Time_After * 1.5);
-
-		final int infoxp = Bukkit.getScheduler().scheduleSyncRepeatingTask(
-				this.plugin, new Runnable() {
-					int compteur = 0;
-
-					public void run() {
-
-						if (compteur >= nb) {
-							return;
-						}
-
-						// Spawn the Firework, get the FireworkMeta.
-						Firework fw = (Firework) p.getWorld().spawnEntity(
-								p.getLocation(), EntityType.FIREWORK);
-						FireworkMeta fwm = fw.getFireworkMeta();
-
-						// Our random generator
-						Random r = new Random();
-
-						// Get the type
-						int rt = r.nextInt(4) + 1;
-						Type type = Type.BALL;
-						if (rt == 1)
-							type = Type.BALL;
-						if (rt == 2)
-							type = Type.BALL_LARGE;
-						if (rt == 3)
-							type = Type.BURST;
-						if (rt == 4)
-							type = Type.CREEPER;
-						if (rt == 5)
-							type = Type.STAR;
-
-						// Get our random colours
-						int r1i = r.nextInt(17) + 1;
-						int r2i = r.nextInt(17) + 1;
-						Color c1 = getColor(r1i);
-						Color c2 = getColor(r2i);
-
-						// Create our effect with this
-						FireworkEffect effect = FireworkEffect.builder()
-								.flicker(r.nextBoolean()).withColor(c1)
-								.withFade(c2).with(type).trail(r.nextBoolean())
-								.build();
-
-						// Then apply the effect to the meta
-						fwm.addEffect(effect);
-
-						// Generate some random power and set it
-						int rp = r.nextInt(2) + 1;
-						fwm.setPower(rp);
-
-						// Then apply this to our rocket
-						fw.setFireworkMeta(fwm);
-
-						compteur++;
-
-					}
-
-				}, 5L, 5L);
-
-		Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin,
-				new Runnable() {
-
-					public void run() {
-						plugin.getServer().getScheduler().cancelTask(infoxp);
-						stop();
-
-					}
-
-				}, (Time_After * 20));
 	}
+
+    public void refresh()
+    {
+        final Arena ar = this;
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+            @Override
+            public void run() {
+                GameAPI.getManager().refreshArena(ar);
+            }
+        });
+    }
 
 	@SuppressWarnings("deprecation")
 	public void lose(final Player p) {
 
-		APlayer ap = this.getAplayer(p);
+		APlayer ap = getAplayer(p);
 		ap.setRole(Role.Spectator);
 
 		updateScorebords();
@@ -597,7 +600,29 @@ public class Arena {
 					+ ((nb > 1) ? "s" : "") + ")");
 		}
 
-		if (this.getActualPlayers() < 2 && eta == Status.InGame) {
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable()
+		{
+			public void run() {
+				for(APlayer pp : getAPlayers())
+				{
+					if(pp.getUUID().equals(p.getUniqueId()))
+						continue;
+
+					if(pp.getRole() == Role.Spectator)
+						continue;
+
+					try{
+						int up = CoinsManager.syncCreditJoueur(pp.getP().getUniqueId(), 3, true, true, "Mort de " + p.getName());
+						pp.setCoins(pp.getCoins() + up);
+					}catch(Exception e)
+					{
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+
+		if (this.getActualPlayers() <= 1 && eta == Status.InGame) {
 			win(getWin(p));
 		}
 
@@ -614,44 +639,21 @@ public class Arena {
 		p.setAllowFlight(true);
 		p.setFlying(true);
         plugin.ghostFactory.setGhost(p, true);
+
 		p.setScoreboard(tboard);
 		p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY,
 				Integer.MAX_VALUE, 0));
 		loseHider(p);
 
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable()
-        {
-            public void run() {
-                for(APlayer pp : getAPlayers())
-                {
-                    if(pp.getUUID().equals(p.getUniqueId()))
-                        continue;
-
-                    if(pp.getRole() == Role.Spectator)
-                        continue;
-
-                    try{
-                        int up = CoinsManager.syncCreditJoueur(pp.getP().getUniqueId(), 3, true, true);
-                        pp.setCoins(pp.getCoins() + up);
-                    }catch(Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-
-        plugin.cm.sendArenasInfos(true);
+        refresh();
 	}
 
 	private Player getWin(Player p) {
 		for (APlayer ap : players) {
-			if (ap.getRole() == Role.Spectator)
+			if (ap.getRole() == Role.Spectator || !ap.getP().isOnline())
 				continue;
 
-			if (!ap.getName().equals(p.getName())) {
-				return ap.getP();
-			}
+			return ap.getP();
 		}
 		return null;
 	}
@@ -750,14 +752,6 @@ public class Arena {
 		return;
 	}
 
-	public Collection<Player> getPlayers() {
-		List<Player> t = new ArrayList<Player>();
-		for (APlayer ap : players)
-			t.add(ap.getP());
-
-		return t;
-	}
-
 	@SuppressWarnings("deprecation")
 	public void cleaner(Player player) {
 		player.setGameMode(GameMode.ADVENTURE);
@@ -775,8 +769,7 @@ public class Arena {
 
 		try {
 			player.updateInventory();
-		} catch (Exception e) {/* LOL */
-		}
+		} catch (Exception e) {/* LOL */}
 
 		return;
 	}
@@ -815,7 +808,7 @@ public class Arena {
 	}
 
 	public void joinHider(Player p) {
-		for (Player pp : Bukkit.getOnlinePlayers()) {
+		for (Player pp : UpperVoid.getOnline()) {
 			if (!this.hasPlayer(pp)) {
 				pp.hidePlayer(p);
 				p.hidePlayer(pp);
@@ -841,7 +834,12 @@ public class Arena {
 		return uuid;
 	}
 
-	public boolean hasPlayer(Player p) {
+    @Override
+    public boolean hasPlayer(UUID player) {
+        return hasPlayer(Bukkit.getOfflinePlayer(player));
+    }
+
+    public boolean hasPlayer(OfflinePlayer p) {
 		return hasPlayer(p.getName());
 	}
 
@@ -867,11 +865,36 @@ public class Arena {
 		return minPlayer;
 	}
 
-	public int getMaxPlayers() {
+    @Override
+    public int countGamePlayers() {
+        return getActualPlayers();
+    }
+
+    public int getMaxPlayers() {
 		return maxPlayer;
 	}
 
-	public int getActualPlayers() {
+    @Override
+    public int getTotalMaxPlayers() {
+        return maxPlayer + vipSlots;
+    }
+
+    @Override
+    public int getVIPSlots() {
+        return vipSlots;
+    }
+
+    @Override
+    public Status getStatus() {
+        return eta;
+    }
+
+    @Override
+    public void setStatus(Status status) {
+        eta = status;
+    }
+
+    public int getActualPlayers() {
 		int nb = 0;
 
 		for (APlayer ap : players) {
@@ -899,15 +922,28 @@ public class Arena {
 		}
 	}
 
+    public Collection<Player> getPlayers() {
+        List<Player> t = new ArrayList<Player>();
+        for (APlayer ap : players)
+            t.add(ap.getP());
+
+        return t;
+    }
+
 	public BlockManager getBM() {
-		return bm;
+		return blockManager;
 	}
 
 	public String getMapName() {
 		return Map_name;
 	}
 
-	public int getTimeBefore() {
+    @Override
+    public boolean isFamous() {
+        return false;
+    }
+
+    public int getTimeBefore() {
 		return Time_Before;
 	}
 
@@ -1012,46 +1048,6 @@ public class Arena {
 				abord();
 			}
 			time--;
-		}
-
-	}
-
-	public enum Status {
-
-		Available("available", 80), Idle("idle", 70), Starting("starting", 30), Stopping(
-				"stopping", 20), InGame("ingame", 10);
-
-		private String info;
-		private int value;
-
-		private Status(String info, int value) {
-			this.info = info;
-			this.value = value;
-		}
-
-		public String getString() {
-			return info;
-		}
-
-		public int getValue() {
-			return value;
-		}
-
-		public boolean isLobby() {
-			if (value == Status.Available.getValue()
-					|| value == Status.Starting.getValue()) {
-				return true;
-			}
-
-			return false;
-		}
-
-		public boolean isIG() {
-			if (value == Status.InGame.getValue()
-					|| value == Status.Stopping.getValue()) {
-				return true;
-			}
-			return false;
 		}
 
 	}

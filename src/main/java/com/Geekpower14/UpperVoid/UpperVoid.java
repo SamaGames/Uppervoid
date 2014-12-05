@@ -1,13 +1,13 @@
 package com.Geekpower14.UpperVoid;
 
 import com.Geekpower14.UpperVoid.Arena.ArenaManager;
-import com.Geekpower14.UpperVoid.Arena.ConnectionManager;
 import com.Geekpower14.UpperVoid.Commands.CommandsManager;
 import com.Geekpower14.UpperVoid.Listener.PlayerListener;
 import com.Geekpower14.UpperVoid.Stuff.ItemManager;
 import com.Geekpower14.UpperVoid.Task.ItemChecker;
 import com.Geekpower14.UpperVoid.Utils.GhostFactory;
 import com.Geekpower14.UpperVoid.Utils.SkyFactory;
+import net.samagames.gameapi.GameAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -25,61 +25,60 @@ public class UpperVoid extends JavaPlugin {
 
 	public static UpperVoid plugin;
 
-	public ArenaManager am;
+	public ArenaManager arenaManager;
 
-	public ConnectionManager cm;
+	public CommandsManager commandsManager;
 
-	public CommandsManager cmd;
+	public ItemChecker itemChecker;
 
-	public ItemChecker ic;
-
-	public ItemManager im;
+	public ItemManager itemManager;
 	public int DefaultPort;
 
 	public String BungeeName;
 
-    public SkyFactory sf;
+    public SkyFactory skyFactory;
 
     public GhostFactory ghostFactory;
 
-	public void onEnable() {
+    public void onEnable() {
 		log = getLogger();
 		plugin = this;
 
-        sf = new SkyFactory(this);
+        DefaultPort = getConfig().getInt("port");
+        BungeeName = getConfig().getString("BungeeName");
+
+        GameAPI.registerGame("uppervoid", DefaultPort, BungeeName);
+
+        skyFactory = new SkyFactory(this);
 
 		Bukkit.getWorld("world").setAutoSave(false);
 
 		this.saveDefaultConfig();
-
-		DefaultPort = getConfig().getInt("port");
-		BungeeName = getConfig().getString("BungeeName");
 
         this.ghostFactory = new GhostFactory(this);
 
 		this.getServer().getMessenger()
 				.registerOutgoingPluginChannel(this, "BungeeCord");
 
-		ic = new ItemChecker(this);
+		itemChecker = new ItemChecker(this);
 
-		am = new ArenaManager(this);
-		cm = new ConnectionManager(this);
+		arenaManager = new ArenaManager(this);
 
-		im = new ItemManager(this);
+		itemManager = new ItemManager(this);
 
-		cmd = new CommandsManager(this);
+		commandsManager = new CommandsManager(this);
 
-		getCommand("uv").setExecutor(cmd);
+		getCommand("uv").setExecutor(commandsManager);
 
 		Bukkit.getPluginManager()
 				.registerEvents(new PlayerListener(this), this);
+        GameAPI.getManager().sendArenas();
+        log.info("UpperVoid enabled!");
 
-		log.info("UpperVoid enabled!");
 	}
 
 	public void onDisable() {
-		am.disable();
-		cm.disable();
+		arenaManager.disable();
 
 		log.info("UpperVoid disabled!");
 	}

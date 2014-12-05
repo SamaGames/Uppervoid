@@ -22,8 +22,8 @@ public class SetSpawnCommand implements BasicCommand {
 
 		if (UpperVoid.hasPermission(player, this.getPermission())) {
 			Arena arena = null;
-			if (plugin.am.exist(args[0])) {
-				arena = plugin.am.getArena(args[0]);
+			if (plugin.arenaManager.exist(args[0])) {
+				arena = plugin.arenaManager.getArena(args[0]);
 			}
 			if (arena == null) {
 				player.sendMessage(ChatColor.RED
@@ -46,7 +46,7 @@ public class SetSpawnCommand implements BasicCommand {
 	@Override
 	public String help(Player p) {
 		if (UpperVoid.hasPermission(p, this.getPermission())) {
-			return "/uv setspawn [Arena] - Set spawn to an arena.";
+			return "/uv setspawn [arena] - Set spawn to an arena.";
 		}
 		return "";
 	}

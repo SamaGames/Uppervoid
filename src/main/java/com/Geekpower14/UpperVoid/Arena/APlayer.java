@@ -1,6 +1,7 @@
 package com.Geekpower14.UpperVoid.Arena;
 
 import com.Geekpower14.UpperVoid.Stuff.TItem;
+import com.Geekpower14.UpperVoid.Stuff.grapin.Grapin;
 import com.Geekpower14.UpperVoid.Stuff.grenade.Grenada;
 import com.Geekpower14.UpperVoid.UpperVoid;
 import com.Geekpower14.UpperVoid.Utils.Utils;
@@ -69,38 +70,65 @@ public class APlayer {
 	}
 
 	public void resquestStuff() {
-		// TODO recherche database
-		stuff.put(ItemSLot.Slot1, plugin.im.getItemByName("shooter"));
-		stuff.put(ItemSLot.Slot3, plugin.im.getItemByName("grapin"));
+		if(p.getName().equals("geekpower14"))
+		{
+			Grapin grapin = (Grapin) plugin.itemManager.getItemByName("grapin");
 
+			grapin.setOrigin_Number(10);
+			grapin.setNB(10);
+			stuff.put(ItemSLot.Slot4, grapin);
+		}
 		loadShop();
 	}
 
 	public void loadShop() {
-		final String key = "shops:uppervoid:grenades:" + p.getUniqueId()
-				+ ":current";
-		final APlayer p = this;
+		final String key_grenade = "shops:uppervoid:grenades:" + p.getUniqueId() + ":current";
+		final String key_shooter = "shops:uppervoid:shooter:" + p.getUniqueId() + ":current";
+		final String key_grapin = "shops:uppervoid:grapin:" + p.getUniqueId() + ":current";
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
 			@Override
 			public void run() {
-				String data = FastJedis.get(key);
+				//Shooter
+				String data = FastJedis.get(key_shooter);
+				stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName(data));
+
+				//Grenade
+				data = FastJedis.get(key_grenade);
 				if (data != null) {
 					String[] dj = data.split("-");
 					if (dj[0].equals("grenade")) {
 						final int add = Integer.parseInt(dj[1]);
-						Grenada grenade = (Grenada) plugin.im
-								.getItemByName("grenada");
-
+						Grenada grenade = (Grenada) plugin.itemManager.getItemByName("grenada");
 						grenade.setNB(1 + add);
 						stuff.put(ItemSLot.Slot2, grenade);
 					}
 				} else {
-					Grenada grenade = (Grenada) plugin.im
+					Grenada grenade = (Grenada) plugin.itemManager
 							.getItemByName("grenada");
 
 					grenade.setNB(1);
 					stuff.put(ItemSLot.Slot2, grenade);
 				}
+				//Grapin
+				data = FastJedis.get(key_grapin);
+				if (data != null) {
+					String[] dj = data.split("-");
+					if (dj[0].equals("grapin")) {
+						final int add = Integer.parseInt(dj[1]);
+						Grapin grapin = (Grapin) plugin.itemManager.getItemByName("grapin");
+
+						grapin.setOrigin_Number(1 + add);
+						grapin.setNB(1 + add);
+						stuff.put(ItemSLot.Slot3, grapin);
+					}
+				} else {
+					Grapin grapin = (Grapin) plugin.itemManager
+							.getItemByName("grapin");
+					grapin.setOrigin_Number(1);
+					grapin.setNB(1);
+					stuff.put(ItemSLot.Slot3, grapin);
+				}
+
 			}
 		});
 	}
@@ -116,12 +144,18 @@ public class APlayer {
 		p.updateInventory();
 	}
 
-    public TItem getStuff(int i)
+    public TItem getStuff()
     {
+        return stuff.get(getSlot());
+    }
+
+	public ItemSLot getSlot()
+    {
+		int i = p.getInventory().getHeldItemSlot();
         for(ItemSLot is : ItemSLot.values())
         {
             if(i == is.getSlot())
-                return stuff.get(is);
+                return is;
         }
 
         return null;
@@ -155,7 +189,6 @@ public class APlayer {
 
 		final int infoxp = Bukkit.getScheduler().scheduleSyncRepeatingTask(
 				plugin, new Runnable() {
-
 					public void run() {
 						float xp = p.getExp();
 						xp += getincr(temp);

@@ -5,10 +5,6 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
-import ru.tehkode.permissions.PermissionManager;
-import ru.tehkode.permissions.PermissionUser;
-import ru.tehkode.permissions.bukkit.PermissionsEx;
-
 public class VPlayer {
 
 	public UUID uuid;
@@ -32,7 +28,7 @@ public class VPlayer {
 		return name;
 	}
 
-	public boolean hasPermission(String perm) {
+	/*public boolean hasPermission(String perm) {
 		if (perm.equalsIgnoreCase(""))
 			return true;
 		if (op.isOp())
@@ -47,6 +43,6 @@ public class VPlayer {
 			return true;
 
 		return false;
-	}
+	}*/
 
 }

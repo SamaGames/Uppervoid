@@ -3,7 +3,9 @@ package com.Geekpower14.UpperVoid.Arena;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import net.samagames.gameapi.GameAPI;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -14,7 +16,7 @@ public class ArenaManager {
 
 	private UpperVoid plugin;
 
-	private List<Arena> ARENAS = new ArrayList<Arena>();
+	private List<Arena> ARENAS = new ArrayList<>();
 
 	public ArenaManager(UpperVoid pl) {
 		plugin = pl;
@@ -43,13 +45,13 @@ public class ArenaManager {
 			zl++;
 		}
 		if (zl == 0 || Maps.get(0) == null) {
-			plugin.log.info(ChatColor.RED + "No Arena found in folder ");
+			plugin.log.info(ChatColor.RED + "No arena found in folder ");
 			return;
 		}
 
 		plugin.log.info(Maps.size() + " SIZE");
 		for (String mapname : Maps) {
-			plugin.log.info(ChatColor.GREEN + "Arena " + mapname);
+			plugin.log.info(ChatColor.GREEN + "arena " + mapname);
 
 			addArena(mapname);
 		}
@@ -63,6 +65,7 @@ public class ArenaManager {
 
 		Arena arena = new Arena(plugin, name);
 
+        GameAPI.registerArena(arena);
 		ARENAS.add(arena);
 	}
 
@@ -143,6 +146,18 @@ public class ArenaManager {
 
 		return null;
 	}
+
+    public Arena getArenaByUUID(UUID uuid)
+    {
+        for(Arena arena : ARENAS)
+        {
+            if(arena.getUUID().equals(uuid))
+            {
+                return arena;
+            }
+        }
+        return null;
+    }
 
 	public List<Arena> getAvailableArenas() {
 		List<Arena> result = new ArrayList<Arena>();

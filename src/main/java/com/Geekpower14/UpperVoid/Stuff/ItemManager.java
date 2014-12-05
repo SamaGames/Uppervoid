@@ -1,5 +1,6 @@
 package com.Geekpower14.UpperVoid.Stuff;
 
+import com.Geekpower14.UpperVoid.Stuff.grapin.Grapin;
 import com.Geekpower14.UpperVoid.Stuff.grapin.GrapinBasic;
 import com.Geekpower14.UpperVoid.Stuff.grenade.Grenada;
 import com.Geekpower14.UpperVoid.Stuff.sticks.LowAdvancedShooter;
@@ -21,7 +22,7 @@ public class ItemManager {
         stuff.add(new LowShooter());
         stuff.add(new LowAdvancedShooter());
         stuff.add(new Grenada());
-        stuff.add(new GrapinBasic("grapin", "grapin", true, 2, 0L));
+        stuff.add(new Grapin());
 	}
 
     public TItem getItemByName(String name)

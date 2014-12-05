@@ -50,7 +50,7 @@ public class ShooterBasic extends TItem {
 	}
 
 	@Override
-	public void rightAction(APlayer ap) {
+	public void rightAction(APlayer ap, APlayer.ItemSLot slot) {
 		Player p = ap.getP();
 
 		if (ap.getRole() == Role.Spectator)
@@ -67,7 +67,7 @@ public class ShooterBasic extends TItem {
 
 		tnt.setVelocity(p.getEyeLocation().getDirection().multiply(1.5));
 
-		plugin.ic.addItem(ap.getArena(), p, tnt, this);
+		plugin.itemChecker.addItem(ap.getArena(), p, tnt, this);
 
 		ap.setReloading(this.reloadTime);
 
@@ -77,7 +77,7 @@ public class ShooterBasic extends TItem {
 	}
 
 	@Override
-	public void leftAction(APlayer ap) {
+	public void leftAction(APlayer ap, APlayer.ItemSLot slot) {
 		return;
 	}
 

@@ -22,14 +22,14 @@ public class CreateCommand implements BasicCommand {
 						+ "Veuillez écrire un nom pour l'arène !");
 				return true;
 			}
-			if (plugin.am.exist(args[0])) {
-				player.sendMessage(ChatColor.RED + "Arena " + args[0]
+			if (plugin.arenaManager.exist(args[0])) {
+				player.sendMessage(ChatColor.RED + "arena " + args[0]
 						+ " existe déjà !");
 				return true;
 			}
 
-			plugin.am.addArena(args[0]);
-			player.sendMessage(ChatColor.YELLOW + "Arena " + args[0]
+			plugin.arenaManager.addArena(args[0]);
+			player.sendMessage(ChatColor.YELLOW + "arena " + args[0]
 					+ " créée avec succés");
 		} else {
 			player.sendMessage(ChatColor.RED + "Vous n'avez pas la permission.");
@@ -41,7 +41,7 @@ public class CreateCommand implements BasicCommand {
 	@Override
 	public String help(Player p) {
 		if (UpperVoid.hasPermission(p, this.getPermission())) {
-			return "/uv create [Arena name] - Create an arena.";
+			return "/uv create [arena name] - Create an arena.";
 		}
 		return "";
 	}

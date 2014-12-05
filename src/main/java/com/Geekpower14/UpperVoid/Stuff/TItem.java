@@ -1,8 +1,8 @@
 package com.Geekpower14.UpperVoid.Stuff;
 
-import net.minecraft.server.v1_7_R3.NBTTagCompound;
-import net.minecraft.server.v1_7_R3.NBTTagList;
-import org.bukkit.craftbukkit.v1_7_R3.inventory.CraftItemStack;
+import net.minecraft.server.v1_7_R4.NBTTagCompound;
+import net.minecraft.server.v1_7_R4.NBTTagList;
+import org.bukkit.craftbukkit.v1_7_R4.inventory.CraftItemStack;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -21,7 +21,7 @@ public abstract class TItem implements Cloneable {
 
     protected boolean isGlow = false;
 
-	public String givePerm = "Quake.admin";
+	public String givePerm = "quake.admin";
 
 	public long reloadTime;
 
@@ -83,7 +83,7 @@ public abstract class TItem implements Cloneable {
 	}
 
     public static ItemStack addGlow(ItemStack item){
-        net.minecraft.server.v1_7_R3.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
+        net.minecraft.server.v1_7_R4.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
         NBTTagCompound tag = null;
         if (!nmsStack.hasTag()) {
             tag = new NBTTagCompound();
@@ -119,9 +119,9 @@ public abstract class TItem implements Cloneable {
 		this.nb = nb;
 	}
 
-	public abstract void rightAction(APlayer ap);
+	public abstract void rightAction(APlayer ap, APlayer.ItemSLot slot);
 
-	public abstract void leftAction(APlayer p);
+	public abstract void leftAction(APlayer p, APlayer.ItemSLot slot);
 
 	public abstract void onItemTouchGround(Arena arena, Item item);
 

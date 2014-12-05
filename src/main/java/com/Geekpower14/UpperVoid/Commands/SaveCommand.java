@@ -19,8 +19,8 @@ public class SaveCommand implements BasicCommand {
 
 		if (UpperVoid.hasPermission(player, this.getPermission())) {
 			Arena arena = null;
-			if (plugin.am.exist(args[0])) {
-				arena = plugin.am.getArena(args[0]);
+			if (plugin.arenaManager.exist(args[0])) {
+				arena = plugin.arenaManager.getArena(args[0]);
 			}
 			if (arena == null) {
 				player.sendMessage(ChatColor.RED
@@ -43,7 +43,7 @@ public class SaveCommand implements BasicCommand {
 	@Override
 	public String help(Player p) {
 		if (UpperVoid.hasPermission(p, this.getPermission())) {
-			return "/uv save [Arena] - Save config of the arena.";
+			return "/uv save [arena] - Save config of the arena.";
 		}
 		return "";
 	}

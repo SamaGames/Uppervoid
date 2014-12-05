@@ -20,8 +20,8 @@ public class RemoveCommand implements BasicCommand {
 		if (UpperVoid.hasPermission(player, this.getPermission())) {
 
 			Arena arena = null;
-			if (plugin.am.exist(args[0])) {
-				arena = plugin.am.getArena(args[0]);
+			if (plugin.arenaManager.exist(args[0])) {
+				arena = plugin.arenaManager.getArena(args[0]);
 			}
 			if (arena == null) {
 				player.sendMessage(ChatColor.RED
@@ -34,8 +34,8 @@ public class RemoveCommand implements BasicCommand {
 				return true;
 			}
 
-			plugin.am.deleteArena(arena.getName());
-			player.sendMessage(ChatColor.GREEN + "Arena supprimé avec succés.");
+			plugin.arenaManager.deleteArena(arena.getName());
+			player.sendMessage(ChatColor.GREEN + "arena supprimé avec succés.");
 		} else {
 			player.sendMessage(ChatColor.RED + "Vous n'avez pas la permission.");
 		}
@@ -46,7 +46,7 @@ public class RemoveCommand implements BasicCommand {
 	@Override
 	public String help(Player p) {
 		if (UpperVoid.hasPermission(p, this.getPermission())) {
-			return "/uv remove [Arena name] - Remove an arena.";
+			return "/uv remove [arena name] - Remove an arena.";
 		}
 		return "";
 	}

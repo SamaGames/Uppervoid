@@ -1,10 +1,10 @@
 package com.Geekpower14.UpperVoid.Stuff.grenade;
 
-import com.Geekpower14.AdminUtil.Utils.ParticleEffects;
 import com.Geekpower14.UpperVoid.Arena.APlayer;
 import com.Geekpower14.UpperVoid.Arena.Arena;
 import com.Geekpower14.UpperVoid.Stuff.TItem;
 import com.Geekpower14.UpperVoid.UpperVoid;
+import com.Geekpower14.UpperVoid.Utils.ParticleEffects;
 import com.Geekpower14.UpperVoid.Utils.StatsNames;
 import net.zyuiop.statsapi.StatsApi;
 import org.bukkit.*;
@@ -66,17 +66,17 @@ public class Grenada extends TItem {
 
 		tnt.setVelocity(p.getEyeLocation().getDirection().multiply(1.5));
 
-		plugin.ic.addItem(ap.getArena(), p, tnt, this);
+		plugin.itemChecker.addItem(ap.getArena(), p, tnt, this);
 
 		it.setAmount(it.getAmount() - 1);
 		p.getInventory().setItemInHand(it);
 
 		StatsApi.increaseStat(p.getUniqueId(), StatsNames.GAME_NAME,
-				StatsNames.Grenade, 1);
+				StatsNames.grenade, 1);
 	}*/
 
     @Override
-    public void rightAction(final APlayer ap)
+    public void rightAction(final APlayer ap, APlayer.ItemSLot slot)
     {
         final Player p = ap.getP();
         ItemStack it = p.getInventory().getItemInHand();
@@ -141,15 +141,15 @@ public class Grenada extends TItem {
                 time-=0.25;
             }
         }.runTaskTimerAsynchronously(plugin, 0L, 5L);
-
+		setNB(getNB() - 1);
         it.setAmount(it.getAmount() - 1);
         p.getInventory().setItemInHand(it);
-
+		ap.giveStuff();
     }
 
 	@Override
-	public void leftAction(APlayer ap) {
-		Player p = ap.getP();
+	public void leftAction(APlayer ap, APlayer.ItemSLot slot) {
+		/*Player p = ap.getP();
 		ItemStack it = p.getInventory().getItemInHand();
 
 		if (it == null) {
@@ -168,13 +168,13 @@ public class Grenada extends TItem {
 
 		tnt.setVelocity(p.getEyeLocation().getDirection().multiply(-1.5));
 
-		plugin.ic.addItem(ap.getArena(), p, tnt, this);
+		plugin.itemChecker.addItem(ap.getArena(), p, tnt, this);
 
 		it.setAmount(it.getAmount() - 1);
 		p.getInventory().setItemInHand(it);
 
 		StatsApi.increaseStat(p.getUniqueId(), StatsNames.GAME_NAME,
-				StatsNames.Grenade, 1);
+				StatsNames.Grenade, 1);*/
 	}
 
 	public void onItemTouchGround(Arena arena, Item item) {

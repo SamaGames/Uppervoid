@@ -19,8 +19,8 @@ public class SetMaxCommand implements BasicCommand {
 
 		if (UpperVoid.hasPermission(player, this.getPermission())) {
 			Arena arena = null;
-			if (plugin.am.exist(args[0])) {
-				arena = plugin.am.getArena(args[0]);
+			if (plugin.arenaManager.exist(args[0])) {
+				arena = plugin.arenaManager.getArena(args[0]);
 			}
 			if (arena == null) {
 				player.sendMessage(ChatColor.RED
@@ -47,7 +47,7 @@ public class SetMaxCommand implements BasicCommand {
 	@Override
 	public String help(Player p) {
 		if (UpperVoid.hasPermission(p, this.getPermission())) {
-			return "/uv setmax [Arena] [Number] - Set max player in the arena.";
+			return "/uv setmax [arena] [Number] - Set max player in the arena.";
 		}
 		return "";
 	}

@@ -19,32 +19,12 @@
 			</plugin>
 		</plugins>
 	</build>
-    <servers>
-        <server>
-            <id>zyuiop-repo</id>
-            <username>sgdev</username>
-            <password>3r4Dkz7WTKqA2Rb</password>
-        </server>
-    </servers>
-
 
 	<repositories>
-		<repository>
-			<id>md5-repo</id>
-			<url>http://repo.md-5.net/content/groups/public/</url>
-		</repository>
-		<repository>
-			<id>pex-repo</id>
-			<url>http://pex-repo.zachsthings.com</url>
-		</repository>
-		<repository>
-			<id>sk89q-repo</id>
-			<url>http://maven.sk89q.com/repo/</url>
-		</repository>
-		<repository>
-			<id>geekpower14-repo</id>
-			<url>http://geekpower14.com/repo/maven</url>
-		</repository>
+        <repository>
+            <id>zyuiop-repo</id>
+            <url>http://repo.zyuiop.net</url>
+        </repository>
 	</repositories>
 
 	<distributionManagement>
@@ -58,14 +38,9 @@
 		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot</artifactId>
-			<version>1.7.10-R0.1-SNAPSHOT</version>
+			<version>1.8-R0.1-SNAPSHOT</version>
 			<type>jar</type>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>ru.tehkode</groupId>
-			<artifactId>PermissionsEx</artifactId>
-			<version>1.22</version>
 		</dependency>
 		<dependency>
 			<groupId>redis.clients</groupId>
@@ -75,12 +50,7 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.sk89q</groupId>
-			<artifactId>worldedit</artifactId>
-			<version>6.0.0-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>net.zyuiop</groupId>
+			<groupId>net.samagames</groupId>
 			<artifactId>MasterBundle</artifactId>
 			<version>1.0.0</version>
 		</dependency>

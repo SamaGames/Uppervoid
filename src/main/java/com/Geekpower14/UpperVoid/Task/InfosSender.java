@@ -15,7 +15,7 @@ public class InfosSender implements Runnable {
 	@Override
 	public void run() {
 		while (run) {
-			plugin.cm.sendArenasInfos(true);
+			//plugin.cm.sendArenasInfos(true);
 
 			try {
 				Thread.sleep(500);

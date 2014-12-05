@@ -25,7 +25,7 @@ public class GhostFactory {
     private static final OfflinePlayer[] EMPTY_PLAYERS = new OfflinePlayer[0];
     private Team ghostTeam;
 
-    // Task that must be cleaned up
+    // task that must be cleaned up
     private BukkitTask task;
     private boolean closed;
 

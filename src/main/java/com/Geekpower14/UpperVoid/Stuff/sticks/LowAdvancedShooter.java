@@ -8,6 +8,6 @@ import org.bukkit.ChatColor;
 public class LowAdvancedShooter extends ShooterBasic{
     public LowAdvancedShooter() {
         super("advancedshooter", ChatColor.GOLD + "Low Advanced Shooter " + ChatColor.GRAY
-                + "(Clique-Droit)", true, 1, 40L);
+                + "(Clique-Droit)", true, 1, 30L);
     }
 }

@@ -18,7 +18,7 @@ public class LeaveCommand implements BasicCommand {
 	public boolean onCommand(Player player, String[] args) {
 
 		if (UpperVoid.hasPermission(player, this.getPermission())) {
-			Arena arena = plugin.am.getArenabyPlayer(player);
+			Arena arena = plugin.arenaManager.getArenabyPlayer(player);
 			if (arena == null) {
 				player.sendMessage(ChatColor.RED + "Vous n'êtes pas en jeux.");
 				return true;

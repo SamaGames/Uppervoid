@@ -11,6 +11,8 @@ import com.Geekpower14.UpperVoid.UpperVoid;
 import com.Geekpower14.UpperVoid.Arena.APlayer;
 import com.Geekpower14.UpperVoid.Arena.Arena;
 
+import java.util.Arrays;
+
 public abstract class TItem implements Cloneable {
 
 	public UpperVoid plugin;
@@ -82,6 +84,21 @@ public abstract class TItem implements Cloneable {
 		return true;
 	}
 
+	public static ItemStack setItemNameAndLore(ItemStack item, String name, String[] lore, boolean glow)
+	{
+		ItemMeta im = item.getItemMeta();
+		if (im == null)
+			return item;
+		if (name != "")
+			im.setDisplayName(name);
+		if (lore != null)
+			im.setLore(Arrays.asList(lore));
+		item.setItemMeta(im);
+		if(glow)
+			item = addGlow(item);
+		return item;
+	}
+
     public static ItemStack addGlow(ItemStack item){
         net.minecraft.server.v1_7_R4.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
         NBTTagCompound tag = null;
@@ -117,6 +134,11 @@ public abstract class TItem implements Cloneable {
 
 	public void setNB(int nb) {
 		this.nb = nb;
+	}
+
+	public static long secondToTick(double second)
+	{
+		return (long) (second * 20);
 	}
 
 	public abstract void rightAction(APlayer ap, APlayer.ItemSLot slot);

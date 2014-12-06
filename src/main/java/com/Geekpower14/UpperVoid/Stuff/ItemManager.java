@@ -1,9 +1,9 @@
 package com.Geekpower14.UpperVoid.Stuff;
 
 import com.Geekpower14.UpperVoid.Stuff.grapin.Grapin;
-import com.Geekpower14.UpperVoid.Stuff.grapin.GrapinBasic;
 import com.Geekpower14.UpperVoid.Stuff.grenade.Grenada;
-import com.Geekpower14.UpperVoid.Stuff.sticks.LowAdvancedShooter;
+import com.Geekpower14.UpperVoid.Stuff.sticks.BladespinnerShooter;
+import com.Geekpower14.UpperVoid.Stuff.sticks.ChaosgrabberShooter;
 import com.Geekpower14.UpperVoid.Stuff.sticks.LowShooter;
 import com.Geekpower14.UpperVoid.UpperVoid;
 
@@ -19,9 +19,13 @@ public class ItemManager {
 	public ItemManager(UpperVoid pl) {
 		plugin = pl;
 
-        stuff.add(new LowShooter());
-        stuff.add(new LowAdvancedShooter());
+        //Shooters
+        stuff.add(new LowShooter());//2.0sec
+        stuff.add(new BladespinnerShooter());//1.7sec
+        stuff.add(new ChaosgrabberShooter());//1.5sec
+        //Grenades
         stuff.add(new Grenada());
+        //Grapins
         stuff.add(new Grapin());
 	}
 

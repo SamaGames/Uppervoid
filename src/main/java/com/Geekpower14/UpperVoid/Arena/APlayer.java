@@ -20,19 +20,14 @@ import java.util.UUID;
 
 public class APlayer {
 
+	public int flag = 0;
 	@SuppressWarnings("unused")
 	private UpperVoid plugin;
-
 	private Arena arena;
-
 	private Player p;
-
 	private Role role = Role.Player;
-
 	private boolean vip = false;
-
 	private Location lastLoc = null;
-
 	private int DoubleJump = -1;
 
 	private boolean Reloading = false;
@@ -210,12 +205,12 @@ public class APlayer {
 		return;
 	}
 
-	public void setReloading(Boolean t) {
-		Reloading = t;
-	}
-
 	public boolean isReloading() {
 		return Reloading;
+	}
+
+	public void setReloading(Boolean t) {
+		Reloading = t;
 	}
 
 	public float getincr(Long time) {

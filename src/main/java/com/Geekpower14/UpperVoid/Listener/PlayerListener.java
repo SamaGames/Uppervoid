@@ -1,10 +1,15 @@
 package com.Geekpower14.UpperVoid.Listener;
 
+import com.Geekpower14.UpperVoid.Arena.APlayer;
+import com.Geekpower14.UpperVoid.Arena.APlayer.Role;
+import com.Geekpower14.UpperVoid.Arena.Arena;
+import com.Geekpower14.UpperVoid.Stuff.TItem;
+import com.Geekpower14.UpperVoid.UpperVoid;
 import net.samagames.gameapi.events.FinishJoinPlayerEvent;
 import net.samagames.gameapi.json.Status;
-import net.zyuiop.statsapi.StatsApi;
-
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -20,13 +25,6 @@ import org.bukkit.event.player.*;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.inventory.ItemStack;
 
-import com.Geekpower14.UpperVoid.UpperVoid;
-import com.Geekpower14.UpperVoid.Arena.APlayer;
-import com.Geekpower14.UpperVoid.Arena.APlayer.Role;
-import com.Geekpower14.UpperVoid.Arena.Arena;
-import com.Geekpower14.UpperVoid.Stuff.TItem;
-import com.Geekpower14.UpperVoid.Utils.StatsNames;
-
 public class PlayerListener implements Listener {
 
 	private UpperVoid plugin;
@@ -36,17 +34,14 @@ public class PlayerListener implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onPlayerLogin(PlayerJoinEvent event) {
-		/*Player p = event.getPlayer();
-		if (!plugin.cm.onPlayerConnect(p)) {
-			p.kickPlayer("TO/DO: écrire erreur.");
-		}*/
-
+	public void onPlayerLogin(PlayerJoinEvent event)
+	{
 		event.setJoinMessage("");
 	}
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onFinishJoinPlayer(FinishJoinPlayerEvent event) {
+    public void onFinishJoinPlayer(FinishJoinPlayerEvent event)
+	{
         if(!event.isCancelled())
         {
             Player p = Bukkit.getPlayer(event.getPlayer());
@@ -186,7 +181,7 @@ public class PlayerListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerMove(PlayerMoveEvent event) {
-		Player p = event.getPlayer();
+		final Player p = event.getPlayer();
 
 		Arena arena = plugin.arenaManager.getArenabyPlayer(p);
 
@@ -213,10 +208,23 @@ public class PlayerListener implements Listener {
 		 * (p.getLocation().subtract(0, 0.4, 0).getBlock().getType() !=
 		 * Material.AIR) && (!p.isFlying())) p.setAllowFlight(false);
 		 */
-		if(p.getLocation().add(0,0.5,0).getBlock().getType().isSolid())
+
+		/*if(!p.getLocation().add(0,0.6,0).getBlock().getType().isTransparent())
 		{
-			arena.kickPlayer(p, ChatColor.RED + "Wall hack");
-		}
+			p.teleport(new Location(event.getFrom().getWorld(),
+									event.getFrom().getX(),
+									event.getFrom().getY(),
+									event.getFrom().getZ(),
+									event.getFrom().getYaw(),
+									event.getFrom().getPitch()));
+			event.setCancelled(true);
+
+			ap.flag++;
+			if(ap.flag >= 50)
+			{
+				arena.kickPlayer(p, ChatColor.RED + "Wall hack");
+			}
+		}*/
 
 		if (p.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.AIR)
 			return;

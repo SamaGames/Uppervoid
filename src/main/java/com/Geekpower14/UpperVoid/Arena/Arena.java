@@ -8,7 +8,7 @@ import com.Geekpower14.UpperVoid.Utils.Utils;
 import net.samagames.gameapi.GameAPI;
 import net.samagames.gameapi.json.Status;
 import net.samagames.gameapi.types.GameArena;
-import net.zyuiop.MasterBundle.MasterBundle;
+import net.zyuiop.MasterBundle.StarsManager;
 import net.zyuiop.coinsManager.CoinsManager;
 import net.zyuiop.statsapi.StatsApi;
 import org.bukkit.*;
@@ -103,6 +103,19 @@ public class Arena implements GameArena {
 	/*
 	 * Configuration.
 	 */
+
+	@SuppressWarnings("deprecation")
+	public static void leaveCleaner(Player player) {
+		for (PotionEffect effect : player.getActivePotionEffects())
+			player.removePotionEffect(effect.getType());
+
+		try {
+			player.updateInventory();
+		} catch (Exception e) {/* LOL */
+		}
+
+		return;
+	}
 
 	private void loadConfig() {
 		FileConfiguration config = YamlConfiguration
@@ -268,6 +281,10 @@ public class Arena implements GameArena {
         refresh();
 	}
 
+	/*
+	 * Gestion de l'arène.
+	 */
+
 	public void leaveArena(Player p) {
 		APlayer ap = getAplayer(p);
 
@@ -319,10 +336,6 @@ public class Arena implements GameArena {
 		return;
 	}
 
-	/*
-	 * Gestion de l'arène.
-	 */
-
 	public void start() {
 		eta = Status.InGame;
         refresh();
@@ -368,13 +381,13 @@ public class Arena implements GameArena {
 		/*
 		 * coinsGiver = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin,
 		 * new Runnable(){
-		 * 
+		 *
 		 * @Override public void run() { for(APlayer ap : players) {
 		 * if(ap.getRole() == Role.Player) { //int added =
 		 * CoinsManager.creditJoueur(ap.getP().getUniqueId(), coinsGiven, true);
 		 * int added = CoinsManager.creditJoueur(ap.getP(), coinsGiven, true);
 		 * ap.setCoins(ap.getCoins() + added); ap.updateScoreboard(); } } }
-		 * 
+		 *
 		 * }, (time+20) * 20L, addCoinsDelay * 20L);
 		 */
 		//coinsGiver = new CoinsGiver(this);
@@ -401,7 +414,7 @@ public class Arena implements GameArena {
 		 * List<Player> tokick = new ArrayList<Player>(); for(int i =
 		 * players.size()-1; i >= 0; i--) { APlayer ap = players.get(i); Player
 		 * p = ap.getP(); tokick.add(p); }
-		 * 
+		 *
 		 * for(Player p : tokick) { //leaveArena(p); kickPlayer(p); }
 		 */
 		for (Player p : UpperVoid.getOnline())
@@ -547,6 +560,7 @@ public class Arena implements GameArena {
 			this.broadcast(ChatColor.AQUA + p.getDisplayName()
 					+ ChatColor.YELLOW + " a gagné !");
 
+			StarsManager.creditJoueur(ap.getP(), 1, "Premier en Uppervoid !");
 			int up = CoinsManager.syncCreditJoueur(ap.getP().getUniqueId(), 30,
 					true, true, "Victoire !");
 			// On a besoin de la sync pour l'instruction suivante
@@ -741,19 +755,6 @@ public class Arena implements GameArena {
 	}
 
 	@SuppressWarnings("deprecation")
-	public static void leaveCleaner(Player player) {
-		for (PotionEffect effect : player.getActivePotionEffects())
-			player.removePotionEffect(effect.getType());
-
-		try {
-			player.updateInventory();
-		} catch (Exception e) {/* LOL */
-		}
-
-		return;
-	}
-
-	@SuppressWarnings("deprecation")
 	public void cleaner(Player player) {
 		player.setGameMode(GameMode.ADVENTURE);
 		player.setHealth(20F);
@@ -862,8 +863,16 @@ public class Arena implements GameArena {
 		return vip;
 	}
 
+	public void setVip(boolean vip) {
+		this.vip = vip;
+	}
+
 	public int getMinPlayers() {
 		return minPlayer;
+	}
+
+	public void setMinPlayers(int nb) {
+		minPlayer = nb;
 	}
 
     @Override
@@ -873,6 +882,10 @@ public class Arena implements GameArena {
 
     public int getMaxPlayers() {
 		return maxPlayer;
+	}
+
+	public void setMaxPlayers(int nb) {
+		maxPlayer = nb;
 	}
 
     @Override
@@ -939,6 +952,10 @@ public class Arena implements GameArena {
 		return Map_name;
 	}
 
+	public void setMapName(String name) {
+		Map_name = name;
+	}
+
     @Override
     public boolean isFamous() {
         return false;
@@ -948,36 +965,20 @@ public class Arena implements GameArena {
 		return Time_Before;
 	}
 
-	public int getTimeAfter() {
-		return Time_After;
-	}
-
-	public Location getSpawn() {
-		return spawn;
-	}
-
-	public void setVip(boolean vip) {
-		this.vip = vip;
-	}
-
-	public void setMinPlayers(int nb) {
-		minPlayer = nb;
-	}
-
-	public void setMaxPlayers(int nb) {
-		maxPlayer = nb;
-	}
-
-	public void setMapName(String name) {
-		Map_name = name;
-	}
-
 	public void setTimeBefore(int time) {
 		Time_Before = time;
 	}
 
+	public int getTimeAfter() {
+		return Time_After;
+	}
+
 	public void setTimeAfter(int time) {
 		Time_After = time;
+	}
+
+	public Location getSpawn() {
+		return spawn;
 	}
 
 	public void setSpawn(Location s) {
@@ -989,6 +990,63 @@ public class Arena implements GameArena {
 			return 0;
 
 		return this.CountDown.time;
+	}
+
+	public Color getColor(int i) {
+		Color c = null;
+		if (i == 1) {
+			c = Color.AQUA;
+		}
+		if (i == 2) {
+			c = Color.BLACK;
+		}
+		if (i == 3) {
+			c = Color.BLUE;
+		}
+		if (i == 4) {
+			c = Color.FUCHSIA;
+		}
+		if (i == 5) {
+			c = Color.GRAY;
+		}
+		if (i == 6) {
+			c = Color.GREEN;
+		}
+		if (i == 7) {
+			c = Color.LIME;
+		}
+		if (i == 8) {
+			c = Color.MAROON;
+		}
+		if (i == 9) {
+			c = Color.NAVY;
+		}
+		if (i == 10) {
+			c = Color.OLIVE;
+		}
+		if (i == 11) {
+			c = Color.ORANGE;
+		}
+		if (i == 12) {
+			c = Color.PURPLE;
+		}
+		if (i == 13) {
+			c = Color.RED;
+		}
+		if (i == 14) {
+			c = Color.SILVER;
+		}
+		if (i == 15) {
+			c = Color.TEAL;
+		}
+		if (i == 16) {
+			c = Color.WHITE;
+		}
+		if (i == 17) {
+			c = Color.YELLOW;
+		}
+
+		return c;
 	}
 
 	public class Starter implements Runnable {
@@ -1051,62 +1109,5 @@ public class Arena implements GameArena {
 			time--;
 		}
 
-	}
-
-	public Color getColor(int i) {
-		Color c = null;
-		if (i == 1) {
-			c = Color.AQUA;
-		}
-		if (i == 2) {
-			c = Color.BLACK;
-		}
-		if (i == 3) {
-			c = Color.BLUE;
-		}
-		if (i == 4) {
-			c = Color.FUCHSIA;
-		}
-		if (i == 5) {
-			c = Color.GRAY;
-		}
-		if (i == 6) {
-			c = Color.GREEN;
-		}
-		if (i == 7) {
-			c = Color.LIME;
-		}
-		if (i == 8) {
-			c = Color.MAROON;
-		}
-		if (i == 9) {
-			c = Color.NAVY;
-		}
-		if (i == 10) {
-			c = Color.OLIVE;
-		}
-		if (i == 11) {
-			c = Color.ORANGE;
-		}
-		if (i == 12) {
-			c = Color.PURPLE;
-		}
-		if (i == 13) {
-			c = Color.RED;
-		}
-		if (i == 14) {
-			c = Color.SILVER;
-		}
-		if (i == 15) {
-			c = Color.TEAL;
-		}
-		if (i == 16) {
-			c = Color.WHITE;
-		}
-		if (i == 17) {
-			c = Color.YELLOW;
-		}
-
-		return c;
 	}
 }

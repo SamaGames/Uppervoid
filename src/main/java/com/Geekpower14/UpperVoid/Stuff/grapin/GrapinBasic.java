@@ -87,7 +87,7 @@ public class GrapinBasic extends TItem {
         double px, py, pz;
         // Adapter au format joueur
         Vector progress = loc.getDirection().normalize().clone().multiply(0.70);
-        int maxRange = 50;
+        int maxRange = 80;
         maxRange = (100 * maxRange / 70);
         int loop = 0;
         Location fin = null;
@@ -110,6 +110,7 @@ public class GrapinBasic extends TItem {
         {
             ap.giveStuff();
             p.sendMessage(ChatColor.RED + "Vous n'arrivez pas à vous accrocher !");
+            hook.remove();
             return;
         }
 
@@ -124,6 +125,7 @@ public class GrapinBasic extends TItem {
                 e.printStackTrace();
             }
         }
+        hook.remove();
         p.getWorld().playSound(fin, Sound.FIREWORK_LAUNCH, 1.F, 0.01F);
         p.teleport(fin);
         p.setVelocity(new Vector(0, 0.5, 0));

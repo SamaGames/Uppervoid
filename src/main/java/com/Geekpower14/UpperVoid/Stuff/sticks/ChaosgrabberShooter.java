@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 public class ChaosgrabberShooter extends ShooterBasic{
     public ChaosgrabberShooter() {
         super("chaosgrabber", ChatColor.BLUE + "Chaosgrabber" + ChatColor.GRAY
-                + "(Clique-Droit)", true, 1, secondToTick(1.5));
+                + "(Clique-Droit)", true, 1, secondToTick(1.7));
     }
 
     public ItemStack getItem() {

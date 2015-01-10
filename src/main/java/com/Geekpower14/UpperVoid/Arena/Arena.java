@@ -86,6 +86,7 @@ public class Arena implements GameArena {
 		this.name = name;
 
 		blockManager = new BlockManager(pl);
+		blockManager.setActive(false);
 
 		loadConfig();
 
@@ -377,6 +378,14 @@ public class Arena implements GameArena {
 					}
 
 				}, time * 20L, 20L);
+		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+			@Override
+			public void run() {
+				for (APlayer ap : players) {
+					ap.updateLastChangeBlock();
+				}
+			}
+		},(time * 20L)-1);
 
 		/*
 		 * coinsGiver = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin,
@@ -605,8 +614,6 @@ public class Arena implements GameArena {
 		APlayer ap = getAplayer(p);
 		ap.setRole(Role.Spectator);
 
-		updateScorebords();
-
 		if (eta == Status.InGame) {
 			broadcast(p, ChatColor.YELLOW + "Tu as perdu !");
 			int nb = this.getActualPlayers();
@@ -639,6 +646,13 @@ public class Arena implements GameArena {
 
 		if (this.getActualPlayers() <= 1 && eta == Status.InGame) {
 			win(getWin(p));
+		}
+
+		try{
+			updateScorebords();
+		}catch(Exception e)
+		{
+
 		}
 
 		cleaner(p);
@@ -1093,6 +1107,12 @@ public class Arena implements GameArena {
 				arena.broadcast(ChatColor.YELLOW + "Le jeu va démarrer dans "
 						+ time + " secondes.");
 				arena.playsound(Sound.NOTE_PLING, 0.6F, 50F);
+			}
+
+			if(time == 1)
+			{
+				arena.setStatus(Status.InGame);
+				refresh();
 			}
 
 			if (time == 0) {

@@ -1,11 +1,10 @@
 package com.Geekpower14.UpperVoid.Block;
 
+import com.Geekpower14.UpperVoid.UpperVoid;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-
-import com.Geekpower14.UpperVoid.UpperVoid;
 
 public class BlockGroup {
 
@@ -71,11 +70,11 @@ public class BlockGroup {
 
 		if (Block_1.equals(block)) {
 			Block_2.setSame(block);
-			return false;
+			return true;
 		}
 		if (Block_2.equals(block)) {
 			Block_3.setSame(block);
-			return false;
+			return true;
 		}
 		if (Block_3.equals(block)) {
 			void_.setSame(block);

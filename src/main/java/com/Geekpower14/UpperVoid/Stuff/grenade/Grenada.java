@@ -5,8 +5,6 @@ import com.Geekpower14.UpperVoid.Arena.Arena;
 import com.Geekpower14.UpperVoid.Stuff.TItem;
 import com.Geekpower14.UpperVoid.UpperVoid;
 import com.Geekpower14.UpperVoid.Utils.ParticleEffects;
-import com.Geekpower14.UpperVoid.Utils.StatsNames;
-import net.zyuiop.statsapi.StatsApi;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -174,7 +172,7 @@ public class Grenada extends TItem {
 		p.getInventory().setItemInHand(it);
 
 		StatsApi.increaseStat(p.getUniqueId(), StatsNames.GAME_NAME,
-				StatsNames.Grenade, 1);*/
+				StatsNames.grenade, 1);*/
 	}
 
 	public void onItemTouchGround(Arena arena, Item item) {

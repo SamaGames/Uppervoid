@@ -31,6 +31,7 @@ public class PlayerListener implements Listener {
 
 	public PlayerListener(UpperVoid pl) {
 		plugin = pl;
+
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -45,7 +46,7 @@ public class PlayerListener implements Listener {
         if(!event.isCancelled())
         {
             Player p = Bukkit.getPlayer(event.getPlayer());
-            Arena arena = plugin.arenaManager.getArenaByUUID(event.getTargetArena().getUUID());
+            Arena arena = plugin.arenaManager.getArena();
 
             if (arena == null)
             {
@@ -114,10 +115,14 @@ public class PlayerListener implements Listener {
 
 		event.setCancelled(true);
 
-		if (hand != null && hand.getType() == Material.WOOD_DOOR) {
-			// arena.leaveArena(player);
+		if(hand != null
+				&& hand.getType() == Material.WOOD_DOOR
+				&& (action == Action.LEFT_CLICK_AIR
+				|| action == Action.LEFT_CLICK_BLOCK
+				|| action == Action.RIGHT_CLICK_AIR
+				|| action == Action.RIGHT_CLICK_BLOCK))
 			arena.kickPlayer(player);
-		}
+
 
 		if (arena.eta != Status.InGame)
 			return;
@@ -183,6 +188,9 @@ public class PlayerListener implements Listener {
 	public void onPlayerMove(PlayerMoveEvent event) {
 		final Player p = event.getPlayer();
 
+		if(event.getFrom().getBlock().equals(event.getTo().getBlock()))
+			return;
+
 		Arena arena = plugin.arenaManager.getArenabyPlayer(p);
 
 		if (arena == null)
@@ -232,20 +240,23 @@ public class PlayerListener implements Listener {
 		// For players.
 
 		if (!ap.isOnSameBlock()) {
-			onPlayerChangePos(arena, p);
+			onPlayerChangePos(arena, ap);
 		}
 
 		return;
 	}
 
-	public void onPlayerChangePos(final Arena arena, final Player p) {
+	public void onPlayerChangePos(final Arena arena, final APlayer p) {
 		final Block b = p.getLocation().getBlock().getRelative(BlockFace.DOWN);
 
 		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 
 			@Override
 			public void run() {
-				arena.getBM().addDamage(b);
+				if(arena.getBM().addDamage(b))
+				{
+					p.updateLastChangeBlock();
+				}
 			}
 		}, 5L);
 	}
@@ -253,12 +264,6 @@ public class PlayerListener implements Listener {
 	@EventHandler
 	public void onPlayerFish(PlayerFishEvent event)
 	{
-		Player p = event.getPlayer();
-
-		Arena arena = plugin.arenaManager.getArenabyPlayer(p);
-
-		if (arena == null)
-			return;
 		event.setCancelled(true);
 	}
 

@@ -87,7 +87,7 @@ public class APlayer {
 				String data = FastJedis.get(key_shooter);
 				stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName(data));
 
-				//Grenade
+				//grenade
 				data = FastJedis.get(key_grenade);
 				if (data != null) {
 					String[] dj = data.split("-");
@@ -117,8 +117,7 @@ public class APlayer {
 						stuff.put(ItemSLot.Slot3, grapin);
 					}
 				} else {
-					Grapin grapin = (Grapin) plugin.itemManager
-							.getItemByName("grapin");
+					Grapin grapin = (Grapin) plugin.itemManager.getItemByName("grapin");
 					grapin.setOrigin_Number(1);
 					grapin.setNB(1);
 					stuff.put(ItemSLot.Slot3, grapin);
@@ -167,9 +166,9 @@ public class APlayer {
 
 	@SuppressWarnings("deprecation")
 	public void updateScoreboard() {
-		bar.getScore(Bukkit.getOfflinePlayer(ChatColor.GOLD + "Coins:"))
+		bar.getScore(ChatColor.GOLD + "Coins:")
 				.setScore(coins);
-		bar.getScore(Bukkit.getOfflinePlayer(ChatColor.GOLD + "Player:"))
+		bar.getScore(ChatColor.GOLD + "Player:")
 				.setScore(arena.getActualPlayers());
 		// bar.getScore(Bukkit.getOfflinePlayer(ChatColor.GOLD +
 		// "DoubleJump:")).setScore(DoubleJump);
@@ -297,10 +296,23 @@ public class APlayer {
 		p.setLevel(xp);
 	}
 
+	public void updateLastChangeBlock()
+	{
+		this.lastChangeBlock = System.currentTimeMillis();
+	}
+
 	public void checkAntiAFK() {
 		long time = System.currentTimeMillis();
 
-		if (time - lastChangeBlock > 900) {
+		if(!arena.getBM().isActive())
+		{
+			updateLastChangeBlock();
+			return;
+		}
+
+		long duration = time - lastChangeBlock;
+
+		if (duration > 900) {
 			Location loc = p.getLocation();
 
 			double X = loc.getX();
@@ -310,8 +322,17 @@ public class APlayer {
 			Location b = getPlayerStandOnBlockLocation(new Location(
 					loc.getWorld(), X, Y, Z));
 
-			arena.getBM().addDamage(b.getBlock());
+			if(arena.getBM().addDamage(b.getBlock()))
+			{
+				updateLastChangeBlock();
+				return;
+			}
 		}
+
+		if (duration > 1000 * 5L) {
+			arena.kickPlayer(p, ChatColor.RED + "Vous avez été kick pour inactivité.");
+		}
+
 	}
 
 	private Location getPlayerStandOnBlockLocation(Location locationUnderPlayer) {
@@ -357,7 +378,6 @@ public class APlayer {
 
 		if (result == false) {
 			lastLoc = loc;
-			lastChangeBlock = System.currentTimeMillis();
 		}
 
 		return result;

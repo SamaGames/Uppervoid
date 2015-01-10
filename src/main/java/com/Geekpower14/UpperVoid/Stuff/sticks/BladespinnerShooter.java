@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 public class BladespinnerShooter extends ShooterBasic{
     public BladespinnerShooter() {
         super("bladespinner", ChatColor.GOLD + "Bladespinner" + ChatColor.GRAY
-                + "(Clique-Droit)", true, 1, secondToTick(1.7));
+                + "(Clique-Droit)", true, 1, secondToTick(1.5));
     }
 
     public ItemStack getItem() {

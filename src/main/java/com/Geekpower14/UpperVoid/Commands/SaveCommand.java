@@ -1,10 +1,9 @@
 package com.Geekpower14.UpperVoid.Commands;
 
+import com.Geekpower14.UpperVoid.Arena.Arena;
+import com.Geekpower14.UpperVoid.UpperVoid;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-
-import com.Geekpower14.UpperVoid.UpperVoid;
-import com.Geekpower14.UpperVoid.Arena.Arena;
 
 public class SaveCommand implements BasicCommand {
 
@@ -20,7 +19,7 @@ public class SaveCommand implements BasicCommand {
 		if (UpperVoid.hasPermission(player, this.getPermission())) {
 			Arena arena = null;
 			if (plugin.arenaManager.exist(args[0])) {
-				arena = plugin.arenaManager.getArena(args[0]);
+				arena = plugin.arenaManager.getArena();
 			}
 			if (arena == null) {
 				player.sendMessage(ChatColor.RED

@@ -1,15 +1,14 @@
 package com.Geekpower14.UpperVoid.Stuff;
 
-import net.minecraft.server.v1_7_R4.NBTTagCompound;
-import net.minecraft.server.v1_7_R4.NBTTagList;
-import org.bukkit.craftbukkit.v1_7_R4.inventory.CraftItemStack;
+import com.Geekpower14.UpperVoid.Arena.APlayer;
+import com.Geekpower14.UpperVoid.Arena.Arena;
+import com.Geekpower14.UpperVoid.UpperVoid;
+import net.minecraft.server.v1_8_R1.NBTTagCompound;
+import net.minecraft.server.v1_8_R1.NBTTagList;
+import org.bukkit.craftbukkit.v1_8_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
-import com.Geekpower14.UpperVoid.UpperVoid;
-import com.Geekpower14.UpperVoid.Arena.APlayer;
-import com.Geekpower14.UpperVoid.Arena.Arena;
 
 import java.util.Arrays;
 
@@ -20,16 +19,10 @@ public abstract class TItem implements Cloneable {
 	public String name = "Unknown";
 
 	public String alias = "";
-
-    protected boolean isGlow = false;
-
 	public String givePerm = "quake.admin";
-
 	public long reloadTime;
-
 	public int nb = 1;
-
-	public abstract ItemStack getItem();
+    protected boolean isGlow = false;
 
 	public TItem(String name, String display, boolean glow, int nb, long l) {
 		this.name = name;
@@ -41,6 +34,42 @@ public abstract class TItem implements Cloneable {
 
 		plugin = UpperVoid.getPlugin();
 	}
+
+	public static ItemStack setItemNameAndLore(ItemStack item, String name, String[] lore, boolean glow)
+	{
+		ItemMeta im = item.getItemMeta();
+		if (im == null)
+			return item;
+		if (name != "")
+			im.setDisplayName(name);
+		if (lore != null)
+			im.setLore(Arrays.asList(lore));
+		item.setItemMeta(im);
+		if(glow)
+			item = addGlow(item);
+		return item;
+	}
+
+    public static ItemStack addGlow(ItemStack item){
+        net.minecraft.server.v1_8_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
+        NBTTagCompound tag = null;
+        if (!nmsStack.hasTag()) {
+            tag = new NBTTagCompound();
+            nmsStack.setTag(tag);
+        }
+        if (tag == null) tag = nmsStack.getTag();
+        NBTTagList ench = new NBTTagList();
+        tag.set("ench", ench);
+        nmsStack.setTag(tag);
+        return CraftItemStack.asCraftMirror(nmsStack);
+    }
+
+	public static long secondToTick(double second)
+	{
+		return (long) (second * 20);
+	}
+
+	public abstract ItemStack getItem();
 
 	public String getName() {
 		return name;
@@ -84,35 +113,6 @@ public abstract class TItem implements Cloneable {
 		return true;
 	}
 
-	public static ItemStack setItemNameAndLore(ItemStack item, String name, String[] lore, boolean glow)
-	{
-		ItemMeta im = item.getItemMeta();
-		if (im == null)
-			return item;
-		if (name != "")
-			im.setDisplayName(name);
-		if (lore != null)
-			im.setLore(Arrays.asList(lore));
-		item.setItemMeta(im);
-		if(glow)
-			item = addGlow(item);
-		return item;
-	}
-
-    public static ItemStack addGlow(ItemStack item){
-        net.minecraft.server.v1_7_R4.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
-        NBTTagCompound tag = null;
-        if (!nmsStack.hasTag()) {
-            tag = new NBTTagCompound();
-            nmsStack.setTag(tag);
-        }
-        if (tag == null) tag = nmsStack.getTag();
-        NBTTagList ench = new NBTTagList();
-        tag.set("ench", ench);
-        nmsStack.setTag(tag);
-        return CraftItemStack.asCraftMirror(nmsStack);
-    }
-
 	public Object clone() {
 		Object o = null;
 		try {
@@ -134,11 +134,6 @@ public abstract class TItem implements Cloneable {
 
 	public void setNB(int nb) {
 		this.nb = nb;
-	}
-
-	public static long secondToTick(double second)
-	{
-		return (long) (second * 20);
 	}
 
 	public abstract void rightAction(APlayer ap, APlayer.ItemSLot slot);

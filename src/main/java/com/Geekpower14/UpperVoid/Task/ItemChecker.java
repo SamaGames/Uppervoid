@@ -49,10 +49,7 @@ public class ItemChecker implements Runnable {
 			}
 		}
 
-        for(Stock s : toremove)
-        {
-            items.remove(s);
-        }
+		toremove.forEach(items::remove);
 	}
 
 	public void removeItem(Arena arena, Player p, Item item) {
@@ -77,23 +74,16 @@ public class ItemChecker implements Runnable {
 
 			if (s.getItem().isOnGround()) {
 				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin,
-						new Runnable() {
-							@Override
-							public void run() {
-
-								// check(s.getArena(), s.getPlayer(),
-								// s.getItem(), s.getItem().getLocation());
-								check(s);
-							}
-						});
+						() -> {
+                            // check(s.getArena(), s.getPlayer(),
+                            // s.getItem(), s.getItem().getLocation());
+                            check(s);
+                        });
 
 			}
 		}
 
-        for(Stock s : tmp)
-        {
-            items.remove(s);
-        }
+		tmp.forEach(items::remove);
 	}
 
 	public void check(Stock s) {
@@ -122,36 +112,36 @@ public class ItemChecker implements Runnable {
 			this.ti = ti;
 		}
 
-		public void setArena(Arena arena) {
-			this.arena = arena;
-		}
-
-		public void setPlayer(Player p) {
-			this.p = p;
-		}
-
-		public void setItem(Item item) {
-			this.item = item;
+		public TItem getTItem() {
+			return ti;
 		}
 
 		public void setTItem(TItem item) {
 			this.ti = item;
 		}
 
-		public TItem getTItem() {
-			return ti;
-		}
-
 		public Arena getArena() {
 			return arena;
+		}
+
+		public void setArena(Arena arena) {
+			this.arena = arena;
 		}
 
 		public Player getPlayer() {
 			return p;
 		}
 
+		public void setPlayer(Player p) {
+			this.p = p;
+		}
+
 		public Item getItem() {
 			return item;
+		}
+
+		public void setItem(Item item) {
+			this.item = item;
 		}
 	}
 

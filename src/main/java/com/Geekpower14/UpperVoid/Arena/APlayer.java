@@ -40,7 +40,7 @@ public class APlayer {
 
 	private long lastChangeBlock = System.currentTimeMillis();
 
-	private HashMap<ItemSLot, TItem> stuff = new HashMap<ItemSLot, TItem>();
+	private HashMap<ItemSLot, TItem> stuff = new HashMap<>();
 
 	public APlayer(UpperVoid pl, Arena arena, Player p) {
 		plugin = pl;
@@ -83,13 +83,19 @@ public class APlayer {
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
 			@Override
 			public void run() {
-				//Shooter
-				String data = FastJedis.get(key_shooter);
-				stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName(data));
 
-				//grenade
-				data = FastJedis.get(key_grenade);
-				if (data != null) {
+				try {
+					//Shooter
+					String data = FastJedis.get(key_shooter);
+					stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName(data));
+				} catch (Exception e) {
+					e.printStackTrace();
+					stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName("shooter"));
+				}
+
+				try {
+					//grenade
+					String data = FastJedis.get(key_grenade);
 					String[] dj = data.split("-");
 					if (dj[0].equals("grenade")) {
 						final int add = Integer.parseInt(dj[1]);
@@ -97,16 +103,20 @@ public class APlayer {
 						grenade.setNB(1 + add);
 						stuff.put(ItemSLot.Slot2, grenade);
 					}
-				} else {
+				} catch (Exception e) {
+					e.printStackTrace();
+
 					Grenada grenade = (Grenada) plugin.itemManager
 							.getItemByName("grenada");
 
 					grenade.setNB(1);
 					stuff.put(ItemSLot.Slot2, grenade);
 				}
-				//Grapin
-				data = FastJedis.get(key_grapin);
-				if (data != null) {
+
+				try {
+					//Grapin
+					String data = FastJedis.get(key_grapin);
+
 					String[] dj = data.split("-");
 					if (dj[0].equals("grapin")) {
 						final int add = Integer.parseInt(dj[1]);
@@ -116,13 +126,15 @@ public class APlayer {
 						grapin.setNB(1 + add);
 						stuff.put(ItemSLot.Slot3, grapin);
 					}
-				} else {
+				} catch (Exception e)
+				{
+					e.printStackTrace();
+
 					Grapin grapin = (Grapin) plugin.itemManager.getItemByName("grapin");
 					grapin.setOrigin_Number(1);
 					grapin.setNB(1);
 					stuff.put(ItemSLot.Slot3, grapin);
 				}
-
 			}
 		});
 	}
@@ -238,6 +250,13 @@ public class APlayer {
 		return p;
 	}
 
+	public boolean isOnline()
+	{
+		if(p == null)
+			return false;
+		return p.isOnline();
+	}
+
 	public String getName() {
 		return p.getName();
 	}
@@ -329,7 +348,7 @@ public class APlayer {
 			}
 		}
 
-		if (duration > 1000 * 5L) {
+		if (duration > 1000 * 7L) {
 			arena.kickPlayer(p, ChatColor.RED + "Vous avez été kick pour inactivité.");
 		}
 

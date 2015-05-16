@@ -11,7 +11,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -84,7 +83,7 @@ public class ShooterBasic extends TItem {
 	public void onItemTouchGround(Arena arena, Item item) {
 		Location center = item.getLocation();
 
-		Block real = center.getBlock().getRelative(BlockFace.DOWN);
+		Block real = center.add(0,-0.5,0).getBlock();
 
 		World w = center.getWorld();
 
@@ -92,8 +91,13 @@ public class ShooterBasic extends TItem {
 		List<Block> damage_2 = new ArrayList<Block>();
 		List<Block> damage_3 = new ArrayList<Block>();
 
-		String[] schema = new String[] { "01110", "12221", "12321", "12221",
-				"01110" };
+		String[] schema = new String[] {
+				"01110",
+				"12221",
+				"12321",
+				"12221",
+				"01110"
+		};
 		int middle = (schema.length - 1) / 2;
 
 		int ref_x = real.getX() - middle;

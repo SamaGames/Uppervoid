@@ -111,7 +111,7 @@ public class PlayerListener implements Listener {
 		if (arena == null) {
 			return;
 		}
-		APlayer ap = arena.getAplayer(player);
+		APlayer ap = arena.getAPlayer(player);
 
 		event.setCancelled(true);
 
@@ -152,12 +152,13 @@ public class PlayerListener implements Listener {
 				return;
 
 			//Si pas commencé
-			if (arena.eta.isLobby()) {
+			if (!arena.eta.equals(Status.InGame)
+					&& !arena.eta.equals(Status.Stopping)) {
 				p.teleport(arena.getSpawn());
 				return;
 			}
 
-			APlayer ap = arena.getAplayer(p);
+			APlayer ap = arena.getAPlayer(p);
 
 			//Si Spectateur
 			if (ap.getRole() == Role.Spectator) {
@@ -196,7 +197,7 @@ public class PlayerListener implements Listener {
 		if (arena == null)
 			return;
 
-		APlayer ap = arena.getAplayer(p);
+		APlayer ap = arena.getAPlayer(p);
 
 		if (arena.eta != Status.InGame)
 			return;
@@ -249,16 +250,12 @@ public class PlayerListener implements Listener {
 	public void onPlayerChangePos(final Arena arena, final APlayer p) {
 		final Block b = p.getLocation().getBlock().getRelative(BlockFace.DOWN);
 
-		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-
-			@Override
-			public void run() {
-				if(arena.getBM().addDamage(b))
-				{
-					p.updateLastChangeBlock();
-				}
-			}
-		}, 5L);
+		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            if(arena.getBM().addDamage(b))
+            {
+                p.updateLastChangeBlock();
+            }
+        }, 5L);
 	}
 
 	@EventHandler
@@ -276,7 +273,7 @@ public class PlayerListener implements Listener {
 		if (arena == null)
 			return;
 
-		APlayer ap = arena.getAplayer(p);
+		APlayer ap = arena.getAPlayer(p);
 
 		if (arena.eta != Status.InGame)
 			return;

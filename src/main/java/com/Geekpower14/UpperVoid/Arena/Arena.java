@@ -23,6 +23,7 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
 
 import java.io.ByteArrayOutputStream;
@@ -60,15 +61,15 @@ public class Arena implements GameArena {
 
 	public Status eta = Status.Idle;
 
-	public List<APlayer> players = new ArrayList<APlayer>();
+	public List<APlayer> players = new ArrayList<>();
 
-	public List<UUID> waitPlayers = new ArrayList<UUID>();
+	public List<UUID> waitPlayers = new ArrayList<>();
 
 	private Starter CountDown = null;
 
 	private BlockManager blockManager;
 
-	private int anticheat;
+	private BukkitTask anticheat;
 
 	//private CoinsGiver coinsGiver;
 
@@ -112,10 +113,7 @@ public class Arena implements GameArena {
 
 		try {
 			player.updateInventory();
-		} catch (Exception e) {/* LOL */
-		}
-
-		return;
+		} catch (Exception e) {/* LOL */}
 	}
 
 	private void loadConfig() {
@@ -264,7 +262,7 @@ public class Arena implements GameArena {
 		APlayer ap = new APlayer(plugin, this, p);
 		players.add(ap);
 
-		this.broadcast(ChatColor.YELLOW + ap.getName() + " a rejoint l'arène "
+		this.globalTaguedBroadcast(ChatColor.YELLOW + ap.getName() + " a rejoint l'arène "
 				+ ChatColor.DARK_GRAY + "[" + ChatColor.RED + players.size()
 				+ ChatColor.DARK_GRAY + "/" + ChatColor.RED + maxPlayer
 				+ ChatColor.DARK_GRAY + "]");
@@ -287,13 +285,11 @@ public class Arena implements GameArena {
 	 */
 
 	public void leaveArena(Player p) {
-		APlayer ap = getAplayer(p);
+		APlayer ap = getAPlayer(p);
 
 		leaveCleaner(p);
 
-		for (Player pp : UpperVoid.getOnline()) {
-			p.showPlayer(pp);
-		}
+		UpperVoid.getOnline().forEach(p::showPlayer);
 
 		ap.removeScoreboard();
 
@@ -307,34 +303,20 @@ public class Arena implements GameArena {
 
 		updateScorebords();
 
-		if (getActualPlayers() <= 1 && eta == Status.InGame) {
-			if (players.size() >= 1) {
-
-				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin,
-						new Runnable() {
-							@Override
-							public void run() {
-								win(players.get(0).getP());
-							}
-						}, 1L);
-			} else {
-				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin,
-						new Runnable() {
-							@Override
-							public void run() {
-								stop();
-							}
-						}, 1L);
-			}
-		}
-
 		if (players.size() < getMinPlayers() && eta == Status.Starting) {
 			resetCountdown();
 		}
 
-        refresh();
+		refresh();
 
-		return;
+		if (getActualPlayers() <= 1 && eta == Status.InGame) {
+			if (players.size() >= 1) {
+
+				win();
+			} else {
+				stop();
+			}
+		}
 	}
 
 	public void start() {
@@ -347,7 +329,7 @@ public class Arena implements GameArena {
 			ap.setScoreboard();
 
 			cleaner(p);
-			tp(p);
+			teleport(p);
 
 			ap.giveStuff();
 
@@ -359,33 +341,16 @@ public class Arena implements GameArena {
 
 		int time = 5;// TICKS
 		blockManager.setActive(false);
-		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-			@Override
-			public void run() {
-				blockManager.setActive(true);
-			}
-		}, time * 20L);
+		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> blockManager.setActive(true), time * 20L);
 
-		anticheat = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin,
-				new Runnable() {
-
-					@Override
-					public void run() {
-						for (APlayer ap : players) {
-							if (ap.getRole() == Role.Player)
-								ap.checkAntiAFK();
-						}
-					}
-
+		anticheat = Bukkit.getScheduler().runTaskTimer(plugin,
+				() -> {
+					players.stream().filter(ap -> ap.getRole() == Role.Player).forEach(com.Geekpower14.UpperVoid.Arena.APlayer::checkAntiAFK);
 				}, time * 20L, 20L);
-		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-			@Override
-			public void run() {
-				for (APlayer ap : players) {
-					ap.updateLastChangeBlock();
-				}
-			}
-		},(time * 20L)-1);
+
+		Bukkit.getScheduler().runTaskLater(plugin, () -> {
+			players.forEach(com.Geekpower14.UpperVoid.Arena.APlayer::updateLastChangeBlock);
+		}, (time * 20L) - 1);
 
 		/*
 		 * coinsGiver = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin,
@@ -416,34 +381,23 @@ public class Arena implements GameArena {
 		blockManager.setActive(false);
 
 		/*
-		 * TO/DO: Stopper l'ar�ne.
+		 * TO/DO: Stopper l'arène.
 		 */
 
-		/*
-		 * List<Player> tokick = new ArrayList<Player>(); for(int i =
-		 * players.size()-1; i >= 0; i--) { APlayer ap = players.get(i); Player
-		 * p = ap.getP(); tokick.add(p); }
-		 *
-		 * for(Player p : tokick) { //leaveArena(p); kickPlayer(p); }
-		 */
-		for (Player p : UpperVoid.getOnline())
-			kickPlayer(p);
+		UpperVoid.getOnline().forEach(this::kickPlayer);
 
 		// blockManager.restore();
 
 		reset();
 
 		if (plugin.isEnabled()) {
-			Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-				@Override
-				public void run() {
-					Bukkit.getLogger().info(">>>>> RESTARTING <<<<<");
-					Bukkit.getLogger().info("server will reboot now");
-					Bukkit.getLogger().info(">>>>> RESTARTING <<<<<");
-					Bukkit.getServer().shutdown();
+			Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                Bukkit.getLogger().info(">>>>> RESTARTING <<<<<");
+                Bukkit.getLogger().info("server will reboot now");
+                Bukkit.getLogger().info(">>>>> RESTARTING <<<<<");
+                Bukkit.getServer().shutdown();
 
-				}
-			}, 5 * 20L);
+            }, 5 * 20L);
 		}
 	}
 
@@ -461,7 +415,6 @@ public class Arena implements GameArena {
 
 	public void disable() {
 		stop();
-		return;
 	}
 
 	public void kickPlayer(Player p) {
@@ -491,82 +444,23 @@ public class Arena implements GameArena {
 
 	}
 
-	public void win(final Player p) {
+	public void win() {
 		eta = Status.Stopping;
         refresh();
 
+		Player p = getWinner();
+
 		if (p != null) {
-			final int nb = (int) (Time_After * 1.5);
 
-			final int infoxp = Bukkit.getScheduler().scheduleSyncRepeatingTask(
-					this.plugin, new Runnable() {
-						int compteur = 0;
+			final BukkitTask task = generateFirework((int) (Time_After * 1.5), p);
 
-						public void run() {
+			Bukkit.getScheduler().runTaskLater(plugin,() -> {
+                        task.cancel();
+                        stop();
+                    }, (Time_After * 20));
 
-							if (compteur >= nb) {
-								return;
-							}
-
-							// Spawn the Firework, get the FireworkMeta.
-							Firework fw = (Firework) p.getWorld().spawnEntity(
-									p.getLocation(), EntityType.FIREWORK);
-							FireworkMeta fwm = fw.getFireworkMeta();
-
-							// Our random generator
-							Random r = new Random();
-
-							// Get the type
-							int rt = r.nextInt(4) + 1;
-							Type type = Type.BALL;
-							if (rt == 1)
-								type = Type.BALL;
-							if (rt == 2)
-								type = Type.BALL_LARGE;
-							if (rt == 3)
-								type = Type.BURST;
-							if (rt == 4)
-								type = Type.CREEPER;
-							if (rt == 5)
-								type = Type.STAR;
-
-							// Get our random colours
-							int r1i = r.nextInt(17) + 1;
-							int r2i = r.nextInt(17) + 1;
-							Color c1 = getColor(r1i);
-							Color c2 = getColor(r2i);
-
-							// Create our effect with this
-							FireworkEffect effect = FireworkEffect.builder()
-									.flicker(r.nextBoolean()).withColor(c1)
-									.withFade(c2).with(type).trail(r.nextBoolean())
-									.build();
-
-							// Then apply the effect to the meta
-							fwm.addEffect(effect);
-
-							// Generate some random power and set it
-							int rp = r.nextInt(2) + 1;
-							fwm.setPower(rp);
-
-							// Then apply this to our rocket
-							fw.setFireworkMeta(fwm);
-
-							compteur++;
-
-						}
-					}, 5L, 5L);
-
-			Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin,
-					new Runnable() {
-						public void run() {
-							plugin.getServer().getScheduler().cancelTask(infoxp);
-							stop();
-						}
-					}, (Time_After * 20));
-
-			APlayer ap = getAplayer(p);
-			this.broadcast(ChatColor.AQUA + p.getDisplayName()
+			APlayer ap = getAPlayer(p);
+			this.globalTaguedBroadcast(ChatColor.AQUA + p.getDisplayName()
 					+ ChatColor.YELLOW + " a gagné !");
 
 			StarsManager.creditJoueur(ap.getP(), 1, "Premier en Uppervoid !");
@@ -579,7 +473,7 @@ public class Arena implements GameArena {
 			ap.updateScoreboard();
 
 			for (APlayer a : players) {
-				broadcast(a.getP(),
+				localTaguedBroadcast(a.getP(),
 						ChatColor.GOLD + "Tu as gagné " + a.getCoins()
 								+ " coins au total !");
 			}
@@ -588,82 +482,72 @@ public class Arena implements GameArena {
 					StatsNames.VICTOIRES, 1);
 
 		}
-		Bukkit.getScheduler().cancelTask(anticheat);
+		anticheat.cancel();
 
 		blockManager.setActive(false);
-		if (p == null) {
+		if (p == null)
+		{
 			stop();
-			return;
 		}
 	}
 
     public void refresh()
     {
-        final Arena ar = this;
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-            @Override
-            public void run() {
-                GameAPI.getManager().refreshArena(ar);
-            }
-        });
+		final Arena arena = this;
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> GameAPI.getManager().refreshArena(arena));
     }
 
 	@SuppressWarnings("deprecation")
 	public void lose(final Player p) {
 
-		APlayer ap = getAplayer(p);
+		APlayer ap = getAPlayer(p);
 		ap.setRole(Role.Spectator);
 
 		if (eta == Status.InGame) {
-			broadcast(p, ChatColor.YELLOW + "Tu as perdu !");
+			localTaguedBroadcast(p, ChatColor.YELLOW + "Tu as perdu !");
 			int nb = this.getActualPlayers();
-			broadcast(p.getName() + ChatColor.YELLOW + " a perdu ! (" + nb
+			globalTaguedBroadcast(p.getName() + ChatColor.YELLOW + " a perdu ! (" + nb
 					+ " Joueur" + ((nb > 1) ? "s" : "") + " restant"
 					+ ((nb > 1) ? "s" : "") + ")");
 		}
 
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable()
-		{
-			public void run() {
-				for(APlayer pp : getAPlayers())
-				{
-					if(pp.getUUID().equals(p.getUniqueId()))
-						continue;
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            for(APlayer pp : getAPlayers())
+            {
+                if(pp.getUUID().equals(p.getUniqueId()))
+                    continue;
 
-					if(pp.getRole() == Role.Spectator)
-						continue;
+                if(pp.getRole() == Role.Spectator)
+                    continue;
 
-					try{
-						int up = CoinsManager.syncCreditJoueur(pp.getP().getUniqueId(), 3, true, true, "Mort de " + p.getName());
-						pp.setCoins(pp.getCoins() + up);
-					}catch(Exception e)
-					{
-						e.printStackTrace();
-					}
-				}
-			}
-		});
+                try{
+                    int up = CoinsManager.syncCreditJoueur(pp.getP().getUniqueId(), 3, true, true, "Mort de " + p.getName());
+                    pp.setCoins(pp.getCoins() + up);
+                }catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        });
 
 		if (this.getActualPlayers() <= 1 && eta == Status.InGame) {
-			win(getWin(p));
+			win();
 		}
 
 		try{
 			updateScorebords();
-		}catch(Exception e)
-		{
-
-		}
+		}catch(Exception e){}
 
 		cleaner(p);
 		p.teleport(getSpawn());
+
+		p.setGameMode(GameMode.SPECTATOR);
 
 		p.getInventory().setItem(8, this.getLeaveDoor());
 
 		try {
 			p.updateInventory();
-		} catch (Exception e) {/* LOL */
-		}
+		} catch (Exception e) {/* LOL */}
 
 		p.setAllowFlight(true);
 		p.setFlying(true);
@@ -677,12 +561,12 @@ public class Arena implements GameArena {
         refresh();
 	}
 
-	private Player getWin(Player p) {
+	private Player getWinner() {
 		for (APlayer ap : players) {
-			if (ap.getRole() == Role.Spectator || !ap.getP().isOnline())
-				continue;
-
-			return ap.getP();
+			if (ap.getRole().equals(Role.Player) && ap.isOnline())
+			{
+				return ap.getP();
+			}
 		}
 		return null;
 	}
@@ -717,13 +601,13 @@ public class Arena implements GameArena {
 		return lol;
 	}
 
-	public void tp(Player p) {
+	public void teleport(Player p) {
 		if (spawn != null) {
 			p.teleport(spawn);
 		}
 	}
 
-	public APlayer getAplayer(Player p) {
+	public APlayer getAPlayer(Player p) {
 		for (APlayer ap : players) {
 			if (ap.getName().equals(p.getName())) {
 				return ap;
@@ -733,24 +617,18 @@ public class Arena implements GameArena {
 		return null;
 	}
 
-	public void broadcast(String message) {
+	public void globalTaguedBroadcast(String message) {
 		for (APlayer player : players) {
-			broadcast(player.getP(), message);
+			localTaguedBroadcast(player.getP(), message);
 		}
 	}
 
-	public void broadcast(Player p, String message) {
+	public void localTaguedBroadcast(Player p, String message) {
 		p.sendMessage(ChatColor.DARK_AQUA + "[" + ChatColor.AQUA + "UpperVoid"
 				+ ChatColor.DARK_AQUA + "] " + ChatColor.ITALIC + message);
 	}
 
-	public void chat(String message) {
-		for (APlayer player : players) {
-			player.tell(message);
-		}
-	}
-
-	public void nbroadcast(String message) {
+	public void globalBroadcast(String message) {
 		for (APlayer player : players) {
 			player.tell(message);
 		}
@@ -762,7 +640,7 @@ public class Arena implements GameArena {
 		}
 	}
 
-	public void playsound(Sound sound, float a, float b) {
+	public void playSound(Sound sound, float a, float b) {
 		for (APlayer player : players) {
 			player.getP().playSound(player.getP().getLocation(), sound, a, b);
 		}
@@ -815,7 +693,7 @@ public class Arena implements GameArena {
 
 		if (CountDown != null) {
 			CountDown.abord();
-			broadcast(ChatColor.YELLOW + "Compte à rebours remis à zero.");
+			globalTaguedBroadcast(ChatColor.YELLOW + "Compte à rebours remis à zero.");
 		}
 	}
 
@@ -1006,61 +884,90 @@ public class Arena implements GameArena {
 		return this.CountDown.time;
 	}
 
-	public Color getColor(int i) {
-		Color c = null;
-		if (i == 1) {
-			c = Color.AQUA;
-		}
-		if (i == 2) {
-			c = Color.BLACK;
-		}
-		if (i == 3) {
-			c = Color.BLUE;
-		}
-		if (i == 4) {
-			c = Color.FUCHSIA;
-		}
-		if (i == 5) {
-			c = Color.GRAY;
-		}
-		if (i == 6) {
-			c = Color.GREEN;
-		}
-		if (i == 7) {
-			c = Color.LIME;
-		}
-		if (i == 8) {
-			c = Color.MAROON;
-		}
-		if (i == 9) {
-			c = Color.NAVY;
-		}
-		if (i == 10) {
-			c = Color.OLIVE;
-		}
-		if (i == 11) {
-			c = Color.ORANGE;
-		}
-		if (i == 12) {
-			c = Color.PURPLE;
-		}
-		if (i == 13) {
-			c = Color.RED;
-		}
-		if (i == 14) {
-			c = Color.SILVER;
-		}
-		if (i == 15) {
-			c = Color.TEAL;
-		}
-		if (i == 16) {
-			c = Color.WHITE;
-		}
-		if (i == 17) {
-			c = Color.YELLOW;
-		}
+	public BukkitTask generateFirework(final int nb, final Player player)
+	{
+		if(player == null)
+			return null;
 
-		return c;
+		final BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
+					int compteur = 0;
+
+					public void run() {
+
+						if (compteur >= nb) {
+							return;
+						}
+
+						// Spawn the Firework, get the FireworkMeta.
+						Firework fw = (Firework) player.getWorld().spawnEntity(
+								player.getLocation(), EntityType.FIREWORK);
+						FireworkMeta fwm = fw.getFireworkMeta();
+
+						// Our random generator
+						Random r = new Random();
+
+						// Get the type
+						int rt = r.nextInt(4) + 1;
+						Type type = Type.BALL;
+						if (rt == 1)
+							type = Type.BALL;
+						if (rt == 2)
+							type = Type.BALL_LARGE;
+						if (rt == 3)
+							type = Type.BURST;
+						if (rt == 4)
+							type = Type.CREEPER;
+						if (rt == 5)
+							type = Type.STAR;
+
+						// Get our random colours
+						int r1i = r.nextInt(17) + 1;
+						int r2i = r.nextInt(17) + 1;
+						Color c1 = getColor(r1i);
+						Color c2 = getColor(r2i);
+
+						// Create our effect with this
+						FireworkEffect effect = FireworkEffect.builder()
+								.flicker(r.nextBoolean()).withColor(c1)
+								.withFade(c2).with(type).trail(r.nextBoolean())
+								.build();
+
+						// Then apply the effect to the meta
+						fwm.addEffect(effect);
+
+						// Generate some random power and set it
+						int rp = r.nextInt(2) + 1;
+						fwm.setPower(rp);
+
+						// Then apply this to our rocket
+						fw.setFireworkMeta(fwm);
+
+						compteur++;
+
+					}
+				}, 5L, 5L);
+		return task;
+	}
+
+	public Color getColor(int i) {
+		if(i==1) return Color.AQUA;
+		if(i==2) return Color.BLACK;
+		if(i==3) return Color.BLUE;
+		if(i==4) return Color.FUCHSIA;
+		if(i==5) return Color.GRAY;
+		if(i==6) return Color.GREEN;
+		if(i==7) return Color.LIME;
+		if(i==8) return Color.MAROON;
+		if(i==9) return Color.NAVY;
+		if(i==10) return Color.OLIVE;
+		if(i==11) return Color.ORANGE;
+		if(i==12) return Color.PURPLE;
+		if(i==13) return Color.RED;
+		if(i==14) return Color.SILVER;
+		if(i==15) return Color.TEAL;
+		if(i==16) return Color.WHITE;
+		if(i==17) return Color.YELLOW;
+		return null;
 	}
 
 	public class Starter implements Runnable {
@@ -1085,7 +992,7 @@ public class Arena implements GameArena {
 		}
 
 		public void start() {
-			arena.broadcast(ChatColor.YELLOW + "Le jeu va démarrer dans "
+			arena.globalTaguedBroadcast(ChatColor.YELLOW + "Le jeu va démarrer dans "
 					+ Time_Before + " secondes.");
 			arena.broadcastXP(time);
 
@@ -1098,28 +1005,27 @@ public class Arena implements GameArena {
 			arena.broadcastXP(time);
 
 			if (time == 10) {
-				arena.broadcast(ChatColor.YELLOW
+				arena.globalTaguedBroadcast(ChatColor.YELLOW
 						+ "Le jeu va démarrer dans 10 secondes.");
-				arena.playsound(Sound.NOTE_PLING, 0.6F, 50F);
+				arena.playSound(Sound.NOTE_PLING, 0.6F, 50F);
 			}
 
 			if (time <= 5 && time >= 1) {
-				arena.broadcast(ChatColor.YELLOW + "Le jeu va démarrer dans "
+				arena.globalTaguedBroadcast(ChatColor.YELLOW + "Le jeu va démarrer dans "
 						+ time + " secondes.");
-				arena.playsound(Sound.NOTE_PLING, 0.6F, 50F);
+				arena.playSound(Sound.NOTE_PLING, 0.6F, 50F);
 			}
 
 			if(time == 1)
 			{
-				arena.setStatus(Status.InGame);
 				refresh();
 			}
 
 			if (time == 0) {
-				arena.playsound(Sound.NOTE_PLING, 9.0F, 1F);
-				arena.playsound(Sound.NOTE_PLING, 9.0F, 5F);
-				arena.playsound(Sound.NOTE_PLING, 9.0F, 10F);
-				arena.broadcast(ChatColor.YELLOW + "C'est parti !");
+				arena.playSound(Sound.NOTE_PLING, 9.0F, 1F);
+				arena.playSound(Sound.NOTE_PLING, 9.0F, 5F);
+				arena.playSound(Sound.NOTE_PLING, 9.0F, 10F);
+				arena.globalTaguedBroadcast(ChatColor.YELLOW + "C'est parti !");
 				arena.start();
 			}
 

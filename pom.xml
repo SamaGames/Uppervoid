@@ -13,8 +13,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.0</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -23,7 +23,7 @@
 	<repositories>
         <repository>
             <id>zyuiop-repo</id>
-            <url>http://repo.zyuiop.net</url>
+            <url>http://maven.samagames.net/public/</url>
         </repository>
 	</repositories>
 
@@ -38,7 +38,7 @@
 		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot</artifactId>
-			<version>1.8-PHACK-SNAPSHOT</version>
+			<version>1.8-R0.1-SNAPSHOT</version>
 			<type>jar</type>
 			<scope>provided</scope>
 		</dependency>

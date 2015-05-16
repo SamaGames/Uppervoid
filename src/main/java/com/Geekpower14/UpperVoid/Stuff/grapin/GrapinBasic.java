@@ -6,13 +6,13 @@ import com.Geekpower14.UpperVoid.Arena.Arena;
 import com.Geekpower14.UpperVoid.Stuff.TItem;
 import com.Geekpower14.UpperVoid.UpperVoid;
 import com.Geekpower14.UpperVoid.Utils.ParticleEffects;
-import net.minecraft.server.v1_7_R4.EntityFishingHook;
-import net.minecraft.server.v1_7_R4.EntityHuman;
-import net.minecraft.server.v1_7_R4.World;
+import net.minecraft.server.v1_8_R1.EntityFishingHook;
+import net.minecraft.server.v1_8_R1.EntityHuman;
+import net.minecraft.server.v1_8_R1.World;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_7_R4.CraftWorld;
-import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -146,7 +146,7 @@ public class GrapinBasic extends TItem {
 
     public Entity spawnFish(Location location, EntityHuman entityhuman) {
         World world = ((CraftWorld) Bukkit.getWorld("world")).getHandle();
-        net.minecraft.server.v1_7_R4.Entity hook = new EntityFishingHook(world, entityhuman);
+        net.minecraft.server.v1_8_R1.Entity hook = new EntityFishingHook(world, entityhuman);
         world.addEntity(hook);
         return hook.getBukkitEntity();
     }

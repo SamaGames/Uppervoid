@@ -7,7 +7,6 @@ import com.Geekpower14.UpperVoid.UpperVoid;
 import com.Geekpower14.UpperVoid.Utils.ParticleEffects;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -27,7 +26,7 @@ public class Grenada extends TItem {
 
 	@Override
 	public ItemStack getItem() {
-		ItemStack item = new ItemStack(Material.COCOA, this.nb);
+		ItemStack item = new ItemStack(Material.CLAY_BALL, this.nb);
 
 		ItemMeta item_meta = item.getItemMeta();
 
@@ -127,12 +126,7 @@ public class Grenada extends TItem {
                 if(time <= 0)
                 {
                     this.cancel();
-                    Bukkit.getScheduler().runTask(plugin, new Runnable() {
-                        @Override
-                        public void run() {
-                            onItemTouchGround(ap.getArena(), item);
-                        }
-                    });
+                    Bukkit.getScheduler().runTask(plugin, () -> onItemTouchGround(ap.getArena(), item));
                     return;
                 }
 
@@ -178,7 +172,7 @@ public class Grenada extends TItem {
 	public void onItemTouchGround(Arena arena, Item item) {
 		Location center = item.getLocation();
 
-		Block real = center.getBlock().getRelative(BlockFace.DOWN);
+		Block real = center.add(0, -0.5, 0).getBlock();
 
 		World w = center.getWorld();
 

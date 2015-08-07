@@ -49,11 +49,8 @@ public class Arena extends Game<APlayer> {
 
 	public int Time_Before = 20;
 	public int Time_After = 15;
-
-	public Location lobby;
-
 	public List<Location> spawns = new ArrayList<>();
-
+	private Location lobby;
 	/*** Variable dynamiques ***/
 
 	private BlockManager blockManager;
@@ -453,7 +450,7 @@ public class Arena extends Game<APlayer> {
 		ItemMeta coucou_meta = coucou.getItemMeta();
 
 		coucou_meta.setDisplayName(ChatColor.GOLD + "Quitter l'arène "
-				+ ChatColor.GRAY + "(Clique-Droit)");
+                + ChatColor.GRAY + "(Clique-Droit)");
 		coucou.setItemMeta(coucou_meta);
 
 		return coucou;
@@ -596,4 +593,9 @@ public class Arena extends Game<APlayer> {
 		if(i==17) return Color.YELLOW;
 		return null;
 	}
+
+    public Location getLobby()
+    {
+        return lobby;
+    }
 }

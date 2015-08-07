@@ -104,7 +104,7 @@ public class PlayerListener implements Listener {
 			//Si pas commencé
 			if (!arena.getStatus().equals(Status.IN_GAME)
 					&& !arena.getStatus().equals(Status.FINISHED)) {
-				arena.teleportRandomSpawn(p);
+				p.teleport(arena.getLobby());
 				return;
 			}
 

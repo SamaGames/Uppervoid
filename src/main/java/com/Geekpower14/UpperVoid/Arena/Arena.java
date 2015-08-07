@@ -71,7 +71,7 @@ public class Arena extends Game<APlayer> {
 
 		plugin = pl;
 
-		blockManager = new BlockManager(pl);
+		blockManager = new BlockManager(pl, this);
 		blockManager.setActive(false);
 
 		loadConfig();

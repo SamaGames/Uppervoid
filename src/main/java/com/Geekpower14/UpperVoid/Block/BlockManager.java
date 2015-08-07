@@ -1,6 +1,12 @@
 package com.Geekpower14.UpperVoid.Block;
 
+import com.Geekpower14.UpperVoid.Arena.Arena;
 import com.Geekpower14.UpperVoid.UpperVoid;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import net.samagames.api.SamaGamesAPI;
+import net.samagames.api.games.IGameProperties;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -12,15 +18,17 @@ import java.util.List;
 public class BlockManager {
 
 	private UpperVoid plugin;
+	private Arena arena;
 
-	private List<BlockGroup> groups = new ArrayList<BlockGroup>();
+	private List<BlockGroup> groups = new ArrayList<>();
 
-	private List<RestoreBlock> save = new ArrayList<RestoreBlock>();
+	private List<RestoreBlock> save = new ArrayList<>();
 
 	private boolean active = true;
 
-	public BlockManager(UpperVoid pl) {
+	public BlockManager(UpperVoid pl, Arena arena) {
 		plugin = pl;
+		this.arena = arena;
 
 		loadGroups();
 	}
@@ -28,6 +36,21 @@ public class BlockManager {
 	public void loadGroups() {
 		// groups.add(new BlockGroup(plugin, new ABlock(Material.NOTE_BLOCK),
 		// new ABlock(Material.JUKEBOX), new ABlock(Material.WOOD, 1)));
+
+        IGameProperties properties = SamaGamesAPI.get().getGameManager().getGameProperties();
+
+
+        JsonArray spawnDefault = new JsonArray();
+        spawnDefault.add(new JsonPrimitive("GRASS, DIRT:1, DIRT:2, "));
+
+        JsonArray spawns = properties.getOption("Blocks", spawnDefault).getAsJsonArray();
+        for(JsonElement data : spawns)
+        {
+            this.groups.add(new BlockGroup(plugin, data.getAsString()));
+        }
+
+        /*
+
 		groups.add(new BlockGroup(plugin,
 				new ABlock(Material.OBSIDIAN),
 				new ABlock(Material.COAL_BLOCK),
@@ -129,6 +152,7 @@ public class BlockManager {
 				new ABlock(Material.LOG, 13),
 				new ABlock(Material.LOG, 13)
 		));
+        */
 	}
 
 	public BlockGroup getBlockGroup(Block block) {

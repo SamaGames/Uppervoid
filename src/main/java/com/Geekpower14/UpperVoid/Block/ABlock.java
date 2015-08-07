@@ -8,13 +8,23 @@ public class ABlock {
 
 	private Material type;
 
-	private byte Data;
+	private byte Data = 0;
 
 	private World world;
 
 	private int X;
 	private int Y;
 	private int Z;
+
+	public ABlock(String data)
+    {
+        String[] parsed = data.split(":");
+        type = Material.matchMaterial(parsed[0]);
+        if(parsed.length >= 1)
+        {
+            Data = (byte) Integer.valueOf(parsed[1]).intValue();
+        }
+    }
 
 	public ABlock(Material a, int data) {
 		type = a;
@@ -59,36 +69,36 @@ public class ABlock {
 		Z = z;
 	}
 
-	public void setWorld(World w) {
-		world = w;
-	}
-
-	public void setX(int x) {
-		X = x;
-	}
-
-	public void setY(int y) {
-		Y = y;
-	}
-
-	public void setZ(int z) {
-		Z = z;
-	}
-
 	public World getWorld() {
 		return world;
+	}
+
+	public void setWorld(World w) {
+		world = w;
 	}
 
 	public int getX() {
 		return X;
 	}
 
+	public void setX(int x) {
+		X = x;
+	}
+
 	public int getY() {
 		return Y;
 	}
 
+	public void setY(int y) {
+		Y = y;
+	}
+
 	public int getZ() {
 		return Z;
+	}
+
+	public void setZ(int z) {
+		Z = z;
 	}
 
 	public Material getType() {

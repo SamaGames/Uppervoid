@@ -16,6 +16,18 @@ public class BlockGroup {
 
 	private ABlock void_; // Block de vide.
 
+	public BlockGroup(UpperVoid pl, String data) {
+		plugin = pl;
+
+		String[] parsed = data.split(", ");
+
+		Block_1 = new ABlock(parsed[0]);
+		Block_2 = new ABlock(parsed[1]);
+		Block_3 = new ABlock(parsed[2]);
+
+		void_ = new ABlock(Material.AIR, (byte) 0);
+	}
+
 	public BlockGroup(UpperVoid pl, ABlock type1, ABlock type2, ABlock type3) {
 		plugin = pl;
 

@@ -1,16 +1,15 @@
 package com.Geekpower14.UpperVoid.Commands;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Vector;
-
+import com.Geekpower14.UpperVoid.UpperVoid;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.Geekpower14.UpperVoid.UpperVoid;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Vector;
 
 public class CommandsManager implements CommandExecutor {
 
@@ -26,16 +25,8 @@ public class CommandsManager implements CommandExecutor {
 
 	private void loadCommands() {
 		commands.put("leave", new LeaveCommand(plugin));
-		commands.put("setspawn", new SetSpawnCommand(plugin));
-		commands.put("create", new CreateCommand(plugin));
-		commands.put("save", new SaveCommand(plugin));
-		commands.put("setmap", new SetMapCommand(plugin));
-		commands.put("setmin", new SetMinCommand(plugin));
-		commands.put("setmax", new SetMaxCommand(plugin));
 		commands.put("start", new StartCommand(plugin));
 		commands.put("stop", new StopCommand(plugin));
-		commands.put("remove", new RemoveCommand(plugin));
-
 	}
 
 	@Override

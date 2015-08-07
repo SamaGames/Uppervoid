@@ -1,20 +1,19 @@
 package com.Geekpower14.UpperVoid.Arena;
 
-import com.Geekpower14.UpperVoid.Arena.APlayer.Role;
 import com.Geekpower14.UpperVoid.Block.BlockManager;
 import com.Geekpower14.UpperVoid.UpperVoid;
 import com.Geekpower14.UpperVoid.Utils.StatsNames;
 import com.Geekpower14.UpperVoid.Utils.Utils;
-import net.samagames.gameapi.GameAPI;
-import net.samagames.gameapi.json.Status;
-import net.samagames.gameapi.types.GameArena;
-import net.zyuiop.MasterBundle.StarsManager;
-import net.zyuiop.coinsManager.CoinsManager;
-import net.zyuiop.statsapi.StatsApi;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import net.samagames.api.SamaGamesAPI;
+import net.samagames.api.games.Game;
+import net.samagames.api.games.IGameProperties;
+import net.samagames.api.games.Status;
+import net.samagames.api.games.themachine.messages.templates.PlayerWinTemplate;
 import org.bukkit.*;
 import org.bukkit.FireworkEffect.Type;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
@@ -22,30 +21,28 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 
-public class Arena implements GameArena {
+public class Arena extends Game<APlayer> {
 
 	public UpperVoid plugin;
 
 	/*** Constantes ***/
 
-	public String name;
 	public String Map_name;
-	public UUID uuid;
 
 	public int minPlayer = 4;
 	public int maxPlayer = 24;
-	public int vipSlots = 5;
-	public int spectateSlots = 5;
 
 	public int coinsGiven = 2; // Pièces données aux joueurs
 	public int addCoinsDelay = 20;
@@ -53,19 +50,11 @@ public class Arena implements GameArena {
 	public int Time_Before = 20;
 	public int Time_After = 15;
 
-	public Location spawn;
+	public Location lobby;
 
-	public boolean vip;
+	public List<Location> spawns = new ArrayList<>();
 
 	/*** Variable dynamiques ***/
-
-	public Status eta = Status.Idle;
-
-	public List<APlayer> players = new ArrayList<>();
-
-	public List<UUID> waitPlayers = new ArrayList<>();
-
-	private Starter CountDown = null;
 
 	private BlockManager blockManager;
 
@@ -80,11 +69,10 @@ public class Arena implements GameArena {
 
 	//private Team spectates;
 
-	public Arena(UpperVoid pl, String name) {
+	public Arena(UpperVoid pl) {
+		super("uppervoid", "Uppervoid", APlayer.class);
 
-        plugin = pl;
-
-		this.name = name;
+		plugin = pl;
 
 		blockManager = new BlockManager(pl);
 		blockManager.setActive(false);
@@ -94,12 +82,6 @@ public class Arena implements GameArena {
         plugin.skyFactory.setDimension(Bukkit.getWorld("world"), dimension);
 
 		tboard = Bukkit.getScoreboardManager().getNewScoreboard();
-
-		/*spectates = tboard.registerNewTeam("spectator");
-		spectates.setCanSeeFriendlyInvisibles(true);*/
-
-		eta = Status.Available;
-        //GameAPI.getManager().refreshArena(this);
 	}
 
 	/*
@@ -117,159 +99,47 @@ public class Arena implements GameArena {
 	}
 
 	private void loadConfig() {
-		FileConfiguration config = YamlConfiguration
-				.loadConfiguration(new File(plugin.getDataFolder(), "/arenas/"
-						+ name + ".yml"));
+		IGameProperties properties = SamaGamesAPI.get().getGameManager().getGameProperties();
 
-		config = basicConfig(config);
+		Map_name = properties.getMapName();
 
-		Map_name = config.getString("Map");
+		minPlayer = properties.getMinSlots();
+		maxPlayer = properties.getMaxSlots();
 
-		uuid = UUID.fromString(config.getString("UUID"));
+		Time_Before = properties.getOption("Time-Before", new JsonPrimitive(30)).getAsInt();
+		Time_After = properties.getOption("Time-After", new JsonPrimitive(15)).getAsInt();
 
-		vip = config.getBoolean("VIP");
+        dimension = World.Environment.valueOf(properties.getOption("Dimension", new JsonPrimitive(World.Environment.NORMAL.toString())).getAsString());
 
-		Time_Before = config.getInt("Time-Before");
-		Time_After = config.getInt("Time-After");
+        JsonArray spawnDefault = new JsonArray();
+        spawnDefault.add(new JsonPrimitive("world, 0, 0, 0, 0, 0"));
 
-		minPlayer = config.getInt("MinPlayers");
-		maxPlayer = config.getInt("MaxPlayers");
+        JsonArray spawns = properties.getOption("Spawns", spawnDefault).getAsJsonArray();
+        for(JsonElement data : spawns)
+        {
+            this.spawns.add(Utils.str2loc(data.getAsString()));
+        }
 
-		vipSlots = config.getInt("Slots-VIP");
-		spectateSlots = config.getInt("Slots-Spectator");
-
-        dimension = World.Environment.valueOf(config.getString("Dimension"));
-
-		spawn = Utils.str2loc(config.getString("Spawn"));
-
-		saveConfig();
-	}
-
-	private FileConfiguration basicConfig(FileConfiguration config) {
-		setDefaultConfig(config, "Name", name);
-		setDefaultConfig(config, "Map", "Unknown");
-		setDefaultConfig(config, "UUID", UUID.randomUUID().toString());
-
-		setDefaultConfig(config, "VIP", false);
-
-		setDefaultConfig(config, "Time-Before", 20);
-		setDefaultConfig(config, "Time-After", 15);
-
-		setDefaultConfig(config, "MaxPlayers", 24);
-		setDefaultConfig(config, "MinPlayers", 4);
-		setDefaultConfig(config, "Slots-VIP", 5);
-		setDefaultConfig(config, "Slots-Spectator", 5);
-
-        setDefaultConfig(config, "Dimension", World.Environment.NORMAL.toString());
-
-		setDefaultConfig(config, "Spawn", "world, 0, 0, 0, 0, 0");
-
-		return config;
-	}
-
-	public void saveConfig() {
-		FileConfiguration config = YamlConfiguration
-				.loadConfiguration(new File(plugin.getDataFolder(), "/arenas/"
-						+ name + ".yml"));
-
-		config.set("Name", name);
-		config.set("Map", Map_name);
-		config.set("UUID", uuid.toString());
-
-		config.set("VIP", vip);
-
-		config.set("Time-Before", Time_Before);
-		config.set("Time-After", Time_After);
-
-		config.set("MinPlayers", minPlayer);
-		config.set("MaxPlayers", maxPlayer);
-		config.set("Slots-VIP", vipSlots);
-		config.set("Slots-Spectator", spectateSlots);
-
-		config.set("Dimension", dimension.toString());
-
-		config.set("Spawn", Utils.loc2str(spawn));
-
-		try {
-			config.save(new File(plugin.getDataFolder(), "/arenas/" + name
-					+ ".yml"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	protected void setDefaultConfig(FileConfiguration config, String key,
-			Object value) {
-		if (!config.contains(key))
-			config.set(key, value);
+		lobby = Utils.str2loc(properties.getOption("Lobby", new JsonPrimitive("world, 0, 0, 0, 0, 0")).getAsString());
 	}
 
 	/*** Mouvement des joueurs ***/
 
-	/*public String requestJoin(final VPlayer p) {
-
-		if (plugin.arenaManager.getArenabyPlayer(p.getName()) != null) {
-			return ChatColor.RED + "Vous êtes en jeux.";
-		}
-
-		if (spawn == null) {
-			return ChatColor.RED + "Il n'y a pas de spawn.";
-		}
-
-		if (eta.isIG()) {
-			return ChatColor.RED + "Jeu en cours.";
-		}
-
-        if (CountDown != null && CountDown.time <= 2) {
-            return ChatColor.RED + "Jeu en cours.";
-        }
-
-		boolean isVIP = p.hasPermission("UpperVoid.vip");
-		boolean isAdmin = p.hasPermission("UpperVoid.admin");
-
-		if (getAllWithWait() >= maxPlayer && !isVIP) {
-			return ChatColor.RED + "Cette arène est au complet.";
-		}
-
-		if (getAllWithWait() >= maxPlayer + vipSlots && !isAdmin) {
-			return ChatColor.RED + "Cette arène est au complet.";
-		}
-
-		waitPlayers.add(p.getUUID());
-
-		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-
-			@Override
-			public void run() {
-				waitPlayers.remove(p.getUUID());
-			}
-
-		}, 40L);
-
-		return "good";
-	}*/
-
 	@SuppressWarnings("deprecation")
-	public void joinArena(Player p) {
-		joinHider(p);
+    public void handleLogin(Player p)
+    {
 		p.setFlying(false);
 		p.setAllowFlight(false);
-
 		cleaner(p);
 
-		p.teleport(spawn);
+		p.teleport(lobby);
 
 		APlayer ap = new APlayer(plugin, this, p);
-		players.add(ap);
+        gamePlayers.put(p.getUniqueId(), ap);
 
-		this.globalTaguedBroadcast(ChatColor.YELLOW + ap.getName() + " a rejoint l'arène "
-				+ ChatColor.DARK_GRAY + "[" + ChatColor.RED + players.size()
-				+ ChatColor.DARK_GRAY + "/" + ChatColor.RED + maxPlayer
-				+ ChatColor.DARK_GRAY + "]");
+        this.coherenceMachine.getMessageManager().writePlayerJoinToAll(p);
 
-		if (players.size() >= minPlayer && eta == Status.Available) {
-			startCountdown();
-		}
+		refresh();
 
 		p.getInventory().setItem(8, this.getLeaveDoor());
 		p.getInventory().setHeldItemSlot(0);
@@ -277,80 +147,65 @@ public class Arena implements GameArena {
 			p.updateInventory();
 		} catch (Exception e) {/* LOL */
 		}
-        refresh();
 	}
 
 	/*
 	 * Gestion de l'arène.
 	 */
 
-	public void leaveArena(Player p) {
+    public void handleLogout(Player p)
+    {
 		APlayer ap = getAPlayer(p);
-
+        p.setAllowFlight(false);
 		leaveCleaner(p);
-
-		UpperVoid.getOnline().forEach(p::showPlayer);
 
 		ap.removeScoreboard();
 
-		p.setAllowFlight(false);
-
-		// p.setScoreboard(lol);
-
-		players.remove(ap);
-
-		// kickPlayer(p);
-
 		updateScorebords();
-
-		if (players.size() < getMinPlayers() && eta == Status.Starting) {
-			resetCountdown();
-		}
 
 		refresh();
 
-		if (getActualPlayers() <= 1 && eta == Status.InGame) {
-			if (players.size() >= 1) {
-
-				win();
-			} else {
-				stop();
+        if(getStatus() == Status.IN_GAME)
+        {
+            if(getInGamePlayers().size() == 1)
+            {
+                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> win(), 1L);
+            }else if(getConnectedPlayers() <= 0){
+                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> handleGameEnd(), 1L);
 			}
 		}
 	}
 
-	public void start() {
-		eta = Status.InGame;
-        refresh();
+    @Override
+    public void startGame()
+    {
+        setStatus(Status.IN_GAME);
 
-		for (APlayer ap : players) {
+		for (APlayer ap : gamePlayers.values()) {
 			Player p = ap.getP();
 
 			ap.setScoreboard();
 
 			cleaner(p);
-			teleport(p);
+            teleportRandomSpawn(p);
 
 			ap.giveStuff();
 
 			ap.setReloading(6 * 20L);
 
-			StatsApi.increaseStat(p.getUniqueId(), StatsNames.GAME_NAME,
-					StatsNames.PARTIES, 1);
+            increaseStat(p.getUniqueId(), StatsNames.PARTIES, 1);
 		}
 
 		int time = 5;// TICKS
 		blockManager.setActive(false);
-		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> blockManager.setActive(true), time * 20L);
+		Bukkit.getScheduler().runTaskLater(plugin, () -> blockManager.setActive(true), time * 20L);
 
 		anticheat = Bukkit.getScheduler().runTaskTimer(plugin,
-				() -> {
-					players.stream().filter(ap -> ap.getRole() == Role.Player).forEach(com.Geekpower14.UpperVoid.Arena.APlayer::checkAntiAFK);
-				}, time * 20L, 20L);
+				() -> gamePlayers.values().stream().filter(ap -> !ap.isSpectator()).forEach(com.Geekpower14.UpperVoid.Arena.APlayer::checkAntiAFK), time * 20L, 20L);
 
 		Bukkit.getScheduler().runTaskLater(plugin, () -> {
-			players.forEach(com.Geekpower14.UpperVoid.Arena.APlayer::updateLastChangeBlock);
-		}, (time * 20L) - 1);
+            gamePlayers.values().forEach(com.Geekpower14.UpperVoid.Arena.APlayer::updateLastChangeBlock);
+        }, (time * 20L) - 1);
 
 		/*
 		 * coinsGiver = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin,
@@ -372,49 +227,18 @@ public class Arena implements GameArena {
 			}
 		}, time * 20L);*/
 
+        super.startGame();
 	}
 
-	public void stop() {
-		eta = Status.Stopping;
-        refresh();
-
+    public void handleGameEnd()
+    {
 		blockManager.setActive(false);
 
-		/*
-		 * TO/DO: Stopper l'arène.
-		 */
-
-		UpperVoid.getOnline().forEach(this::kickPlayer);
-
-		// blockManager.restore();
-
-		reset();
-
-		if (plugin.isEnabled()) {
-			Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                Bukkit.getLogger().info(">>>>> RESTARTING <<<<<");
-                Bukkit.getLogger().info("server will reboot now");
-                Bukkit.getLogger().info(">>>>> RESTARTING <<<<<");
-                Bukkit.getServer().shutdown();
-
-            }, 5 * 20L);
-		}
-	}
-
-	public void reset() {
-		/*
-		 * TO/DO: Reset variables.
-		 */
-		plugin.ghostFactory.clearMembers();
-
-		waitPlayers.clear();
-		players.clear();
-
-		// eta = Status.Available;
+		super.handleGameEnd();
 	}
 
 	public void disable() {
-		stop();
+		handleGameEnd();
 	}
 
 	public void kickPlayer(Player p) {
@@ -445,70 +269,61 @@ public class Arena implements GameArena {
 	}
 
 	public void win() {
-		eta = Status.Stopping;
-        refresh();
+        setStatus(Status.FINISHED);
+
+        anticheat.cancel();
+
+        blockManager.setActive(false);
 
 		Player p = getWinner();
 
-		if (p != null) {
+        if(p == null)
+        {
+            handleGameEnd();
+            return;
+        }
+        final BukkitTask task = generateFirework((int) (Time_After * 1.5), p);
 
-			final BukkitTask task = generateFirework((int) (Time_After * 1.5), p);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            task.cancel();
+            handleGameEnd();
+        }, (Time_After * 20));
 
-			Bukkit.getScheduler().runTaskLater(plugin,() -> {
-                        task.cancel();
-                        stop();
-                    }, (Time_After * 20));
+        APlayer ap = getAPlayer(p);
+        PlayerWinTemplate template = this.coherenceMachine.getTemplateManager().getPlayerWinTemplate();
+        template.execute(p);
 
-			APlayer ap = getAPlayer(p);
-			this.globalTaguedBroadcast(ChatColor.AQUA + p.getDisplayName()
-					+ ChatColor.YELLOW + " a gagné !");
-
-			StarsManager.creditJoueur(ap.getP(), 1, "Premier en Uppervoid !");
-			int up = CoinsManager.syncCreditJoueur(ap.getP().getUniqueId(), 30,
-					true, true, "Victoire !");
-			// On a besoin de la sync pour l'instruction suivante
-			// L'impact sur le lag est minime : une seule requête.
-
-			ap.setCoins(ap.getCoins() + up);
-			ap.updateScoreboard();
-
-			for (APlayer a : players) {
-				localTaguedBroadcast(a.getP(),
-						ChatColor.GOLD + "Tu as gagné " + a.getCoins()
-								+ " coins au total !");
-			}
-
-			StatsApi.increaseStat(p.getUniqueId(), StatsNames.GAME_NAME,
-					StatsNames.VICTOIRES, 1);
-
-		}
-		anticheat.cancel();
-
-		blockManager.setActive(false);
-		if (p == null)
-		{
-			stop();
-		}
-	}
+        try{
+            addStars(p, 1, "Premier en Uppervoid !");
+            addCoins(p, 30, "Victoire !");
+            ap.setCoins(ap.getCoins() + 30);
+            ap.updateScoreboard();
+            increaseStat(p.getUniqueId(), StatsNames.VICTOIRES, 1);
+        }catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
 
     public void refresh()
     {
-		final Arena arena = this;
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> GameAPI.getManager().refreshArena(arena));
+        plugin.samaGamesAPI.getGameManager().refreshArena();
     }
 
 	@SuppressWarnings("deprecation")
 	public void lose(final Player p) {
 
 		APlayer ap = getAPlayer(p);
-		ap.setRole(Role.Spectator);
+        setSpectator(p);
 
-		if (eta == Status.InGame) {
-			localTaguedBroadcast(p, ChatColor.YELLOW + "Tu as perdu !");
-			int nb = this.getActualPlayers();
-			globalTaguedBroadcast(p.getName() + ChatColor.YELLOW + " a perdu ! (" + nb
-					+ " Joueur" + ((nb > 1) ? "s" : "") + " restant"
-					+ ((nb > 1) ? "s" : "") + ")");
+		if (getStatus().equals(Status.IN_GAME)) {
+
+            p.sendMessage(coherenceMachine.getGameTag() + ChatColor.YELLOW + "Tu as perdu !");
+
+            int nb = this.getConnectedPlayers();
+            coherenceMachine.getMessageManager().writeCustomMessage(p.getName() + ChatColor.YELLOW + " a perdu ! (" + nb
+                    + " Joueur" + ((nb > 1) ? "s" : "") + " restant"
+                    + ((nb > 1) ? "s" : "") + ")", true);
 		}
 
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -517,12 +332,11 @@ public class Arena implements GameArena {
                 if(pp.getUUID().equals(p.getUniqueId()))
                     continue;
 
-                if(pp.getRole() == Role.Spectator)
+                if(pp.isSpectator())
                     continue;
 
                 try{
-                    int up = CoinsManager.syncCreditJoueur(pp.getP().getUniqueId(), 3, true, true, "Mort de " + p.getName());
-                    pp.setCoins(pp.getCoins() + up);
+                    addCoins(pp.getP(), 3, "Mort de " + p.getName());
                 }catch(Exception e)
                 {
                     e.printStackTrace();
@@ -530,7 +344,7 @@ public class Arena implements GameArena {
             }
         });
 
-		if (this.getActualPlayers() <= 1 && eta == Status.InGame) {
+		if (this.getConnectedPlayers() <= 1 && getStatus().equals(Status.IN_GAME)) {
 			win();
 		}
 
@@ -539,7 +353,7 @@ public class Arena implements GameArena {
 		}catch(Exception e){}
 
 		cleaner(p);
-		p.teleport(getSpawn());
+		teleportRandomSpawn(p);
 
 		p.setGameMode(GameMode.SPECTATOR);
 
@@ -551,36 +365,19 @@ public class Arena implements GameArena {
 
 		p.setAllowFlight(true);
 		p.setFlying(true);
-        plugin.ghostFactory.setGhost(p, true);
 
 		p.setScoreboard(tboard);
-		p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY,
-				Integer.MAX_VALUE, 0));
-		loseHider(p);
-
         refresh();
 	}
 
-	private Player getWinner() {
-		for (APlayer ap : players) {
-			if (ap.getRole().equals(Role.Player) && ap.isOnline())
+    private Player getWinner() {
+		for (APlayer ap : gamePlayers.values()) {
+			if (!ap.isSpectator() && ap.isOnline())
 			{
 				return ap.getP();
 			}
 		}
 		return null;
-	}
-
-	public boolean isWaiting(Player p) {
-		return isWaiting(p.getUniqueId());
-	}
-
-	public boolean isWaiting(UUID uuid) {
-		if (waitPlayers.contains(uuid)) {
-			return true;
-		}
-
-		return false;
 	}
 
 	@SuppressWarnings("unused")
@@ -601,15 +398,14 @@ public class Arena implements GameArena {
 		return lol;
 	}
 
-	public void teleport(Player p) {
-		if (spawn != null) {
-			p.teleport(spawn);
-		}
-	}
+    public void teleportRandomSpawn(Player p)
+    {
+        p.teleport(spawns.get(new Random().nextInt(spawns.size())));
+    }
 
 	public APlayer getAPlayer(Player p) {
-		for (APlayer ap : players) {
-			if (ap.getName().equals(p.getName())) {
+		for (APlayer ap : gamePlayers.values()) {
+			if (ap.getUUID().equals(p.getUniqueId())) {
 				return ap;
 			}
 		}
@@ -617,31 +413,14 @@ public class Arena implements GameArena {
 		return null;
 	}
 
-	public void globalTaguedBroadcast(String message) {
-		for (APlayer player : players) {
-			localTaguedBroadcast(player.getP(), message);
-		}
-	}
-
-	public void localTaguedBroadcast(Player p, String message) {
-		p.sendMessage(ChatColor.DARK_AQUA + "[" + ChatColor.AQUA + "UpperVoid"
-				+ ChatColor.DARK_AQUA + "] " + ChatColor.ITALIC + message);
-	}
-
-	public void globalBroadcast(String message) {
-		for (APlayer player : players) {
-			player.tell(message);
-		}
-	}
-
 	public void broadcastXP(int xp) {
-		for (APlayer player : players) {
+		for (APlayer player : gamePlayers.values()) {
 			player.setLevel(xp);
 		}
 	}
 
 	public void playSound(Sound sound, float a, float b) {
-		for (APlayer player : players) {
+		for (APlayer player : gamePlayers.values()) {
 			player.getP().playSound(player.getP().getLocation(), sound, a, b);
 		}
 	}
@@ -680,160 +459,32 @@ public class Arena implements GameArena {
 		return coucou;
 	}
 
-	public void startCountdown() {
-		eta = Status.Starting;
-
-		CountDown = new Starter(plugin, this, Time_Before);
-
-		CountDown.start();
-	}
-
-	public void resetCountdown() {
-		eta = Status.Available;
-
-		if (CountDown != null) {
-			CountDown.abord();
-			globalTaguedBroadcast(ChatColor.YELLOW + "Compte à rebours remis à zero.");
-		}
-	}
-
-	public List<APlayer> getAPlayers() {
-		return players;
-	}
-
-	public void joinHider(Player p) {
-		for (Player pp : UpperVoid.getOnline()) {
-			if (!this.hasPlayer(pp)) {
-				pp.hidePlayer(p);
-				p.hidePlayer(pp);
-			} else {
-				pp.showPlayer(p);
-				p.showPlayer(pp);
-			}
-		}
-	}
-
-	public void loseHider(Player p) {
-		for (APlayer ap : players) {
-			if (ap.getRole() != Role.Spectator) {
-				ap.getP().hidePlayer(p);
-			} else if (ap.getRole() == Role.Spectator) {
-				ap.getP().showPlayer(p);
-				p.showPlayer(ap.getP());
-			}
-		}
-	}
-
-	public UUID getUUID() {
-		return uuid;
-	}
-
-    @Override
-    public boolean hasPlayer(UUID player) {
-        return hasPlayer(Bukkit.getOfflinePlayer(player));
-    }
-
-    public boolean hasPlayer(OfflinePlayer p) {
-		return hasPlayer(p.getName());
-	}
-
-	public boolean hasPlayer(String p) {
-		for (APlayer ap : players) {
-			if (ap.getName().equals(p)) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public boolean isVip() {
-		return vip;
-	}
-
-	public void setVip(boolean vip) {
-		this.vip = vip;
+	public Collection<APlayer> getAPlayers() {
+		return gamePlayers.values();
 	}
 
 	public int getMinPlayers() {
 		return minPlayer;
 	}
 
-	public void setMinPlayers(int nb) {
-		minPlayer = nb;
-	}
-
-    @Override
-    public int countGamePlayers() {
-        return getActualPlayers();
-    }
-
     public int getMaxPlayers() {
 		return maxPlayer;
 	}
 
-	public void setMaxPlayers(int nb) {
-		maxPlayer = nb;
-	}
-
-    @Override
-    public int getTotalMaxPlayers() {
-        return maxPlayer + vipSlots;
-    }
-
-    @Override
-    public int getVIPSlots() {
-        return vipSlots;
-    }
-
-    @Override
-    public Status getStatus() {
-        return eta;
-    }
-
-    @Override
-    public void setStatus(Status status) {
-        eta = status;
-    }
-
-    public int getActualPlayers() {
-		int nb = 0;
-
-		for (APlayer ap : players) {
-			if (ap.getRole() == Role.Player) {
-				nb++;
-			}
-		}
-
-		return nb;
-	}
-
-	public int getAllWithWait() {
-		return players.size() + waitPlayers.size();
-	}
-
 	public void updateScorebords() {
-		for (APlayer ap : players) {
+		for (APlayer ap : gamePlayers.values()) {
 			ap.updateScoreboard();
 		}
 	}
 
 	public void initScorebords() {
-		for (APlayer ap : players) {
+		for (APlayer ap : gamePlayers.values()) {
 			ap.setScoreboard();
 		}
 	}
 
     public Collection<Player> getPlayers() {
-        List<Player> t = new ArrayList<Player>();
-        for (APlayer ap : players)
-            t.add(ap.getP());
-
-        return t;
+        return gamePlayers.values().stream().map(APlayer::getP).collect(Collectors.toList());
     }
 
 	public BlockManager getBM() {
@@ -848,40 +499,16 @@ public class Arena implements GameArena {
 		Map_name = name;
 	}
 
-    @Override
-    public boolean isFamous() {
-        return false;
-    }
-
     public int getTimeBefore() {
 		return Time_Before;
-	}
-
-	public void setTimeBefore(int time) {
-		Time_Before = time;
 	}
 
 	public int getTimeAfter() {
 		return Time_After;
 	}
 
-	public void setTimeAfter(int time) {
-		Time_After = time;
-	}
-
-	public Location getSpawn() {
-		return spawn;
-	}
-
-	public void setSpawn(Location s) {
-		spawn = s;
-	}
-
-	public int getCountDownRemain() {
-		if (CountDown == null)
-			return 0;
-
-		return this.CountDown.time;
+	public List<Location> getSpawns() {
+		return spawns;
 	}
 
 	public BukkitTask generateFirework(final int nb, final Player player)
@@ -968,72 +595,5 @@ public class Arena implements GameArena {
 		if(i==16) return Color.WHITE;
 		if(i==17) return Color.YELLOW;
 		return null;
-	}
-
-	public class Starter implements Runnable {
-
-		public int time = 0;
-
-		private UpperVoid plugin;
-
-		private Arena arena;
-
-		private int ID;
-
-		public Starter(UpperVoid pl, Arena aren, int time) {
-			this.time = time;
-			plugin = pl;
-			arena = aren;
-
-		}
-
-		public void abord() {
-			Bukkit.getScheduler().cancelTask(ID);
-		}
-
-		public void start() {
-			arena.globalTaguedBroadcast(ChatColor.YELLOW + "Le jeu va démarrer dans "
-					+ Time_Before + " secondes.");
-			arena.broadcastXP(time);
-
-			ID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this,
-					1L, 20L);
-		}
-
-		@Override
-		public void run() {
-			arena.broadcastXP(time);
-
-			if (time == 10) {
-				arena.globalTaguedBroadcast(ChatColor.YELLOW
-						+ "Le jeu va démarrer dans 10 secondes.");
-				arena.playSound(Sound.NOTE_PLING, 0.6F, 50F);
-			}
-
-			if (time <= 5 && time >= 1) {
-				arena.globalTaguedBroadcast(ChatColor.YELLOW + "Le jeu va démarrer dans "
-						+ time + " secondes.");
-				arena.playSound(Sound.NOTE_PLING, 0.6F, 50F);
-			}
-
-			if(time == 1)
-			{
-				refresh();
-			}
-
-			if (time == 0) {
-				arena.playSound(Sound.NOTE_PLING, 9.0F, 1F);
-				arena.playSound(Sound.NOTE_PLING, 9.0F, 5F);
-				arena.playSound(Sound.NOTE_PLING, 9.0F, 10F);
-				arena.globalTaguedBroadcast(ChatColor.YELLOW + "C'est parti !");
-				arena.start();
-			}
-
-			if (time <= 0) {
-				abord();
-			}
-			time--;
-		}
-
 	}
 }

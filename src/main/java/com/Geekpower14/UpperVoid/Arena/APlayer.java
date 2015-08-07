@@ -4,13 +4,15 @@ import com.Geekpower14.UpperVoid.Stuff.TItem;
 import com.Geekpower14.UpperVoid.Stuff.grapin.Grapin;
 import com.Geekpower14.UpperVoid.Stuff.grenade.Grenada;
 import com.Geekpower14.UpperVoid.UpperVoid;
-import com.Geekpower14.UpperVoid.Utils.Utils;
-import net.zyuiop.MasterBundle.FastJedis;
+import net.samagames.api.SamaGamesAPI;
+import net.samagames.api.games.GamePlayer;
+import net.samagames.api.shops.AbstractShopsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
@@ -18,15 +20,14 @@ import org.bukkit.scoreboard.Scoreboard;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class APlayer {
+public class APlayer extends GamePlayer {
 
 	public int flag = 0;
-	@SuppressWarnings("unused")
+
 	private UpperVoid plugin;
 	private Arena arena;
 	private Player p;
-	private Role role = Role.Player;
-	private boolean vip = false;
+
 	private Location lastLoc = null;
 	private int DoubleJump = -1;
 
@@ -36,20 +37,15 @@ public class APlayer {
 
 	private Objective bar;
 
-	private int coins = 0;
-
 	private long lastChangeBlock = System.currentTimeMillis();
 
 	private HashMap<ItemSLot, TItem> stuff = new HashMap<>();
 
 	public APlayer(UpperVoid pl, Arena arena, Player p) {
-		plugin = pl;
+        super(p);
+        plugin = pl;
 		this.arena = arena;
 		this.p = p;
-
-		if (Utils.hasPermission(p, "UpperVoid.vip")) {
-			vip = true;
-		}
 
 		board = Bukkit.getScoreboardManager().getNewScoreboard();
 
@@ -65,78 +61,71 @@ public class APlayer {
 	}
 
 	public void resquestStuff() {
-		if(p.getName().equals("geekpower14"))
+		/*if(p.getName().equals("geekpower14"))
 		{
 			Grapin grapin = (Grapin) plugin.itemManager.getItemByName("grapin");
 
 			grapin.setOrigin_Number(10);
 			grapin.setNB(10);
 			stuff.put(ItemSLot.Slot4, grapin);
-		}
+		}*/
 		loadShop();
 	}
 
 	public void loadShop() {
-		final String key_grenade = "shops:uppervoid:grenades:" + p.getUniqueId() + ":current";
-		final String key_shooter = "shops:uppervoid:shooter:" + p.getUniqueId() + ":current";
-		final String key_grapin = "shops:uppervoid:grapin:" + p.getUniqueId() + ":current";
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-			@Override
-			public void run() {
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
 
-				try {
-					//Shooter
-					String data = FastJedis.get(key_shooter);
-					stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName(data));
-				} catch (Exception e) {
-					e.printStackTrace();
-					stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName("shooter"));
-				}
+            SamaGamesAPI samaGamesAPI = plugin.samaGamesAPI;
 
-				try {
-					//grenade
-					String data = FastJedis.get(key_grenade);
-					String[] dj = data.split("-");
-					if (dj[0].equals("grenade")) {
-						final int add = Integer.parseInt(dj[1]);
-						Grenada grenade = (Grenada) plugin.itemManager.getItemByName("grenada");
-						grenade.setNB(1 + add);
-						stuff.put(ItemSLot.Slot2, grenade);
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
+            AbstractShopsManager shopsManager = samaGamesAPI.getShopsManager(arena.getGameCodeName());
 
-					Grenada grenade = (Grenada) plugin.itemManager
-							.getItemByName("grenada");
+            try {
+                //Shooter
+                String data = shopsManager.getItemLevelForPlayer(p, "shooter");
+                stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName(data));
+            } catch (Exception e) {
+                stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName("shooter"));
+            }
 
-					grenade.setNB(1);
-					stuff.put(ItemSLot.Slot2, grenade);
-				}
+            try {
+                //grenade
+                String data = shopsManager.getItemLevelForPlayer(p, "grenade");
+                String[] dj = data.split("-");
+                if (dj[0].equals("grenade")) {
+                    final int add = Integer.parseInt(dj[1]);
+                    Grenada grenade = (Grenada) plugin.itemManager.getItemByName("grenada");
+                    grenade.setNB(1 + add);
+                    stuff.put(ItemSLot.Slot2, grenade);
+                }
+            } catch (Exception e) {
 
-				try {
-					//Grapin
-					String data = FastJedis.get(key_grapin);
+                Grenada grenade = (Grenada) plugin.itemManager
+                        .getItemByName("grenada");
+                grenade.setNB(1);
+                stuff.put(ItemSLot.Slot2, grenade);
+            }
 
-					String[] dj = data.split("-");
-					if (dj[0].equals("grapin")) {
-						final int add = Integer.parseInt(dj[1]);
-						Grapin grapin = (Grapin) plugin.itemManager.getItemByName("grapin");
+            try {
+                //Grapin
+                String data = shopsManager.getItemLevelForPlayer(p, "grapin");
 
-						grapin.setOrigin_Number(1 + add);
-						grapin.setNB(1 + add);
-						stuff.put(ItemSLot.Slot3, grapin);
-					}
-				} catch (Exception e)
-				{
-					e.printStackTrace();
+                String[] dj = data.split("-");
+                if (dj[0].equals("grapin")) {
+                    final int add = Integer.parseInt(dj[1]);
+                    Grapin grapin = (Grapin) plugin.itemManager.getItemByName("grapin");
 
-					Grapin grapin = (Grapin) plugin.itemManager.getItemByName("grapin");
-					grapin.setOrigin_Number(1);
-					grapin.setNB(1);
-					stuff.put(ItemSLot.Slot3, grapin);
-				}
-			}
-		});
+                    grapin.setOrigin_Number(1 + add);
+                    grapin.setNB(1 + add);
+                    stuff.put(ItemSLot.Slot3, grapin);
+                }
+            } catch (Exception e) {
+
+                Grapin grapin = (Grapin) plugin.itemManager.getItemByName("grapin");
+                grapin.setOrigin_Number(1);
+                grapin.setNB(1);
+                stuff.put(ItemSLot.Slot3, grapin);
+            }
+        });
 	}
 
 	@SuppressWarnings("deprecation")
@@ -181,7 +170,7 @@ public class APlayer {
 		bar.getScore(ChatColor.GOLD + "Coins:")
 				.setScore(coins);
 		bar.getScore(ChatColor.GOLD + "Player:")
-				.setScore(arena.getActualPlayers());
+				.setScore(arena.getConnectedPlayers());
 		// bar.getScore(Bukkit.getOfflinePlayer(ChatColor.GOLD +
 		// "DoubleJump:")).setScore(DoubleJump);
 	}
@@ -193,25 +182,20 @@ public class APlayer {
 
 		p.setExp(0);
 
-		final int infoxp = Bukkit.getScheduler().scheduleSyncRepeatingTask(
-				plugin, new Runnable() {
-					public void run() {
-						float xp = p.getExp();
-						xp += getincr(temp);
-						if (xp >= 1) {
-							xp = 1;
-						}
-						p.setExp(xp);
-					}
-				}, 0L, 2L);
+		final BukkitTask infoxp = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+                    float xp = p.getExp();
+                    xp += getincr(temp);
+                    if (xp >= 1) {
+                        xp = 1;
+                    }
+                    p.setExp(xp);
+                }, 0L, 2L);
 
-		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-			public void run() {
-				Reloading = false;
-				p.setExp(1);
-				plugin.getServer().getScheduler().cancelTask(infoxp);
-			}
-		}, Ticks);
+		Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            Reloading = false;
+            p.setExp(1);
+            infoxp.cancel();
+        }, Ticks);
 
 		return;
 	}
@@ -232,10 +216,6 @@ public class APlayer {
 		result = (100 / (temp / 2)) / 100;
 
 		return result;
-	}
-
-	public boolean isVIP() {
-		return vip;
 	}
 
 	public Arena getArena() {
@@ -274,10 +254,6 @@ public class APlayer {
 		updateScoreboard();
 	}
 
-	public int getCoins() {
-		return coins;
-	}
-
 	public void setCoins(int c) {
 		coins = c;
 		updateScoreboard();
@@ -297,14 +273,6 @@ public class APlayer {
 
 	public boolean isDead() {
 		return p.isDead();
-	}
-
-	public Role getRole() {
-		return role;
-	}
-
-	public void setRole(Role r) {
-		role = r;
 	}
 
 	public void tell(String message) {
@@ -439,24 +407,4 @@ public class APlayer {
             return value;
         }
     }
-
-	public enum Role {
-		Player("Player", 20), Spectator("Spectateur", 10);
-
-		private String info;
-		private int value;
-
-		private Role(String info, int value) {
-			this.info = info;
-			this.value = value;
-		}
-
-		public String getString() {
-			return info;
-		}
-
-		public int getValue() {
-			return value;
-		}
-	}
 }

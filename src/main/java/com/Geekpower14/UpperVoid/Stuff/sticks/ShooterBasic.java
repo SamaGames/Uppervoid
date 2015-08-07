@@ -1,11 +1,10 @@
 package com.Geekpower14.UpperVoid.Stuff.sticks;
 
 import com.Geekpower14.UpperVoid.Arena.APlayer;
-import com.Geekpower14.UpperVoid.Arena.APlayer.Role;
 import com.Geekpower14.UpperVoid.Arena.Arena;
 import com.Geekpower14.UpperVoid.Stuff.TItem;
+import com.Geekpower14.UpperVoid.Utils.GlowEffect;
 import com.Geekpower14.UpperVoid.Utils.StatsNames;
-import net.zyuiop.statsapi.StatsApi;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -42,7 +41,7 @@ public class ShooterBasic extends TItem {
 
         if(isGlow())
         {
-            item = addGlow(item);
+            item = GlowEffect.addGlow(item);
         }
 
 		return item;
@@ -52,13 +51,7 @@ public class ShooterBasic extends TItem {
 	public void rightAction(APlayer ap, APlayer.ItemSLot slot) {
 		Player p = ap.getP();
 
-		if (ap.getRole() == Role.Spectator)
-			return;
-
-		if (ap.isReloading())
-			return;
-
-		if (!ap.getArena().getBM().isActive())
+		if (ap.isSpectator() || ap.isReloading() || !ap.getArena().getBM().isActive())
 			return;
 
 		Item tnt = p.getWorld().dropItem(p.getEyeLocation(),
@@ -70,9 +63,7 @@ public class ShooterBasic extends TItem {
 
 		ap.setReloading(this.reloadTime);
 
-		StatsApi.increaseStat(p.getUniqueId(), StatsNames.GAME_NAME,
-				StatsNames.TNTLaunch, 1);
-
+		ap.getArena().increaseStat(p.getUniqueId(), StatsNames.TNTLaunch, 1);
 	}
 
 	@Override

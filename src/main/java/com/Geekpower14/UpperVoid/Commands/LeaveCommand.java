@@ -1,10 +1,9 @@
 package com.Geekpower14.UpperVoid.Commands;
 
+import com.Geekpower14.UpperVoid.Arena.Arena;
+import com.Geekpower14.UpperVoid.UpperVoid;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-
-import com.Geekpower14.UpperVoid.UpperVoid;
-import com.Geekpower14.UpperVoid.Arena.Arena;
 
 public class LeaveCommand implements BasicCommand {
 
@@ -23,7 +22,7 @@ public class LeaveCommand implements BasicCommand {
 				player.sendMessage(ChatColor.RED + "Vous n'êtes pas en jeux.");
 				return true;
 			}
-			arena.leaveArena(player);
+			arena.kickPlayer(player);
 		} else {
 			player.sendMessage(ChatColor.RED + "Vous n'avez pas la permission.");
 		}

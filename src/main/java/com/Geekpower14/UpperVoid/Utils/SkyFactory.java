@@ -30,13 +30,6 @@ public class SkyFactory implements Listener {
         * 3. If you want to use this in your plugins, a credit would we appreciated.
         */
 
-    private UpperVoid plugin;
-
-    public SkyFactory(UpperVoid plugin) {
-        this.plugin = plugin;
-        this.plugin.getServer().getPluginManager().registerEvents(this, this.plugin);
-    }
-
     //everything needed for our reflection
     private static Constructor<?> packetPlayOutRespawn;
     private static Method getHandle;
@@ -47,7 +40,7 @@ public class SkyFactory implements Listener {
     static {
         try {
             //get the packet's constructor
-            packetPlayOutRespawn = getMCClass("PacketPlayOutRespawn").getConstructor(int.class, getMCClass("EnumDifficulty"), getMCClass("WorldType"), getMCClass("EnumGamemode"));
+            packetPlayOutRespawn = getMCClass("PacketPlayOutRespawn").getConstructor(int.class, getMCClass("EnumDifficulty"), getMCClass("WorldType"), net.minecraft.server.v1_8_R3.WorldSettings.EnumGamemode.class);
             //get CraftPlayer's handle
             getHandle = getCraftClass("entity.CraftPlayer").getMethod("getHandle");
             //get the PlayerConnection
@@ -59,6 +52,15 @@ public class SkyFactory implements Listener {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private UpperVoid plugin;
+    //list of changed environments
+    private Map<String, Environment> worldEnvironments = new HashMap<String, Environment>();
+
+    public SkyFactory(UpperVoid plugin) {
+        this.plugin = plugin;
+        this.plugin.getServer().getPluginManager().registerEvents(this, this.plugin);
     }
 
     // easy way to get NMS classes
@@ -74,9 +76,6 @@ public class SkyFactory implements Listener {
         String className = "org.bukkit.craftbukkit." + version + name;
         return Class.forName(className);
     }
-
-    //list of changed environments
-    private Map<String, Environment> worldEnvironments = new HashMap<String, Environment>();
 
     public void setDimension(World w, Environment env) {
         worldEnvironments.put(w.getName(), env);
@@ -148,7 +147,7 @@ public class SkyFactory implements Listener {
 
     //loop through the NMS gamemode enum, and check if it equals the Bukkit gamemode
     private Object getGameMode(Player p) throws ClassNotFoundException {
-        for (Object dif : getMCClass("EnumGamemode").getEnumConstants()) {
+        for (Object dif : net.minecraft.server.v1_8_R3.WorldSettings.EnumGamemode.values()) {
             if (dif.toString().equalsIgnoreCase(p.getGameMode().toString())) {
                 return dif;
             }

@@ -1,12 +1,10 @@
 package com.Geekpower14.UpperVoid.Listener;
 
 import com.Geekpower14.UpperVoid.Arena.APlayer;
-import com.Geekpower14.UpperVoid.Arena.APlayer.Role;
 import com.Geekpower14.UpperVoid.Arena.Arena;
 import com.Geekpower14.UpperVoid.Stuff.TItem;
 import com.Geekpower14.UpperVoid.UpperVoid;
-import net.samagames.gameapi.events.FinishJoinPlayerEvent;
-import net.samagames.gameapi.json.Status;
+import net.samagames.api.games.Status;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -34,55 +32,7 @@ public class PlayerListener implements Listener {
 
 	}
 
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onPlayerLogin(PlayerJoinEvent event)
-	{
-		event.setJoinMessage("");
-	}
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onFinishJoinPlayer(FinishJoinPlayerEvent event)
-	{
-        if(!event.isCancelled())
-        {
-            Player p = Bukkit.getPlayer(event.getPlayer());
-            Arena arena = plugin.arenaManager.getArena();
-
-            if (arena == null)
-            {
-                event.refuse("arène invalide !");
-            }
-
-            arena.joinArena(p);
-        }
-    }
-
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onPlayerQuit(PlayerQuitEvent event) {
-		Player p = event.getPlayer();
-
-		event.setQuitMessage("");
-
-		Arena arena = plugin.arenaManager.getArenabyPlayer(p);
-		if (arena == null)
-			return;
-
-		arena.leaveArena(p);
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onPlayerKick(PlayerKickEvent event) {
-		Player p = event.getPlayer();
-
-		event.setLeaveMessage("");
-
-		Arena arena = plugin.arenaManager.getArenabyPlayer(p);
-		if (arena == null)
-			return;
-		arena.leaveArena(p);
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
+	/*@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
 		Player player = event.getPlayer();
 		final Arena arena = plugin.arenaManager.getArenabyPlayer(player);
@@ -96,7 +46,7 @@ public class PlayerListener implements Listener {
 		// event.getMessage());
 
 		return;
-	}
+	}*/
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerInteract(PlayerInteractEvent event) {
@@ -124,7 +74,7 @@ public class PlayerListener implements Listener {
 			arena.kickPlayer(player);
 
 
-		if (arena.eta != Status.InGame)
+		if (!arena.getStatus().equals(Status.IN_GAME))
 			return;
 
 		TItem item = ap.getStuff();
@@ -152,33 +102,26 @@ public class PlayerListener implements Listener {
 				return;
 
 			//Si pas commencé
-			if (!arena.eta.equals(Status.InGame)
-					&& !arena.eta.equals(Status.Stopping)) {
-				p.teleport(arena.getSpawn());
+			if (!arena.getStatus().equals(Status.IN_GAME)
+					&& !arena.getStatus().equals(Status.FINISHED)) {
+				arena.teleportRandomSpawn(p);
 				return;
 			}
 
 			APlayer ap = arena.getAPlayer(p);
 
 			//Si Spectateur
-			if (ap.getRole() == Role.Spectator) {
-				p.teleport(arena.getSpawn());
+			if (ap.isSpectator() || arena.getStatus().equals(Status.FINISHED)) {
+				arena.teleportRandomSpawn(p);
 				p.setAllowFlight(true);
 				p.setFlying(true);
 				return;
 			}
 
 			//Si en jeu
-			if (arena.eta == Status.InGame) {
+			if (arena.getStatus().equals(Status.IN_GAME)) {
 				arena.lose(p);
 				return;
-			}
-
-			//Si fini
-			if (arena.eta == Status.Stopping) {
-				p.teleport(arena.getSpawn());
-				p.setAllowFlight(true);
-				p.setFlying(true);
 			}
 		}
 
@@ -199,12 +142,12 @@ public class PlayerListener implements Listener {
 
 		APlayer ap = arena.getAPlayer(p);
 
-		if (arena.eta != Status.InGame)
+		if (!arena.getStatus().equals(Status.IN_GAME))
 			return;
 
 		// For all.
 
-		if (ap.getRole() == Role.Spectator)
+		if (ap.isSpectator())
 			return;
 
 		/*if ((p.getGameMode() != GameMode.CREATIVE)
@@ -275,12 +218,12 @@ public class PlayerListener implements Listener {
 
 		APlayer ap = arena.getAPlayer(p);
 
-		if (arena.eta != Status.InGame)
+		if (arena.getStatus().equals(Status.IN_GAME))
 			return;
 
 		// For all.
 
-		if (ap.getRole() == Role.Spectator)
+		if (ap.isSpectator())
 			return;
 
 		// For gamers

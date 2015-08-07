@@ -4,7 +4,8 @@ import com.Geekpower14.UpperVoid.Arena.APlayer;
 import com.Geekpower14.UpperVoid.Arena.Arena;
 import com.Geekpower14.UpperVoid.Stuff.TItem;
 import com.Geekpower14.UpperVoid.UpperVoid;
-import com.Geekpower14.UpperVoid.Utils.ParticleEffects;
+import com.Geekpower14.UpperVoid.Utils.GlowEffect;
+import net.samagames.tools.ParticleEffect;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
@@ -36,7 +37,7 @@ public class Grenada extends TItem {
 
         if(isGlow())
         {
-            item = addGlow(item);
+            item = GlowEffect.addGlow(item);
         }
 
 		return item;
@@ -87,9 +88,9 @@ public class Grenada extends TItem {
         p.getWorld().playSound(p.getLocation(), Sound.STEP_SNOW, 3F, 2.0F);
 
         final Item tnt = p.getWorld().dropItem(p.getEyeLocation(),
-                new ItemStack(Material.COCOA));
+                new ItemStack(Material.DRAGON_EGG));
         tnt.setVelocity(p.getEyeLocation().getDirection().normalize().multiply(1.5));
-        tnt.setPickupDelay(999999);
+        tnt.setPickupDelay(Integer.MAX_VALUE);
 
         new BukkitRunnable() {
             public double time = timeBeforeExplode;
@@ -113,15 +114,12 @@ public class Grenada extends TItem {
                     {
                         p.getWorld().playSound(item.getLocation(), Sound.NOTE_STICKS, 0.8F, 0.5F);
                     }
-                    if(item != null && item.isOnGround())
-                    {
-                        try {
-                            ParticleEffects.FIREWORKS_SPARK.sendToPlayer(p, item.getLocation(), 1F, 2F, 1F, 0.00005F, 5);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
+
                 }
+				if(item != null && item.isOnGround())
+				{
+					ParticleEffect.FIREWORKS_SPARK.display(1F, 2F, 1F, 0.00005F, 5, item.getLocation(), 50);
+				}
 
                 if(time <= 0)
                 {

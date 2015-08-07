@@ -1,18 +1,17 @@
 package com.Geekpower14.UpperVoid.Stuff.grapin;
 
 import com.Geekpower14.UpperVoid.Arena.APlayer;
-import com.Geekpower14.UpperVoid.Arena.APlayer.Role;
 import com.Geekpower14.UpperVoid.Arena.Arena;
 import com.Geekpower14.UpperVoid.Stuff.TItem;
-import com.Geekpower14.UpperVoid.UpperVoid;
-import com.Geekpower14.UpperVoid.Utils.ParticleEffects;
-import net.minecraft.server.v1_8_R1.EntityFishingHook;
-import net.minecraft.server.v1_8_R1.EntityHuman;
-import net.minecraft.server.v1_8_R1.World;
+import com.Geekpower14.UpperVoid.Utils.GlowEffect;
+import com.Geekpower14.UpperVoid.Utils.ParticleEffect;
+import net.minecraft.server.v1_8_R3.EntityFishingHook;
+import net.minecraft.server.v1_8_R3.EntityHuman;
+import net.minecraft.server.v1_8_R3.World;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_8_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -56,7 +55,7 @@ public class GrapinBasic extends TItem {
 
         if(isGlow())
         {
-            item = addGlow(item);
+            item = GlowEffect.addGlow(item);
         }
 
 		return item;
@@ -66,7 +65,7 @@ public class GrapinBasic extends TItem {
 	public void rightAction(APlayer ap, APlayer.ItemSLot slot) {
 		Player p = ap.getP();
 
-		if (ap.getRole() == Role.Spectator)
+		if (ap.isSpectator())
 			return;
 
 		if (ap.isReloading() || getNB() <= 0)
@@ -117,14 +116,7 @@ public class GrapinBasic extends TItem {
         setNB(getNB() - 1);
 
         fin.add(0, 2, 0);
-        for(Player pp : UpperVoid.getOnline())
-        {
-            try {
-                ParticleEffects.FIREWORKS_SPARK.sendToPlayer(pp, fin, 1F, 2F, 1F, 0.00005F, 10);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        ParticleEffect.FIREWORKS_SPARK.display(1F, 2F, 1F, 0.00005F, 10, fin, 50);
         hook.remove();
         p.getWorld().playSound(fin, Sound.FIREWORK_LAUNCH, 1.F, 0.01F);
         p.teleport(fin);
@@ -146,7 +138,7 @@ public class GrapinBasic extends TItem {
 
     public Entity spawnFish(Location location, EntityHuman entityhuman) {
         World world = ((CraftWorld) Bukkit.getWorld("world")).getHandle();
-        net.minecraft.server.v1_8_R1.Entity hook = new EntityFishingHook(world, entityhuman);
+        net.minecraft.server.v1_8_R3.Entity hook = new EntityFishingHook(world, entityhuman);
         world.addEntity(hook);
         return hook.getBukkitEntity();
     }

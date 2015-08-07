@@ -1,10 +1,9 @@
 package com.Geekpower14.UpperVoid.Commands;
 
+import com.Geekpower14.UpperVoid.Arena.Arena;
+import com.Geekpower14.UpperVoid.UpperVoid;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-
-import com.Geekpower14.UpperVoid.UpperVoid;
-import com.Geekpower14.UpperVoid.Arena.Arena;
 
 public class StopCommand implements BasicCommand {
 
@@ -25,7 +24,7 @@ public class StopCommand implements BasicCommand {
 				return true;
 			}
 
-			arena.stop();
+			arena.handleGameEnd();
 
 			player.sendMessage(ChatColor.GREEN
 					+ "Force beginning for the arena : " + args[0]);

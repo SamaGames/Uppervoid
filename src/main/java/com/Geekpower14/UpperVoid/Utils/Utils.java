@@ -1,20 +1,16 @@
 package com.Geekpower14.UpperVoid.Utils;
 
-import net.minecraft.server.v1_8_R1.EnumDifficulty;
-import net.minecraft.server.v1_8_R1.EnumGamemode;
-import net.minecraft.server.v1_8_R1.PacketPlayOutRespawn;
-import net.minecraft.server.v1_8_R1.WorldType;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 public class Utils {
 
-    public static void setDimension(Player player, int dimension)
+    /*public static void setDimension(Player player, int dimension)
     {
         CraftPlayer cp = (CraftPlayer) player;
-        PacketPlayOutRespawn packet = new PacketPlayOutRespawn(dimension, EnumDifficulty.PEACEFUL, WorldType.NORMAL, EnumGamemode.valueOf(player.getGameMode().name()));
+        PacketPlayOutRespawn packet = new PacketPlayOutRespawn(dimension, EnumDifficulty.PEACEFUL, WorldType.NORMAL, WorldSettings.EnumGamemode.getById(player.getGameMode().getValue())));
 
         cp.getHandle().playerConnection.sendPacket(packet);
         org.bukkit.Chunk chunk = player.getWorld().getChunkAt(player.getLocation());
@@ -26,7 +22,7 @@ public class Utils {
                 player.getWorld().refreshChunk(chunk.getX() + x, chunk.getZ() + z);
             }
         }
-    }
+    }*/
 
 
     public static Location str2loc(String loc) {

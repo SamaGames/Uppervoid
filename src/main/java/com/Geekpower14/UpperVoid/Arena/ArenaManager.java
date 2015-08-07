@@ -1,14 +1,7 @@
 package com.Geekpower14.UpperVoid.Arena;
 
 import com.Geekpower14.UpperVoid.UpperVoid;
-import net.samagames.gameapi.GameAPI;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 public class ArenaManager {
 
@@ -24,7 +17,7 @@ public class ArenaManager {
 	}
 
 	public void loadArenas() {
-		File folder = new File(plugin.getDataFolder(), "/arenas/");
+		/*File folder = new File(plugin.getDataFolder(), "/arenas/");
 		if (!folder.exists())
 			folder.mkdir();
 
@@ -53,45 +46,29 @@ public class ArenaManager {
 			plugin.log.info(ChatColor.GREEN + "arena " + mapname);
 
 			addArena(mapname);
-		}
+		}*/
 
+		addArena();
 	}
 
-	public void addArena(String name) {
-		if (name == null) {
-			return;
-		}
+	public void addArena() {
 
-		Arena arena = new Arena(plugin, name);
+		Arena arena = new Arena(plugin);
 
-        GameAPI.registerArena(arena);
+        plugin.samaGamesAPI.getGameManager().registerGame(arena);
 		ARENAS = arena;
 	}
 
 	public void removeArena(String name) {
 		Arena aren = getArena();
 
-		aren.stop();
+		aren.handleGameEnd();
 
 		ARENAS = null;
 	}
 
 	public Arena getArena() {
 		return ARENAS;
-	}
-
-	public void deleteArena(String name) {
-		Arena aren = getArena();
-
-		aren.stop();
-
-		File file = new File(plugin.getDataFolder(), "/arenas/"
-				+ aren.getName() + ".yml");
-
-		file.delete();
-
-		ARENAS = null;
-
 	}
 
 	public boolean exist(String name) {
@@ -108,11 +85,6 @@ public class ArenaManager {
 
 	public Arena getArenabyPlayer(Player p)
 	{
-		return getArenabyPlayer(p.getName());
-	}
-
-	public Arena getArenabyPlayer(String p)
-	{
 		if(ARENAS.hasPlayer(p))
 		{
 			return ARENAS;
@@ -121,14 +93,6 @@ public class ArenaManager {
 		return null;
 	}
 
-	public Arena getArenaByUUID(UUID uuid)
-	{
-		if(ARENAS.getUUID().equals(uuid))
-		{
-			return ARENAS;
-		}
-		return null;
-	}
 
 	public Arena getArenas() {
 		return ARENAS;

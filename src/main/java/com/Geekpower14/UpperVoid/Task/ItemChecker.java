@@ -29,8 +29,6 @@ public class ItemChecker implements Runnable {
 
 	public Stock getValue(Arena arena, Player p, Item item) {
 		for (Stock ot : items) {
-			if (!ot.getArena().getName().equals(arena.getName()))
-				continue;
 			if ((!ot.getPlayer().getName().equals(p.getName())))
 				continue;
 			if (ot.getItem().getEntityId() == item.getEntityId())
@@ -44,9 +42,7 @@ public class ItemChecker implements Runnable {
         List<Stock> toremove = new ArrayList<Stock>();
 
 		for (int i = 0; i < items.size(); i++) {
-			if (items.get(i).getArena().getName().equals(arena.getName())) {
-                toremove.add(items.get(i));
-			}
+			toremove.add(items.get(i));
 		}
 
 		toremove.forEach(items::remove);

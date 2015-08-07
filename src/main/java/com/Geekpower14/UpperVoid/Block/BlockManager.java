@@ -111,6 +111,24 @@ public class BlockManager {
 				new ABlock(Material.STAINED_GLASS, 8),
 				new ABlock(Material.STAINED_GLASS)
 		));
+		
+		groups.add(new BlockGroup(plugin,
+				new ABlock(Material.STAINED_CLAY, 13),
+				new ABlock(Material.STAINED_CLAY, 1),
+				new ABlock(Material.STAINED_CLAY, 14)
+		));
+				
+		groups.add(new BlockGroup(plugin,
+				new ABlock(Material.STAINED_CLAY, 5),
+				new ABlock(Material.STAINED_CLAY, 4),
+				new ABlock(Material.STAINED_CLAY, 6)
+		));
+		
+		groups.add(new BlockGroup(plugin,
+				new ABlock(Material.LOG, 13),
+				new ABlock(Material.LOG, 13),
+				new ABlock(Material.LOG, 13)
+		));
 	}
 
 	public BlockGroup getBlockGroup(Block block) {

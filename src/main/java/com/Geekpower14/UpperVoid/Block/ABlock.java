@@ -20,7 +20,7 @@ public class ABlock {
     {
         String[] parsed = data.split(":");
         type = Material.matchMaterial(parsed[0]);
-        if(parsed.length >= 1)
+        if(parsed.length >= 2)
         {
             Data = (byte) Integer.valueOf(parsed[1]).intValue();
         }

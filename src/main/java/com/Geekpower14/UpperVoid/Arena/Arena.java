@@ -312,6 +312,8 @@ public class Arena extends Game<APlayer> {
 
 		APlayer ap = getAPlayer(p);
         setSpectator(p);
+        p.setGameMode(GameMode.SPECTATOR);
+        teleportRandomSpawn(p);
 
 		if (getStatus().equals(Status.IN_GAME)) {
 
@@ -350,9 +352,6 @@ public class Arena extends Game<APlayer> {
 		}catch(Exception e){}
 
 		cleaner(p);
-		teleportRandomSpawn(p);
-
-		p.setGameMode(GameMode.SPECTATOR);
 
 		p.getInventory().setItem(8, this.getLeaveDoor());
 

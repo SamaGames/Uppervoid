@@ -193,6 +193,11 @@ public class BlockManager {
 
 		BlockGroup bg = getBlockGroup(block);
 
+        if(bg == null)
+        {
+            return false;
+        }
+
 		return bg.addDamage(block, damage);
 	}
 

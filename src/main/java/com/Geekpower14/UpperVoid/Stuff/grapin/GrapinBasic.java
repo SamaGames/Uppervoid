@@ -65,13 +65,10 @@ public class GrapinBasic extends TItem {
 	public void rightAction(APlayer ap, APlayer.ItemSLot slot) {
 		Player p = ap.getP();
 
-		if (ap.isSpectator())
+		if (!canUse() || getNB() <= 0)
 			return;
 
-		if (ap.isReloading() || getNB() <= 0)
-			return;
-
-        ap.setReloading(this.reloadTime);
+        setReloading(reloadTime);
 
         Entity hook = spawnFish(p.getEyeLocation(), ((CraftPlayer)p).getHandle());
         hook.setVelocity(p.getLocation().getDirection().multiply(2));
@@ -86,7 +83,7 @@ public class GrapinBasic extends TItem {
         double px, py, pz;
         // Adapter au format joueur
         Vector progress = loc.getDirection().normalize().clone().multiply(0.70);
-        int maxRange = 80;
+        int maxRange = 150;
         maxRange = (100 * maxRange / 70);
         int loop = 0;
         Location fin = null;

@@ -51,17 +51,18 @@ public class ShooterBasic extends TItem {
 	public void rightAction(APlayer ap, APlayer.ItemSLot slot) {
 		Player p = ap.getP();
 
-		if (ap.isSpectator() || ap.isReloading() || !ap.getArena().getBM().isActive())
+		if (!canUse() || !ap.getArena().getBM().isActive())
 			return;
 
 		Item tnt = p.getWorld().dropItem(p.getEyeLocation(),
 				new ItemStack(Material.TNT));
 
-		tnt.setVelocity(p.getEyeLocation().getDirection().multiply(1.5));
+        tnt.setVelocity(p.getEyeLocation().getDirection().multiply(1.5));
 
-		plugin.itemChecker.addItem(ap.getArena(), p, tnt, this);
+        plugin.itemChecker.addItem(ap.getArena(), p, tnt, this);
 
-		ap.setReloading(this.reloadTime);
+		setReloading(this.reloadTime);
+		//ap.setReloading();
 
 		ap.getArena().increaseStat(p.getUniqueId(), StatsNames.TNTLaunch, 1);
 	}

@@ -22,7 +22,7 @@ public class Grenada extends TItem {
     private double timeBeforeExplode = 1.3D;
 
     public Grenada() {
-		super("grenada", "Grenada", false, 2, 0L);
+		super("grenada", "Grenada", false, 2, 10L);
 	}
 
 	@Override
@@ -78,12 +78,10 @@ public class Grenada extends TItem {
     {
         final Player p = ap.getP();
         ItemStack it = p.getInventory().getItemInHand();
-        if (it == null)
+        if (it == null || !canUse() || !ap.getArena().getBM().isActive() || it.getAmount() <= 0)
             return;
-        if (!ap.getArena().getBM().isActive())
-            return;
-        if (it.getAmount() <= 0)
-            return;
+
+		setReloading(reloadTime);
 
         p.getWorld().playSound(p.getLocation(), Sound.STEP_SNOW, 3F, 2.0F);
 

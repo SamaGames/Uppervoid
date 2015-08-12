@@ -21,6 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
 
@@ -136,8 +137,6 @@ public class Arena extends Game<APlayer> {
 
         this.coherenceMachine.getMessageManager().writePlayerJoinToAll(p);
 
-		refresh();
-
 		p.getInventory().setItem(8, this.getLeaveDoor());
 		p.getInventory().setHeldItemSlot(0);
 		try {
@@ -160,8 +159,6 @@ public class Arena extends Game<APlayer> {
 
 		updateScorebords();
 
-		refresh();
-
         if(getStatus() == Status.IN_GAME)
         {
             if(getInGamePlayers().size() == 1)
@@ -176,10 +173,13 @@ public class Arena extends Game<APlayer> {
     @Override
     public void startGame()
     {
-        setStatus(Status.IN_GAME);
+		super.startGame();
 
 		for (APlayer ap : gamePlayers.values()) {
 			Player p = ap.getP();
+
+			p.setWalkSpeed(0.25F);
+			p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 0, false, false));
 
 			ap.setScoreboard();
 
@@ -188,21 +188,21 @@ public class Arena extends Game<APlayer> {
 
 			ap.giveStuff();
 
+
+
 			ap.setReloading(6 * 20L);
 
             increaseStat(p.getUniqueId(), StatsNames.PARTIES, 1);
 		}
 
-		int time = 5;// TICKS
+		int time = 5;// SECONDS
 		blockManager.setActive(false);
 		Bukkit.getScheduler().runTaskLater(plugin, () -> blockManager.setActive(true), time * 20L);
 
 		anticheat = Bukkit.getScheduler().runTaskTimer(plugin,
 				() -> gamePlayers.values().stream().filter(ap -> !ap.isSpectator()).forEach(com.Geekpower14.UpperVoid.Arena.APlayer::checkAntiAFK), time * 20L, 20L);
 
-		Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            gamePlayers.values().forEach(com.Geekpower14.UpperVoid.Arena.APlayer::updateLastChangeBlock);
-        }, (time * 20L) - 1);
+		Bukkit.getScheduler().runTaskLater(plugin, () -> gamePlayers.values().forEach(com.Geekpower14.UpperVoid.Arena.APlayer::updateLastChangeBlock), (time * 20L) - 1);
 
 		/*
 		 * coinsGiver = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin,
@@ -223,8 +223,6 @@ public class Arena extends Game<APlayer> {
 				coinsGiver.start();
 			}
 		}, time * 20L);*/
-
-        super.startGame();
 	}
 
     public void handleGameEnd()

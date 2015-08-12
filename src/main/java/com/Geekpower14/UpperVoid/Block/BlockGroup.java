@@ -1,6 +1,7 @@
 package com.Geekpower14.UpperVoid.Block;
 
 import com.Geekpower14.UpperVoid.UpperVoid;
+import net.samagames.tools.ParticleEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -72,6 +73,12 @@ public class BlockGroup {
 				result = true;
 
 		}
+
+		if(result)
+        {
+            ParticleEffect.VILLAGER_HAPPY.display(0.2F, 0.1F, 0.2F, 10F, 1, block.getLocation().add(0.5,1.1,0.5), 50);
+            ParticleEffect.BLOCK_CRACK.display(new ParticleEffect.BlockData(block.getType(), block.getData()), 0.2F, 0.3F, 0.2F, 10F, 5, block.getLocation().add(0.5,1.1,0.5), 50);
+        }
 		return result;
 	}
 

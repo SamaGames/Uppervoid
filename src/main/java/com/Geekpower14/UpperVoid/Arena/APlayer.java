@@ -31,7 +31,7 @@ public class APlayer extends GamePlayer {
 	private Location lastLoc = null;
 	private int DoubleJump = -1;
 
-	private boolean Reloading = false;
+	private boolean reloading = false;
 
 	private Scoreboard board;
 
@@ -52,8 +52,7 @@ public class APlayer extends GamePlayer {
 		bar = board.registerNewObjective("Infos", "dummy");
 
 		bar.setDisplaySlot(DisplaySlot.SIDEBAR);
-		bar.setDisplayName("" + ChatColor.DARK_AQUA + ChatColor.BOLD
-				+ "UpperVoid");
+		bar.setDisplayName("" + ChatColor.DARK_AQUA + ChatColor.BOLD + "UpperVoid");
 		updateScoreboard();
 
 		resquestStuff();
@@ -82,9 +81,13 @@ public class APlayer extends GamePlayer {
             try {
                 //Shooter
                 String data = shopsManager.getItemLevelForPlayer(p, "shooter");
-                stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName(data));
+                TItem itemByName = plugin.itemManager.getItemByName(data);
+                itemByName.setaPlayer(this);
+                stuff.put(ItemSLot.Slot1, itemByName);
             } catch (Exception e) {
-                stuff.put(ItemSLot.Slot1, plugin.itemManager.getItemByName("shooter"));
+                TItem shooter = plugin.itemManager.getItemByName("shooter");
+                shooter.setaPlayer(this);
+                stuff.put(ItemSLot.Slot1, shooter);
             }
 
             try {
@@ -95,13 +98,14 @@ public class APlayer extends GamePlayer {
                     final int add = Integer.parseInt(dj[1]);
                     Grenada grenade = (Grenada) plugin.itemManager.getItemByName("grenada");
                     grenade.setNB(1 + add);
+                    grenade.setaPlayer(this);
                     stuff.put(ItemSLot.Slot2, grenade);
                 }
             } catch (Exception e) {
 
-                Grenada grenade = (Grenada) plugin.itemManager
-                        .getItemByName("grenada");
+                Grenada grenade = (Grenada) plugin.itemManager.getItemByName("grenada");
                 grenade.setNB(1);
+                grenade.setaPlayer(this);
                 stuff.put(ItemSLot.Slot2, grenade);
             }
 
@@ -116,6 +120,7 @@ public class APlayer extends GamePlayer {
 
                     grapin.setOrigin_Number(1 + add);
                     grapin.setNB(1 + add);
+                    grapin.setaPlayer(this);
                     stuff.put(ItemSLot.Slot3, grapin);
                 }
             } catch (Exception e) {
@@ -123,6 +128,7 @@ public class APlayer extends GamePlayer {
                 Grapin grapin = (Grapin) plugin.itemManager.getItemByName("grapin");
                 grapin.setOrigin_Number(1);
                 grapin.setNB(1);
+                grapin.setaPlayer(this);
                 stuff.put(ItemSLot.Slot3, grapin);
             }
         });
@@ -134,7 +140,7 @@ public class APlayer extends GamePlayer {
 			TItem item = stuff.get(is);
 
 			p.getInventory().setItem(is.getSlot(), item.getItem());
-		}
+        }
 
 		p.updateInventory();
 	}
@@ -166,17 +172,41 @@ public class APlayer extends GamePlayer {
 	}
 
 	@SuppressWarnings("deprecation")
-	public void updateScoreboard() {
+	public void updateScoreboard()
+	{
 		bar.getScore(ChatColor.GOLD + "Coins:")
 				.setScore(coins);
 		bar.getScore(ChatColor.GOLD + "Player:")
-				.setScore(arena.getConnectedPlayers());
+                .setScore(arena.getConnectedPlayers());
 		// bar.getScore(Bukkit.getOfflinePlayer(ChatColor.GOLD +
 		// "DoubleJump:")).setScore(DoubleJump);
 	}
 
+    public void setReloading(long ticks)
+    {
+        reloading = true;
+
+        final long reloadingTimeStart = System.currentTimeMillis();
+
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            Player p = getP();
+            while (true) {
+
+                float timePassed = (System.currentTimeMillis() - reloadingTimeStart);
+                float reloadtimeMillis = ticks * 50;
+
+                float prc = timePassed / reloadtimeMillis;
+
+                if (prc >= 1)
+                    break;
+                p.setExp(prc);
+            }
+            reloading = false;
+        });
+    }
+
 	public void setReloading(Long Ticks) {
-		Reloading = true;
+		reloading = true;
 
 		final Long temp = Ticks;
 
@@ -192,7 +222,7 @@ public class APlayer extends GamePlayer {
                 }, 0L, 2L);
 
 		Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            Reloading = false;
+            reloading = false;
             p.setExp(1);
             infoxp.cancel();
         }, Ticks);
@@ -201,21 +231,15 @@ public class APlayer extends GamePlayer {
 	}
 
 	public boolean isReloading() {
-		return Reloading;
+		return reloading;
 	}
 
 	public void setReloading(Boolean t) {
-		Reloading = t;
+		reloading = t;
 	}
 
-	public float getincr(Long time) {
-		float result = 0;
-
-		float temp = time;
-
-		result = (100 / (temp / 2)) / 100;
-
-		return result;
+	public float getincr(final long time) {
+		return (100 / (time / 2)) / 100;
 	}
 
 	public Arena getArena() {

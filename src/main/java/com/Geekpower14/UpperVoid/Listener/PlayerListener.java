@@ -93,6 +93,7 @@ public class PlayerListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerFellOutOfWorld(EntityDamageEvent event) {
+		event.setCancelled(true);
 		if(event.getEntity() instanceof Player && event.getCause() == EntityDamageEvent.DamageCause.VOID)
 		{
 			Player p = (Player)event.getEntity();

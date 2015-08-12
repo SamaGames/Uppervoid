@@ -8,6 +8,6 @@ import org.bukkit.ChatColor;
 public class Grapin extends GrapinBasic {
     public Grapin() {
         super("grapin", ChatColor.GOLD + "Grapin " + ChatColor.GRAY
-                + "(Clique-Droit)", true, 2, 15L);
+                + "(Clique-Droit)", true, 2, 5L);
     }
 }

@@ -1,107 +1,98 @@
-package com.Geekpower14.UpperVoid.Block;
+package com.geekpower14.uppervoid.block;
 
-import com.Geekpower14.UpperVoid.UpperVoid;
+import com.google.gson.JsonArray;
 import net.samagames.tools.ParticleEffect;
-import org.bukkit.Location;
+import net.samagames.tools.SimpleBlock;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
-public class BlockGroup {
+public class BlockGroup
+{
+    private static SimpleBlock VOID = new SimpleBlock(Material.AIR);
 
-	private UpperVoid plugin;
+	private SimpleBlock blockFine;
+	private SimpleBlock blockWarning;
+	private SimpleBlock blockCritical;
 
-	private ABlock Block_1; // Block neuf.
-	private ABlock Block_2; // Block endommagé.
-	private ABlock Block_3; // Block pret a peter.
+	public BlockGroup(JsonArray group)
+    {
+        String[] blockFineData = group.get(0).getAsString().split(", ");
+        this.blockFine = new SimpleBlock(Material.matchMaterial(blockFineData[0]), Integer.valueOf(blockFineData[1]));
 
-	private ABlock void_; // Block de vide.
+        String[] blockWarningData = group.get(1).getAsString().split(", ");
+        this.blockWarning = new SimpleBlock(Material.matchMaterial(blockWarningData[0]), Integer.valueOf(blockWarningData[1]));
 
-	public BlockGroup(UpperVoid pl, String data) {
-		plugin = pl;
-
-		String[] parsed = data.split(", ");
-
-		Block_1 = new ABlock(parsed[0]);
-		Block_2 = new ABlock(parsed[1]);
-		Block_3 = new ABlock(parsed[2]);
-
-		void_ = new ABlock(Material.AIR, (byte) 0);
+        String[] blockCriticaleData = group.get(2).getAsString().split(", ");
+        this.blockCritical = new SimpleBlock(Material.matchMaterial(blockCriticaleData[0]), Integer.valueOf(blockCriticaleData[1]));
 	}
 
-	public BlockGroup(UpperVoid pl, ABlock type1, ABlock type2, ABlock type3) {
-		plugin = pl;
 
-		Block_1 = type1;
-		Block_2 = type2;
-		Block_3 = type3;
-
-		void_ = new ABlock(Material.AIR, (byte) 0);
-	}
-
-	public boolean isThis(Block block) {
-		if (block == null) {
+	public boolean isThis(Block block)
+    {
+		if (block == null)
 			return false;
-		}
 
-		if (Block_1.equals(block)) {
+        if (this.is(block, this.blockFine))
 			return true;
-		}
-		if (Block_2.equals(block)) {
+        else if (this.is(block, this.blockWarning))
 			return true;
-		}
-		if (Block_3.equals(block)) {
+        else if (this.is(block, this.blockCritical))
 			return true;
-		}
 
 		return false;
 	}
 
-	public boolean isThis(Location loc) {
-		if (loc == null) {
-			return false;
-		}
-		Block block = loc.getBlock();
-
-		return isThis(block);
-	}
-
-	public boolean addDamage(Block block, int damage) {
+	public boolean damage(Block block, int damage)
+    {
 		boolean result = false;
-		for (int i = 0; i < damage; i++) {
-			if (setNext(block))
-				result = true;
 
-		}
+		for (int i = 0; i < damage; i++)
+			if (this.setNext(block))
+				result = true;
 
 		if(result)
         {
             ParticleEffect.VILLAGER_HAPPY.display(0.2F, 0.1F, 0.2F, 10F, 1, block.getLocation().add(0.5,1.1,0.5), 50);
             ParticleEffect.BLOCK_CRACK.display(new ParticleEffect.BlockData(block.getType(), block.getData()), 0.2F, 0.3F, 0.2F, 10F, 5, block.getLocation().add(0.5,1.1,0.5), 50);
         }
+
 		return result;
 	}
 
-	private boolean setNext(Block block) {
-		if (block == null) {
+	private boolean setNext(Block block)
+    {
+		if (block == null)
 			return false;
-		}
 
-		if (Block_1.equals(block)) {
-			Block_2.setSame(block);
+		if (this.is(block, this.blockFine))
+        {
+			this.setNext(block, this.blockWarning);
 			return true;
 		}
-		if (Block_2.equals(block)) {
-			Block_3.setSame(block);
-			return true;
-		}
-		if (Block_3.equals(block)) {
-			void_.setSame(block);
-			void_.setSame(block.getRelative(BlockFace.DOWN));
+        else if (this.is(block, this.blockWarning))
+        {
+            this.setNext(block, this.blockCritical);
+            return true;
+        }
+        else if (this.is(block, this.blockCritical))
+        {
+            this.setNext(block, VOID);
+            this.setNext(block.getRelative(BlockFace.DOWN), VOID);
 			return true;
 		}
 
 		return false;
 	}
 
+    private void setNext(Block block, SimpleBlock simpleBlock)
+    {
+        block.setType(simpleBlock.getType());
+        block.setData(simpleBlock.getData());
+    }
+
+    private boolean is(Block block, SimpleBlock modal)
+    {
+        return (block.getType() == modal.getType() && block.getData() == modal.getData());
+    }
 }

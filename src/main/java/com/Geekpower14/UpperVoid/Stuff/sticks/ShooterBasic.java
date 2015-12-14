@@ -1,10 +1,9 @@
-package com.Geekpower14.UpperVoid.Stuff.sticks;
+package com.geekpower14.uppervoid.stuff.sticks;
 
-import com.Geekpower14.UpperVoid.Arena.APlayer;
-import com.Geekpower14.UpperVoid.Arena.Arena;
-import com.Geekpower14.UpperVoid.Stuff.TItem;
-import com.Geekpower14.UpperVoid.Utils.GlowEffect;
-import com.Geekpower14.UpperVoid.Utils.StatsNames;
+import com.geekpower14.uppervoid.stuff.Stuff;
+import com.geekpower14.uppervoid.Uppervoid;
+import com.geekpower14.uppervoid.arena.Arena;
+import com.geekpower14.uppervoid.arena.ArenaPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -18,70 +17,40 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ShooterBasic extends TItem {
-
-	public ShooterBasic(String name, String display ,boolean glow, int amount, long reload) {
-		super(name, display, glow, amount, reload);
+public class ShooterBasic extends Stuff
+{
+	public ShooterBasic(Uppervoid plugin, String name, ItemStack stack, String display, int amount, long reloadTime, boolean glow)
+    {
+		super(plugin, name, stack, display, "Un lance", amount, reloadTime, glow);
 	}
 
 	@Override
-	public ItemStack getItem() {
-		ItemStack item = new ItemStack(Material.STICK, 1);
+	public void use(ArenaPlayer arenaPlayer)
+	{
+		Player player = arenaPlayer.getPlayerIfOnline();
 
-		ItemMeta item_meta = item.getItemMeta();
-
-		/*coucou_meta.setDisplayName(ChatColor.GOLD + "Shooter " + ChatColor.GRAY
-				+ "(Clique-Droit)");*/
-        item_meta.setDisplayName(getDisplayName());
-        ArrayList<String> lores = new ArrayList<>();
-        lores.add(ChatColor.GRAY + "se recharge en " + ChatColor.GOLD + reloadTime/20L + ChatColor.GRAY  + ".");
-        item_meta.setLore(lores);
-
-		item.setItemMeta(item_meta);
-
-        if(isGlow())
-        {
-            item = GlowEffect.addGlow(item);
-        }
-
-		return item;
-	}
-
-	@Override
-	public void rightAction(APlayer ap, APlayer.ItemSLot slot) {
-		Player p = ap.getP();
-
-		if (!canUse() || !ap.getArena().getBM().isActive())
+		if (!this.canUse() || !this.plugin.getArena().getBlockManager().isActive())
 			return;
 
-		Item tnt = p.getWorld().dropItem(p.getEyeLocation(),
-				new ItemStack(Material.TNT));
+		Item tnt = player.getWorld().dropItem(player.getEyeLocation(), new ItemStack(Material.TNT));
+        tnt.setVelocity(player.getEyeLocation().getDirection().multiply(1.5));
 
-        tnt.setVelocity(p.getEyeLocation().getDirection().multiply(1.5));
+        this.plugin.getArena().getItemChecker().addItem(tnt, this);
 
-        plugin.itemChecker.addItem(ap.getArena(), p, tnt, this);
+        this.setReloading();
 
-		setReloading(this.reloadTime);
-		//ap.setReloading();
-
-		ap.getArena().increaseStat(p.getUniqueId(), StatsNames.TNTLaunch, 1);
+		this.plugin.getArena().increaseStat(player.getUniqueId(), "tntlaunch", 1);
 	}
 
-	@Override
-	public void leftAction(APlayer ap, APlayer.ItemSLot slot) {
-		return;
-	}
-
-	public void onItemTouchGround(Arena arena, Item item) {
+	public void onItemTouchGround(Arena arena, Item item)
+    {
 		Location center = item.getLocation();
+		Block real = center.add(0, -0.5, 0).getBlock();
+		World world = center.getWorld();
 
-		Block real = center.add(0,-0.5,0).getBlock();
-
-		World w = center.getWorld();
-
-		List<Block> damage_1 = new ArrayList<Block>();
-		List<Block> damage_2 = new ArrayList<Block>();
-		List<Block> damage_3 = new ArrayList<Block>();
+        ArrayList<Block> levelOne = new ArrayList<>();
+        ArrayList<Block> levelTwo = new ArrayList<>();
+        ArrayList<Block> levelThree = new ArrayList<>();
 
 		String[] schema = new String[] {
 				"01110",
@@ -90,61 +59,63 @@ public class ShooterBasic extends TItem {
 				"12221",
 				"01110"
 		};
-		int middle = (schema.length - 1) / 2;
 
-		int ref_x = real.getX() - middle;
-		int ref_y = real.getY();
-		int ref_z = real.getZ() - middle;
+        int middle = (schema.length - 1) / 2;
 
-		int incr_x = 0;
-		int incr_z = 0;
-		for (String str : schema) {
-			incr_x = 0;
-			for (int i = 0; i < str.length(); i++) {
-				char c = str.charAt(i);
+        int ref_x = real.getX() - middle;
+        int ref_y = real.getY();
+        int ref_z = real.getZ() - middle;
 
-				if (c == '1') {
-					damage_1.add(w.getBlockAt(ref_x + incr_x, ref_y, ref_z
-							+ incr_z));
-				}
+        int incr_x;
+        int incr_z = 0;
 
-				if (c == '2') {
-					damage_2.add(w.getBlockAt(ref_x + incr_x, ref_y, ref_z
-							+ incr_z));
-				}
+        for (String str : schema)
+        {
+            incr_x = 0;
 
-				if (c == '3') {
-					damage_3.add(w.getBlockAt(ref_x + incr_x, ref_y, ref_z
-							+ incr_z));
-				}
+            for (int i = 0; i < str.length(); i++)
+            {
+                char c = str.charAt(i);
 
-				incr_x++;
-			}
-			incr_z++;
-		}
+                if (c == '1')
+                    levelOne.add(world.getBlockAt(ref_x + incr_x, ref_y, ref_z + incr_z));
 
-		for (Block d1 : damage_1) {
-			arena.getBM().addDamage(d1, 1);
-		}
+                if (c == '2')
+                    levelTwo.add(world.getBlockAt(ref_x + incr_x, ref_y, ref_z + incr_z));
 
-		for (Block d2 : damage_2) {
-			arena.getBM().addDamage(d2, 2);
-		}
+                if (c == '3')
+                    levelThree.add(world.getBlockAt(ref_x + incr_x, ref_y, ref_z + incr_z));
 
-		for (Block d3 : damage_3) {
-			arena.getBM().addDamage(d3, 3);
-		}
+                incr_x++;
+            }
 
-		center.getWorld().createExplosion(center.getX(), center.getY(),
-				center.getZ(), 1.5F, false, false);
+            incr_z++;
+        }
 
+        for (Block block : levelOne)
+            arena.getBlockManager().damage(block, 1);
+
+        for (Block block : levelTwo)
+            arena.getBlockManager().damage(block, 2);
+
+        for (Block block : levelThree)
+            arena.getBlockManager().damage(block, 3);
+
+        center.getWorld().createExplosion(center.getX(), center.getY(), center.getZ(), 2.5F, false, false);
 	}
 
-	@Override
-	public ShooterBasic clone() {
-		ShooterBasic o = null;
-		o = (ShooterBasic) super.clone();
-		return o;
-	}
+    @Override
+    public ItemStack getItem(ItemStack base)
+    {
+        ItemMeta meta = base.getItemMeta();
 
+        List<String> lores = meta.getLore();
+        lores.add("");
+        lores.add(ChatColor.GRAY + "se recharge en " + ChatColor.GOLD + reloadTime/20L + ChatColor.GRAY  + ".");
+
+        meta.setLore(lores);
+        base.setItemMeta(meta);
+
+        return base;
+    }
 }

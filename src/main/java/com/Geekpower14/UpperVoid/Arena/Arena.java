@@ -1,172 +1,93 @@
-package com.Geekpower14.UpperVoid.Arena;
+package com.geekpower14.uppervoid.arena;
 
-import com.Geekpower14.UpperVoid.Block.BlockManager;
-import com.Geekpower14.UpperVoid.UpperVoid;
-import com.Geekpower14.UpperVoid.Utils.StatsNames;
-import com.Geekpower14.UpperVoid.Utils.Utils;
+import com.geekpower14.uppervoid.block.BlockManager;
+import com.geekpower14.uppervoid.stuff.ItemManager;
+import com.geekpower14.uppervoid.Uppervoid;
+import com.geekpower14.uppervoid.tasks.ItemChecker;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.Game;
 import net.samagames.api.games.IGameProperties;
 import net.samagames.api.games.Status;
-import net.samagames.api.games.themachine.messages.templates.PlayerWinTemplate;
+import net.samagames.tools.ColorUtils;
+import net.samagames.tools.LocationUtils;
 import org.bukkit.*;
-import org.bukkit.FireworkEffect.Type;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.scoreboard.Scoreboard;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
-public class Arena extends Game<APlayer> {
+public class Arena extends Game<ArenaPlayer>
+{
+    private final Uppervoid plugin;
+	private final ArrayList<Location> spawns;
+    private final World.Environment dimension;
+    private final Location lobby;
+	private final BlockManager blockManager;
+    private final ItemManager itemManager;
+    private final ItemChecker itemChecker;
 
-	public UpperVoid plugin;
+    private Player second;
+    private Player third;
 
-	/*** Constantes ***/
+	public Arena(Uppervoid plugin)
+    {
+		super("uppervoid", "Uppervoid", "Restez au dessus du vide", ArenaPlayer.class);
 
-	public String Map_name;
+        this.plugin = plugin;
+        this.spawns = new ArrayList<>();
 
-	public int minPlayer = 4;
-	public int maxPlayer = 24;
-
-	public int coinsGiven = 2; // Pièces données aux joueurs
-	public int addCoinsDelay = 20;
-
-	public int Time_Before = 20;
-	public int Time_After = 15;
-	public List<Location> spawns = new ArrayList<>();
-	private Location lobby;
-	/*** Variable dynamiques ***/
-
-	private BlockManager blockManager;
-
-	private BukkitTask anticheat;
-
-	//private CoinsGiver coinsGiver;
-
-	// ScoreBoard teams
-	private Scoreboard tboard;
-
-    private World.Environment dimension;
-
-	//private Team spectates;
-
-	public Arena(UpperVoid pl) {
-		super("uppervoid", "Uppervoid", APlayer.class);
-
-		plugin = pl;
-
-		blockManager = new BlockManager(pl, this);
-		blockManager.setActive(false);
-
-		loadConfig();
-
-        plugin.skyFactory.setDimension(Bukkit.getWorld("world"), dimension);
-
-		tboard = Bukkit.getScoreboardManager().getNewScoreboard();
-	}
-
-	/*
-	 * Configuration.
-	 */
-
-	@SuppressWarnings("deprecation")
-	public static void leaveCleaner(Player player) {
-		for (PotionEffect effect : player.getActivePotionEffects())
-			player.removePotionEffect(effect.getType());
-
-		try {
-			player.updateInventory();
-		} catch (Exception e) {/* LOL */}
-	}
-
-	private void loadConfig() {
-		IGameProperties properties = SamaGamesAPI.get().getGameManager().getGameProperties();
-
-		Map_name = properties.getMapName();
-
-		minPlayer = properties.getMinSlots();
-		maxPlayer = properties.getMaxSlots();
-
-		Time_Before = properties.getOption("Time-Before", new JsonPrimitive(30)).getAsInt();
-		Time_After = properties.getOption("Time-After", new JsonPrimitive(15)).getAsInt();
-
-        dimension = World.Environment.valueOf(properties.getOption("Dimension", new JsonPrimitive(World.Environment.NORMAL.toString())).getAsString());
+        IGameProperties properties = SamaGamesAPI.get().getGameManager().getGameProperties();
 
         JsonArray spawnDefault = new JsonArray();
         spawnDefault.add(new JsonPrimitive("world, 0, 0, 0, 0, 0"));
 
-        JsonArray spawns = properties.getOption("Spawns", spawnDefault).getAsJsonArray();
-        for(JsonElement data : spawns)
-        {
-            this.spawns.add(Utils.str2loc(data.getAsString()));
-        }
+        JsonArray spawns = properties.getOption("spawns", spawnDefault).getAsJsonArray();
 
-		lobby = Utils.str2loc(properties.getOption("Lobby", new JsonPrimitive("world, 0, 0, 0, 0, 0")).getAsString());
+        for(int i = 0; i < spawns.size(); i++)
+            this.spawns.add(LocationUtils.str2loc(spawns.get(i).getAsString()));
+
+        this.dimension = World.Environment.valueOf(properties.getOption("dimension", new JsonPrimitive(World.Environment.NORMAL.toString())).getAsString());
+        this.lobby = LocationUtils.str2loc(properties.getOption("waiting-lobby", new JsonPrimitive("world, 0, 0, 0, 0, 0")).getAsString());
+
+        this.blockManager = new BlockManager(plugin, this);
+		this.blockManager.setActive(false);
+
+        this.itemManager = new ItemManager(plugin);
+        this.itemChecker = new ItemChecker(plugin);
+
+        SamaGamesAPI.get().getSkyFactory().setDimension(this.plugin.getServer().getWorld("world"), this.dimension);
 	}
 
-	/*** Mouvement des joueurs ***/
-
-	@SuppressWarnings("deprecation")
-    public void handleLogin(Player p)
+    @Override
+    public void handleLogin(Player player)
     {
-		p.setFlying(false);
-		p.setAllowFlight(false);
-		cleaner(p);
+        super.handleLogin(player);
 
-		p.teleport(lobby);
-
-		APlayer ap = new APlayer(plugin, this, p);
-        gamePlayers.put(p.getUniqueId(), ap);
-
-        this.coherenceMachine.getMessageManager().writePlayerJoinToAll(p);
-
-		p.getInventory().setItem(8, this.getLeaveDoor());
-		p.getInventory().setHeldItemSlot(0);
-		try {
-			p.updateInventory();
-		} catch (Exception e) {/* LOL */
-		}
+		player.teleport(this.lobby);
+        player.getInventory().setItem(8, this.coherenceMachine.getLeaveItem());
+        player.getInventory().setHeldItemSlot(0);
 	}
 
-	/*
-	 * Gestion de l'arène.
-	 */
-
-    public void handleLogout(Player p)
+    @Override
+    public void handleLogout(Player player)
     {
-		APlayer ap = getAPlayer(p);
-        p.setAllowFlight(false);
-		leaveCleaner(p);
+        super.handleLogout(player);
 
-		ap.removeScoreboard();
+		this.updateScorebords();
 
-		updateScorebords();
-
-        if(getStatus() == Status.IN_GAME)
+        if(this.getStatus() == Status.IN_GAME)
         {
-            if(getInGamePlayers().size() == 1)
-            {
-                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> win(), 1L);
-            }else if(getConnectedPlayers() <= 0){
-                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> handleGameEnd(), 1L);
-			}
+            if(this.getInGamePlayers().size() == 1)
+                this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, this::win, 1L);
+            else if(this.getConnectedPlayers() <= 0)
+                this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, this::handleGameEnd, 1L);
 		}
 	}
 
@@ -175,424 +96,175 @@ public class Arena extends Game<APlayer> {
     {
 		super.startGame();
 
-		for (APlayer ap : gamePlayers.values()) {
-			Player p = ap.getP();
+		for (ArenaPlayer arenaPlayer : this.gamePlayers.values())
+        {
+			Player player = arenaPlayer.getPlayerIfOnline();
 
-			p.setWalkSpeed(0.25F);
-			p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 0, false, false));
+            player.setWalkSpeed(0.25F);
+            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 0, false, false));
 
-			ap.setScoreboard();
+            arenaPlayer.setScoreboard();
+            arenaPlayer.giveStuff();
+            arenaPlayer.setReloading(6 * 20L);
 
-			cleaner(p);
-            teleportRandomSpawn(p);
-
-			ap.giveStuff();
-
-
-
-			ap.setReloading(6 * 20L);
-
-            increaseStat(p.getUniqueId(), StatsNames.PARTIES, 1);
+            this.teleportRandomSpawn(player);
 		}
 
-		int time = 5;// SECONDS
-		blockManager.setActive(false);
-		Bukkit.getScheduler().runTaskLater(plugin, () -> blockManager.setActive(true), time * 20L);
+		int time = 5;
 
-		anticheat = Bukkit.getScheduler().runTaskTimer(plugin,
-				() -> gamePlayers.values().stream().filter(ap -> !ap.isSpectator()).forEach(com.Geekpower14.UpperVoid.Arena.APlayer::checkAntiAFK), time * 20L, 20L);
+		this.blockManager.setActive(false);
 
-		Bukkit.getScheduler().runTaskLater(plugin, () -> gamePlayers.values().forEach(com.Geekpower14.UpperVoid.Arena.APlayer::updateLastChangeBlock), (time * 20L) - 1);
-
-		/*
-		 * coinsGiver = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin,
-		 * new Runnable(){
-		 *
-		 * @Override public void run() { for(APlayer ap : players) {
-		 * if(ap.getRole() == Role.Player) { //int added =
-		 * CoinsManager.creditJoueur(ap.getP().getUniqueId(), coinsGiven, true);
-		 * int added = CoinsManager.creditJoueur(ap.getP(), coinsGiven, true);
-		 * ap.setCoins(ap.getCoins() + added); ap.updateScoreboard(); } } }
-		 *
-		 * }, (time+20) * 20L, addCoinsDelay * 20L);
-		 */
-		//coinsGiver = new CoinsGiver(this);
-		/*Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-			@Override
-			public void run() {
-				coinsGiver.start();
-			}
-		}, time * 20L);*/
+        this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () -> this.blockManager.setActive(true), time * 20L);
+        this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () -> this.gamePlayers.values().forEach(com.geekpower14.uppervoid.arena.ArenaPlayer::updateLastChangeBlock), (time * 20L) - 1);
 	}
 
     public void handleGameEnd()
     {
-		blockManager.setActive(false);
-
+		this.blockManager.setActive(false);
 		super.handleGameEnd();
 	}
 
-	public void disable() {
-		handleGameEnd();
-	}
+	public void win()
+    {
+        this.setStatus(Status.FINISHED);
 
-	public void kickPlayer(Player p) {
-		kickPlayer(p, "");
-	}
+        this.blockManager.setActive(false);
 
-	public void kickPlayer(Player p, String msg) {
+		Player player = this.getWinner();
 
-		if (!plugin.isEnabled()) {
-			p.kickPlayer(msg);
-			return;
-		}
-		if (!p.isOnline())
-			return;
-
-		p.sendMessage(msg);
-		// kickPlayer(p, "");
-		ByteArrayOutputStream b = new ByteArrayOutputStream();
-		DataOutputStream out = new DataOutputStream(b);
-		try {
-			out.writeUTF("Connect");
-			out.writeUTF("lobby");
-		} catch (IOException eee) {
-			Bukkit.getLogger().info("You'll never see me!");
-		}
-		p.sendPluginMessage(plugin, "BungeeCord", b.toByteArray());
-
-	}
-
-	public void win() {
-        setStatus(Status.FINISHED);
-
-        anticheat.cancel();
-
-        blockManager.setActive(false);
-
-		Player p = getWinner();
-
-        if(p == null)
+        if(player == null)
         {
-            handleGameEnd();
+            this.handleGameEnd();
             return;
         }
-        final BukkitTask task = generateFirework((int) (Time_After * 1.5), p);
 
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            task.cancel();
-            handleGameEnd();
-        }, (Time_After * 20));
+        this.effectsOnWinner(player);
+        this.coherenceMachine.getTemplateManager().getPlayerLeaderboardWinTemplate().execute(player, this.second, this.third);
 
-        APlayer ap = getAPlayer(p);
-        PlayerWinTemplate template = this.coherenceMachine.getTemplateManager().getPlayerWinTemplate();
-        template.execute(p);
+        try
+        {
+            this.addStars(player, 1, "Victoire !");
+            this.addCoins(player, 30, "Victoire !");
+            this.increaseStat(player.getUniqueId(), "wins", 1);
 
-        try{
-            addStars(p, 1, "Premier en Uppervoid !");
-            addCoins(p, 30, "Victoire !");
-            ap.setCoins(ap.getCoins() + 30);
-            ap.updateScoreboard();
-            increaseStat(p.getUniqueId(), StatsNames.VICTOIRES, 1);
-        }catch(Exception e)
+            this.getPlayer(player.getUniqueId()).updateScoreboard();
+        }
+        catch(Exception e)
         {
             e.printStackTrace();
         }
     }
 
-    public void refresh()
+	public void lose(Player player)
     {
-        plugin.samaGamesAPI.getGameManager().refreshArena();
-    }
+        this.setSpectator(player);
+        this.teleportRandomSpawn(player);
 
-	@SuppressWarnings("deprecation")
-	public void lose(final Player p) {
-
-		APlayer ap = getAPlayer(p);
-        setSpectator(p);
-        p.setGameMode(GameMode.SPECTATOR);
-        teleportRandomSpawn(p);
-
-		if (getStatus().equals(Status.IN_GAME)) {
-
-            p.sendMessage(coherenceMachine.getGameTag() + ChatColor.YELLOW + "Tu as perdu !");
-
-            int nb = this.getConnectedPlayers();
-            coherenceMachine.getMessageManager().writeCustomMessage(p.getName() + ChatColor.YELLOW + " a perdu ! (" + nb
-                    + " Joueur" + ((nb > 1) ? "s" : "") + " restant"
-                    + ((nb > 1) ? "s" : "") + ")", true);
+		if (this.getStatus().equals(Status.IN_GAME))
+        {
+            int left = this.getInGamePlayers().size();
+            this.coherenceMachine.getMessageManager().writeCustomMessage(player.getName() + ChatColor.YELLOW + " a perdu ! (" + left + " joueur" + ((left > 1) ? "s" : "") + " restant" + ((left > 1) ? "s" : "") + ")", true);
 		}
 
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            for(APlayer pp : getAPlayers())
+		this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
+        {
+            for(ArenaPlayer arenaPlayer : this.getInGamePlayers().values())
             {
-                if(pp.getUUID().equals(p.getUniqueId()))
+                if(arenaPlayer.getUUID().equals(player.getUniqueId()))
                     continue;
 
-                if(pp.isSpectator())
-                    continue;
-
-                try{
-                    addCoins(pp.getP(), 3, "Mort de " + p.getName());
-                }catch(Exception e)
-                {
-                    e.printStackTrace();
-                }
+                this.addCoins(arenaPlayer.getPlayerIfOnline(), 3, "Mort de " + player.getName());
             }
         });
 
-		if (this.getConnectedPlayers() <= 1 && getStatus().equals(Status.IN_GAME)) {
-			win();
-		}
+		if (this.getInGamePlayers().size() <= 1 && getStatus().equals(Status.IN_GAME))
+			this.win();
+        else if (this.getInGamePlayers().size() == 2 && getStatus().equals(Status.IN_GAME))
+            this.second = player;
+        else if (this.getInGamePlayers().size() == 3 && getStatus().equals(Status.IN_GAME))
+            this.third = player;
 
-		try{
-			updateScorebords();
-		}catch(Exception e){}
-
-		cleaner(p);
-
-		p.getInventory().setItem(8, this.getLeaveDoor());
-
-		try {
-			p.updateInventory();
-		} catch (Exception e) {/* LOL */}
-
-		p.setAllowFlight(true);
-		p.setFlying(true);
-
-		p.setScoreboard(tboard);
-        refresh();
+		this.updateScorebords();
 	}
 
-    private Player getWinner() {
-		for (APlayer ap : gamePlayers.values()) {
-			if (!ap.isSpectator() && ap.isOnline())
-			{
-				return ap.getP();
-			}
-		}
-		return null;
-	}
+    public void effectsOnWinner(Player player)
+    {
+        if (player == null || !player.isOnline())
+            return;
 
-	@SuppressWarnings("unused")
-	private ItemStack creator(Material m, String name, String[] lore) {
-		ItemStack lol = new ItemStack(m);
+        this.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(this.plugin, new Runnable()
+        {
+            int timer = 0;
 
-		List<String> l = new ArrayList<String>();
-		for (String s : lore) {
-			l.add(s);
-		}
+            @Override
+            public void run()
+            {
+                if (this.timer < 20)
+                {
+                    Firework fw = (Firework) player.getWorld().spawnEntity(player.getPlayer().getLocation(), EntityType.FIREWORK);
+                    FireworkMeta fwm = fw.getFireworkMeta();
+                    Random r = new Random();
+                    int rt = r.nextInt(4) + 1;
+                    FireworkEffect.Type type = FireworkEffect.Type.BALL;
 
-		ItemMeta me = lol.getItemMeta();
-		me.setDisplayName(name);
-		me.setLore(l);
+                    if (rt == 1)
+                        type = FireworkEffect.Type.BALL;
+                    else if (rt == 2)
+                        type = FireworkEffect.Type.BALL_LARGE;
+                    else if (rt == 3)
+                        type = FireworkEffect.Type.BURST;
+                    else if (rt == 4)
+                        type = FireworkEffect.Type.CREEPER;
+                    else if (rt == 5)
+                        type = FireworkEffect.Type.STAR;
 
-		lol.setItemMeta(me);
+                    int r1i = r.nextInt(15) + 1;
+                    int r2i = r.nextInt(15) + 1;
+                    Color c1 = ColorUtils.getColor(r1i);
+                    Color c2 = ColorUtils.getColor(r2i);
+                    FireworkEffect effect = FireworkEffect.builder().flicker(r.nextBoolean()).withColor(c1).withFade(c2).with(type).trail(r.nextBoolean()).build();
+                    fwm.addEffect(effect);
+                    int rp = r.nextInt(2) + 1;
+                    fwm.setPower(rp);
+                    fw.setFireworkMeta(fwm);
+                    this.timer++;
+                }
+            }
+        }, 5L, 5L);
+    }
 
-		return lol;
-	}
+    public void updateScorebords()
+    {
+        this.gamePlayers.values().forEach(ArenaPlayer::updateScoreboard);
+    }
 
     public void teleportRandomSpawn(Player p)
     {
-        p.teleport(spawns.get(new Random().nextInt(spawns.size())));
+        p.teleport(this.spawns.get(new Random().nextInt(this.spawns.size())));
     }
 
-	public APlayer getAPlayer(Player p) {
-		for (APlayer ap : gamePlayers.values()) {
-			if (ap.getUUID().equals(p.getUniqueId())) {
-				return ap;
-			}
-		}
-
-		return null;
+    private Player getWinner()
+    {
+		return this.getInGamePlayers().values().iterator().next().getPlayerIfOnline();
 	}
 
-	public void broadcastXP(int xp) {
-		for (APlayer player : gamePlayers.values()) {
-			player.setLevel(xp);
-		}
+	public BlockManager getBlockManager()
+    {
+		return this.blockManager;
 	}
 
-	public void playSound(Sound sound, float a, float b) {
-		for (APlayer player : gamePlayers.values()) {
-			player.getP().playSound(player.getP().getLocation(), sound, a, b);
-		}
-	}
-
-	@SuppressWarnings("deprecation")
-	public void cleaner(Player player) {
-		player.setGameMode(GameMode.ADVENTURE);
-		player.setHealth(20F);
-		player.setSaturation(20.0F);
-		player.setFoodLevel(20);
-		player.getInventory().clear();
-		player.getInventory().setHelmet(new ItemStack(Material.AIR, 1));
-		player.getInventory().setChestplate(new ItemStack(Material.AIR, 1));
-		player.getInventory().setLeggings(new ItemStack(Material.AIR, 1));
-		player.getInventory().setBoots(new ItemStack(Material.AIR, 1));
-		player.getInventory().setHeldItemSlot(0);
-		player.setExp(0);
-		player.setLevel(0);
-
-		try {
-			player.updateInventory();
-		} catch (Exception e) {/* LOL */}
-
-		return;
-	}
-
-	public ItemStack getLeaveDoor() {
-		ItemStack coucou = new ItemStack(Material.WOOD_DOOR, 1);
-
-		ItemMeta coucou_meta = coucou.getItemMeta();
-
-		coucou_meta.setDisplayName(ChatColor.GOLD + "Quitter l'arène "
-                + ChatColor.GRAY + "(Clique-Droit)");
-		coucou.setItemMeta(coucou_meta);
-
-		return coucou;
-	}
-
-	public Collection<APlayer> getAPlayers() {
-		return gamePlayers.values();
-	}
-
-	public int getMinPlayers() {
-		return minPlayer;
-	}
-
-    public int getMaxPlayers() {
-		return maxPlayer;
-	}
-
-	public void updateScorebords() {
-		for (APlayer ap : gamePlayers.values()) {
-			ap.updateScoreboard();
-		}
-	}
-
-	public void initScorebords() {
-		for (APlayer ap : gamePlayers.values()) {
-			ap.setScoreboard();
-		}
-	}
-
-    public Collection<Player> getPlayers() {
-        return gamePlayers.values().stream().map(APlayer::getP).collect(Collectors.toList());
+    public ItemManager getItemManager()
+    {
+        return this.itemManager;
     }
 
-	public BlockManager getBM() {
-		return blockManager;
-	}
-
-	public String getMapName() {
-		return Map_name;
-	}
-
-	public void setMapName(String name) {
-		Map_name = name;
-	}
-
-    public int getTimeBefore() {
-		return Time_Before;
-	}
-
-	public int getTimeAfter() {
-		return Time_After;
-	}
-
-	public List<Location> getSpawns() {
-		return spawns;
-	}
-
-	public BukkitTask generateFirework(final int nb, final Player player)
-	{
-		if(player == null)
-			return null;
-
-		final BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
-					int compteur = 0;
-
-					public void run() {
-
-						if (compteur >= nb) {
-							return;
-						}
-
-						// Spawn the Firework, get the FireworkMeta.
-						Firework fw = (Firework) player.getWorld().spawnEntity(
-								player.getLocation(), EntityType.FIREWORK);
-						FireworkMeta fwm = fw.getFireworkMeta();
-
-						// Our random generator
-						Random r = new Random();
-
-						// Get the type
-						int rt = r.nextInt(4) + 1;
-						Type type = Type.BALL;
-						if (rt == 1)
-							type = Type.BALL;
-						if (rt == 2)
-							type = Type.BALL_LARGE;
-						if (rt == 3)
-							type = Type.BURST;
-						if (rt == 4)
-							type = Type.CREEPER;
-						if (rt == 5)
-							type = Type.STAR;
-
-						// Get our random colours
-						int r1i = r.nextInt(17) + 1;
-						int r2i = r.nextInt(17) + 1;
-						Color c1 = getColor(r1i);
-						Color c2 = getColor(r2i);
-
-						// Create our effect with this
-						FireworkEffect effect = FireworkEffect.builder()
-								.flicker(r.nextBoolean()).withColor(c1)
-								.withFade(c2).with(type).trail(r.nextBoolean())
-								.build();
-
-						// Then apply the effect to the meta
-						fwm.addEffect(effect);
-
-						// Generate some random power and set it
-						int rp = r.nextInt(2) + 1;
-						fwm.setPower(rp);
-
-						// Then apply this to our rocket
-						fw.setFireworkMeta(fwm);
-
-						compteur++;
-
-					}
-				}, 5L, 5L);
-		return task;
-	}
-
-	public Color getColor(int i) {
-		if(i==1) return Color.AQUA;
-		if(i==2) return Color.BLACK;
-		if(i==3) return Color.BLUE;
-		if(i==4) return Color.FUCHSIA;
-		if(i==5) return Color.GRAY;
-		if(i==6) return Color.GREEN;
-		if(i==7) return Color.LIME;
-		if(i==8) return Color.MAROON;
-		if(i==9) return Color.NAVY;
-		if(i==10) return Color.OLIVE;
-		if(i==11) return Color.ORANGE;
-		if(i==12) return Color.PURPLE;
-		if(i==13) return Color.RED;
-		if(i==14) return Color.SILVER;
-		if(i==15) return Color.TEAL;
-		if(i==16) return Color.WHITE;
-		if(i==17) return Color.YELLOW;
-		return null;
-	}
+    public ItemChecker getItemChecker()
+    {
+        return this.itemChecker;
+    }
 
     public Location getLobby()
     {
-        return lobby;
+        return this.lobby;
     }
 }

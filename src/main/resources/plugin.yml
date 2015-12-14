@@ -1,10 +1,8 @@
-name: UpperVoid_Serv
-main: com.Geekpower14.UpperVoid.UpperVoid
-version: 1.0.0
-author: Geekpower14
-website: http://geekpower14.com/
+name: Uppervoid
+main: com.geekpower14.uppervoid.Uppervoid
+version: 2.0
+
 depend: [SamaGamesAPI]
-commands:
-   uv:
-      description: UpperVoid Command
-      aliases: [uv]
+
+authors: [geekpower14, BlueSlime]
+website: http://samagames.net/

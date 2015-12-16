@@ -1,40 +1,39 @@
-package com.Geekpower14.UpperVoid.Stuff;
+package com.geekpower14.uppervoid.stuff;
 
-import com.Geekpower14.UpperVoid.Stuff.grapin.Grapin;
-import com.Geekpower14.UpperVoid.Stuff.grenade.Grenada;
-import com.Geekpower14.UpperVoid.Stuff.sticks.BladespinnerShooter;
-import com.Geekpower14.UpperVoid.Stuff.sticks.ChaosgrabberShooter;
-import com.Geekpower14.UpperVoid.Stuff.sticks.LowShooter;
-import com.Geekpower14.UpperVoid.UpperVoid;
+import com.geekpower14.uppervoid.stuff.grenada.Grenada;
+import com.geekpower14.uppervoid.stuff.shooters.BladespinnerShooter;
+import com.geekpower14.uppervoid.stuff.shooters.ChaosgrabberShooter;
+import com.geekpower14.uppervoid.stuff.shooters.LowShooter;
+import com.geekpower14.uppervoid.Uppervoid;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ItemManager {
+public class ItemManager
+{
+    public final Uppervoid plugin;
+    public final List<Stuff> stuffs;
 
-	public UpperVoid plugin;
-
-	public List<TItem> stuff = new ArrayList<TItem>();
-
-	public ItemManager(UpperVoid pl) {
-		plugin = pl;
-
-        //Shooters
-        stuff.add(new LowShooter());//2.0sec
-        stuff.add(new BladespinnerShooter());//1.7sec
-        stuff.add(new ChaosgrabberShooter());//1.5sec
-        //Grenades
-        stuff.add(new Grenada());
-        //Grapins
-        stuff.add(new Grapin());
-	}
-
-    public TItem getItemByName(String name)
+    public ItemManager(Uppervoid plugin)
     {
-        for(TItem i : stuff)
+        this.plugin = plugin;
+        this.stuffs = new ArrayList<>();
+
+        this.stuffs.add(new LowShooter(plugin));
+        this.stuffs.add(new BladespinnerShooter(plugin));
+        this.stuffs.add(new ChaosgrabberShooter(plugin));
+
+        this.stuffs.add(new Grenada(plugin));
+
+        this.stuffs.add(new GrapplingHook(plugin));
+    }
+
+    public Stuff getItemByName(String name)
+    {
+        for(Stuff stuff : this.stuffs)
         {
-            if(i.getName().equals(name))
-                return (TItem) i.clone();
+            if(stuff.getName().equals(name))
+                return (Stuff) stuff.clone();
         }
 
         return getItemByName("shooter");

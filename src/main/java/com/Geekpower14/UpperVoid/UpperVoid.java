@@ -8,26 +8,19 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class Uppervoid extends JavaPlugin
 {
-    private static Uppervoid instance;
     private Arena arena;
 
+    @Override
     public void onEnable()
     {
-        instance = this;
-
         this.arena = new Arena(this);
 
-		Bukkit.getPluginManager().registerEvents(new PlayerListener(this, this.arena), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerListener(this, this.arena), this);
         SamaGamesAPI.get().getGameManager().registerGame(this.arena);
-	}
+    }
 
     public Arena getArena()
     {
         return this.arena;
-    }
-
-    public static Uppervoid getInstance()
-    {
-        return instance;
     }
 }

@@ -6,7 +6,6 @@ import com.geekpower14.uppervoid.arena.ArenaPlayer;
 import net.samagames.tools.GlowEffect;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -14,7 +13,7 @@ import java.util.Collections;
 
 public abstract class Stuff implements Cloneable
 {
-	protected final Uppervoid plugin;
+    protected final Uppervoid plugin;
     protected final String name;
     protected final ItemStack stack;
     protected final String display;
@@ -26,21 +25,22 @@ public abstract class Stuff implements Cloneable
     protected int uses;
     protected boolean reloading = false;
 
-	public Stuff(Uppervoid plugin, String name, ItemStack stack, String display, String lore, int uses, long reloadTime, boolean glow)
+    public Stuff(Uppervoid plugin, String name, ItemStack stack, String display, String lore, int uses, long reloadTime, boolean glow)
     {
         this.plugin = plugin;
-		this.name = name;
+        this.name = name;
         this.stack = stack;
-		this.display = display;
+        this.display = display;
         this.lore = lore;
         this.uses = uses;
-		this.reloadTime = reloadTime;
+        this.reloadTime = reloadTime;
         this.isGlow = glow;
-	}
+    }
 
-    public abstract void use(ArenaPlayer arenaPlayern);
-    public abstract void onItemTouchGround(Arena arena, Item item);
-	public abstract ItemStack getItem(ItemStack base);
+    public abstract void use(ArenaPlayer arenaPlayer);
+    public abstract ItemStack getItem(ItemStack base);
+
+    public void onItemTouchGround(Arena arena, Item item) {}
 
     public void setOwner(ArenaPlayer arenaPlayer)
     {
@@ -54,69 +54,28 @@ public abstract class Stuff implements Cloneable
 
     public void setReloading()
     {
-        this.reloading = true;
+        this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, new ReloadingTask(this.arenaPlayer, this));
+    }
 
-        long reloadingTimeStart = System.currentTimeMillis();
-
-        this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, new Runnable()
-        {
-            public boolean activeInHand = isActiveItem();
-
-            @Override
-            public void run()
-            {
-                Player player = arenaPlayer.getPlayerIfOnline();
-
-                while (true)
-                {
-                    boolean isActualActiveItem = isActiveItem();
-
-                    float timePassed = (System.currentTimeMillis() - reloadingTimeStart);
-                    float reloadtimeMillis = reloadTime * 50;
-
-                    float prc = timePassed / reloadtimeMillis;
-
-                    if (prc >= 1)
-                        break;
-
-                    if (activeInHand && !isActualActiveItem)
-                    {
-                        activeInHand = isActualActiveItem;
-                        player.setExp(0);
-
-                        continue;
-                    }
-                    else if (!activeInHand && isActualActiveItem)
-                    {
-                        activeInHand = isActualActiveItem;
-                    }
-                    else if (!activeInHand)
-                    {
-                        continue;
-                    }
-
-                    player.setExp(prc);
-                }
-
-                reloading = false;
-            }
-        });
+    public void setReloading(boolean reloading)
+    {
+        this.reloading = reloading;
     }
 
     public ItemStack getItem()
     {
-        ItemStack stack = this.stack.clone();
-        stack.setAmount(this.uses);
+        ItemStack modifiedStack = this.stack.clone();
+        modifiedStack.setAmount(this.uses);
 
-        ItemMeta meta = stack.getItemMeta();
+        ItemMeta meta = modifiedStack.getItemMeta();
 
         meta.setDisplayName(this.name);
         meta.setLore(Collections.singletonList(ChatColor.GRAY + this.lore));
 
         if (this.isGlow)
-            GlowEffect.addGlow(stack);
+            GlowEffect.addGlow(modifiedStack);
 
-        return this.getItem(stack);
+        return this.getItem(modifiedStack);
     }
 
     public String getName()
@@ -124,10 +83,10 @@ public abstract class Stuff implements Cloneable
         return this.name;
     }
 
-	public int getUses()
+    public int getUses()
     {
-		return this.uses;
-	}
+        return this.uses;
+    }
 
     public boolean canUse()
     {
@@ -136,29 +95,8 @@ public abstract class Stuff implements Cloneable
 
     public boolean isActiveItem()
     {
-        if(this.arenaPlayer == null)
-            return false;
+        return this.arenaPlayer != null && this.getItem().isSimilar(this.arenaPlayer.getPlayerIfOnline().getItemInHand());
 
-        return this.isSames(this.arenaPlayer.getPlayerIfOnline().getItemInHand());
-    }
-
-    public boolean isSames(ItemStack stack)
-    {
-        ItemStack item = this.getItem();
-
-        ItemMeta oneMeta = item.getItemMeta();
-        ItemMeta twoMeta = stack.getItemMeta();
-
-        if (oneMeta == null && twoMeta == null)
-            return true;
-        else if (oneMeta == null || twoMeta == null)
-            return false;
-        else if (!oneMeta.getDisplayName().equalsIgnoreCase(twoMeta.getDisplayName()))
-            return false;
-        else if (oneMeta.getLore() != null && twoMeta.getLore() != null && !oneMeta.getLore().equals(twoMeta.getLore()))
-            return false;
-
-        return true;
     }
 
     @Override

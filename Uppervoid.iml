@@ -15,15 +15,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
-      <library name="Gradle: net.samagames:SamaGamesAPI:1.0.0-SNAPSHOT">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.samagames/SamaGamesAPI/1.0.0-SNAPSHOT/3ec3542d71ca938b86a1f4937470a3fd8e871405/SamaGamesAPI-1.0.0-SNAPSHOT.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
       <library name="Gradle: org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT">
         <CLASSES>
           <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.spigotmc/spigot/1.8.8-R0.1-SNAPSHOT/36f6a8a9bd93097765f25d569f54df517b8fabe0/spigot-1.8.8-R0.1-SNAPSHOT.jar!/" />
@@ -94,5 +85,6 @@
         </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="module" module-name="SamaGamesAPI" />
   </component>
 </module>

@@ -1,11 +1,11 @@
-package com.geekpower14.uppervoid.stuff.sticks;
+package com.geekpower14.uppervoid.stuff.shooters;
 
 import com.geekpower14.uppervoid.Uppervoid;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public class BladespinnerShooter extends ShooterBasic
+public class BladespinnerShooter extends Shooter
 {
     public BladespinnerShooter(Uppervoid plugin)
     {

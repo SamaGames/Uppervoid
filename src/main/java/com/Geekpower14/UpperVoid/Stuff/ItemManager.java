@@ -1,8 +1,9 @@
 package com.geekpower14.uppervoid.stuff;
 
-import com.geekpower14.uppervoid.stuff.sticks.BladespinnerShooter;
-import com.geekpower14.uppervoid.stuff.sticks.ChaosgrabberShooter;
-import com.geekpower14.uppervoid.stuff.sticks.LowShooter;
+import com.geekpower14.uppervoid.stuff.grenada.Grenada;
+import com.geekpower14.uppervoid.stuff.shooters.BladespinnerShooter;
+import com.geekpower14.uppervoid.stuff.shooters.ChaosgrabberShooter;
+import com.geekpower14.uppervoid.stuff.shooters.LowShooter;
 import com.geekpower14.uppervoid.Uppervoid;
 
 import java.util.ArrayList;
@@ -10,12 +11,12 @@ import java.util.List;
 
 public class ItemManager
 {
-	public final Uppervoid plugin;
-	public final List<Stuff> stuffs;
+    public final Uppervoid plugin;
+    public final List<Stuff> stuffs;
 
-	public ItemManager(Uppervoid plugin)
+    public ItemManager(Uppervoid plugin)
     {
-		this.plugin = plugin;
+        this.plugin = plugin;
         this.stuffs = new ArrayList<>();
 
         this.stuffs.add(new LowShooter(plugin));
@@ -25,7 +26,7 @@ public class ItemManager
         this.stuffs.add(new Grenada(plugin));
 
         this.stuffs.add(new GrapplingHook(plugin));
-	}
+    }
 
     public Stuff getItemByName(String name)
     {

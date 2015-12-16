@@ -1,4 +1,4 @@
-package com.geekpower14.uppervoid.stuff.sticks;
+package com.geekpower14.uppervoid.stuff.shooters;
 
 import com.geekpower14.uppervoid.stuff.Stuff;
 import com.geekpower14.uppervoid.Uppervoid;
@@ -17,79 +17,80 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ShooterBasic extends Stuff
+public class Shooter extends Stuff
 {
-	public ShooterBasic(Uppervoid plugin, String name, ItemStack stack, String display, int amount, long reloadTime, boolean glow)
+    public Shooter(Uppervoid plugin, String name, ItemStack stack, String display, int amount, long reloadTime, boolean glow)
     {
-		super(plugin, name, stack, display, "Un lance", amount, reloadTime, glow);
-	}
+        super(plugin, name, stack, display, "Un lance", amount, reloadTime, glow);
+    }
 
-	@Override
-	public void use(ArenaPlayer arenaPlayer)
-	{
-		Player player = arenaPlayer.getPlayerIfOnline();
+    @Override
+    public void use(ArenaPlayer arenaPlayer)
+    {
+        Player player = arenaPlayer.getPlayerIfOnline();
 
-		if (!this.canUse() || !this.plugin.getArena().getBlockManager().isActive())
-			return;
+        if (!this.canUse() || !this.plugin.getArena().getBlockManager().isActive())
+            return;
 
-		Item tnt = player.getWorld().dropItem(player.getEyeLocation(), new ItemStack(Material.TNT));
+        Item tnt = player.getWorld().dropItem(player.getEyeLocation(), new ItemStack(Material.TNT));
         tnt.setVelocity(player.getEyeLocation().getDirection().multiply(1.5));
 
         this.plugin.getArena().getItemChecker().addItem(tnt, this);
 
         this.setReloading();
 
-		this.plugin.getArena().increaseStat(player.getUniqueId(), "tntlaunch", 1);
-	}
+        this.plugin.getArena().increaseStat(player.getUniqueId(), "tntlaunch", 1);
+    }
 
-	public void onItemTouchGround(Arena arena, Item item)
+    @Override
+    public void onItemTouchGround(Arena arena, Item item)
     {
-		Location center = item.getLocation();
-		Block real = center.add(0, -0.5, 0).getBlock();
-		World world = center.getWorld();
+        Location center = item.getLocation();
+        Block real = center.add(0, -0.5, 0).getBlock();
+        World world = center.getWorld();
 
         ArrayList<Block> levelOne = new ArrayList<>();
         ArrayList<Block> levelTwo = new ArrayList<>();
         ArrayList<Block> levelThree = new ArrayList<>();
 
-		String[] schema = new String[] {
-				"01110",
-				"12221",
-				"12321",
-				"12221",
-				"01110"
-		};
+        String[] schema = new String[] {
+                "01110",
+                "12221",
+                "12321",
+                "12221",
+                "01110"
+        };
 
         int middle = (schema.length - 1) / 2;
 
-        int ref_x = real.getX() - middle;
-        int ref_y = real.getY();
-        int ref_z = real.getZ() - middle;
+        int refX = real.getX() - middle;
+        int refY = real.getY();
+        int refZ = real.getZ() - middle;
 
-        int incr_x;
-        int incr_z = 0;
+        int incrX;
+        int incrZ = 0;
 
         for (String str : schema)
         {
-            incr_x = 0;
+            incrX = 0;
 
             for (int i = 0; i < str.length(); i++)
             {
                 char c = str.charAt(i);
 
                 if (c == '1')
-                    levelOne.add(world.getBlockAt(ref_x + incr_x, ref_y, ref_z + incr_z));
+                    levelOne.add(world.getBlockAt(refX + incrX, refY, refZ + incrZ));
 
                 if (c == '2')
-                    levelTwo.add(world.getBlockAt(ref_x + incr_x, ref_y, ref_z + incr_z));
+                    levelTwo.add(world.getBlockAt(refX + incrX, refY, refZ + incrZ));
 
                 if (c == '3')
-                    levelThree.add(world.getBlockAt(ref_x + incr_x, ref_y, ref_z + incr_z));
+                    levelThree.add(world.getBlockAt(refX + incrX, refY, refZ + incrZ));
 
-                incr_x++;
+                incrX++;
             }
 
-            incr_z++;
+            incrZ++;
         }
 
         for (Block block : levelOne)
@@ -102,7 +103,7 @@ public class ShooterBasic extends Stuff
             arena.getBlockManager().damage(block, 3);
 
         center.getWorld().createExplosion(center.getX(), center.getY(), center.getZ(), 2.5F, false, false);
-	}
+    }
 
     @Override
     public ItemStack getItem(ItemStack base)

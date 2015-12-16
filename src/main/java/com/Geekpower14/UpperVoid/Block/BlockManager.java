@@ -1,7 +1,5 @@
 package com.geekpower14.uppervoid.block;
 
-import com.geekpower14.uppervoid.Uppervoid;
-import com.geekpower14.uppervoid.arena.Arena;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
@@ -15,41 +13,32 @@ import java.util.List;
 
 public class BlockManager
 {
-	private final Uppervoid plugin;
-	private final Arena arena;
-	private final List<BlockGroup> groups;
-	private boolean active = true;
+    private final List<BlockGroup> groups;
+    private boolean active = true;
 
-	public BlockManager(Uppervoid pl, Arena arena)
+    public BlockManager()
     {
-		this.plugin = pl;
-		this.arena = arena;
-
         this.groups = new ArrayList<>();
-
         this.loadGroups();
-	}
+    }
 
-	public boolean damage(Block block)
+    public boolean damage(Block block)
     {
-		return this.damage(block, 1);
-	}
+        return this.damage(block, 1);
+    }
 
-	public boolean damage(Block block, int damage)
+    public boolean damage(Block block, int damage)
     {
-		if (!this.active)
-			return false;
-
-		if (block.getRelative(BlockFace.DOWN).getType() != Material.QUARTZ_BLOCK)
-			return false;
-
-		BlockGroup blockGroup = this.getBlockGroup(block);
-
-        if(blockGroup == null)
+        if (!this.active)
             return false;
 
-		return blockGroup.damage(block, damage);
-	}
+        if (block.getRelative(BlockFace.DOWN).getType() != Material.QUARTZ_BLOCK)
+            return false;
+
+        BlockGroup blockGroup = this.getBlockGroup(block);
+
+        return blockGroup != null && blockGroup.damage(block, damage);
+    }
 
     public void setActive(boolean active)
     {

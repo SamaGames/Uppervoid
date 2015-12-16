@@ -2,7 +2,7 @@ package com.geekpower14.uppervoid.arena;
 
 import com.geekpower14.uppervoid.stuff.GrapplingHook;
 import com.geekpower14.uppervoid.stuff.Stuff;
-import com.geekpower14.uppervoid.stuff.Grenada;
+import com.geekpower14.uppervoid.stuff.grenada.Grenada;
 import com.geekpower14.uppervoid.Uppervoid;
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.GamePlayer;
@@ -10,7 +10,6 @@ import net.samagames.api.shops.AbstractShopsManager;
 import net.samagames.tools.scoreboards.ObjectiveSign;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -18,38 +17,34 @@ import java.util.HashMap;
 
 public class ArenaPlayer extends GamePlayer
 {
-	// ? public int flag = 0;
+    private final Uppervoid plugin;
+    private final Arena arena;
+    private final Player player;
 
-	private final Uppervoid plugin;
-	private final Arena arena;
-	private final Player player;
-
-	private final HashMap<Integer, Stuff> stuff;
+    private final HashMap<Integer, Stuff> stuff;
     private final ObjectiveSign objective;
 
     private Location lastLoc;
-    private long lastChangeBlock;
     private boolean reloading;
 
-	public ArenaPlayer(Player player)
+    public ArenaPlayer(Player player)
     {
         super(player);
 
-        this.plugin = Uppervoid.getInstance();
-		this.arena = (Arena) SamaGamesAPI.get().getGameManager().getGame();
+        this.arena = (Arena) SamaGamesAPI.get().getGameManager().getGame();
+        this.plugin = this.arena.getPlugin();
 
-		this.player = player;
+        this.player = player;
 
         this.stuff = new HashMap<>();
         this.lastLoc = null;
-        this.lastChangeBlock = System.currentTimeMillis();
         this.reloading = false;
 
         this.objective = new ObjectiveSign("infos", ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "Uppervoid");
 
-		this.updateScoreboard();
-		this.loadShop();
-	}
+        this.updateScoreboard();
+        this.loadShop();
+    }
 
     @Override
     public void handleLogout()
@@ -57,111 +52,51 @@ public class ArenaPlayer extends GamePlayer
         this.objective.removeReceiver(this.player);
     }
 
-	public void loadShop()
+    public void loadShop()
     {
         this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
         {
             AbstractShopsManager shopsManager = SamaGamesAPI.get().getShopsManager(this.arena.getGameCodeName());
 
-            /*
-             * Shooter
-             */
+            String dataRaw = shopsManager.getItemLevelForPlayer(this.player, "shooter");
+            Stuff itemByName = this.arena.getItemManager().getItemByName(dataRaw);
+            itemByName.setOwner(this);
 
-            try
-            {
-                String data = shopsManager.getItemLevelForPlayer(this.player, "shooter");
-                Stuff itemByName = this.arena.getItemManager().getItemByName(data);
-                itemByName.setOwner(this);
+            this.stuff.put(1, itemByName);
 
-                this.stuff.put(1, itemByName);
-            }
-            catch (Exception e)
-            {
-                Stuff shooter = this.arena.getItemManager().getItemByName("shooter");
-                shooter.setOwner(this);
+            dataRaw = shopsManager.getItemLevelForPlayer(this.player, "grenade");
+            String[] data = dataRaw.split("-");
 
-                this.stuff.put(1, shooter);
-            }
+            Grenada grenada = (Grenada) this.arena.getItemManager().getItemByName("grenade");
+            grenada.setUses(1 + Integer.parseInt(data[1]));
+            grenada.setOwner(this);
 
-            /*
-             * Grenada
-             */
+            this.stuff.put(2, grenada);
 
-            try
-            {
-                String dataRaw = shopsManager.getItemLevelForPlayer(this.player, "grenade");
-                String[] data = dataRaw.split("-");
+            dataRaw = shopsManager.getItemLevelForPlayer(this.player, "grapin");
+            data = dataRaw.split("-");
 
-                if (data[0].equals("grenade"))
-                {
-                    Grenada grenade = (Grenada) this.arena.getItemManager().getItemByName("grenade");
-                    grenade.setUses(1 + Integer.parseInt(data[1]));
-                    grenade.setOwner(this);
+            GrapplingHook grapplingHook = (GrapplingHook) this.arena.getItemManager().getItemByName("grapin");
+            grapplingHook.setOrigin(1 + Integer.parseInt(data[1]));
+            grapplingHook.setUses(1 + Integer.parseInt(data[1]));
+            grapplingHook.setOwner(this);
 
-                    this.stuff.put(2, grenade);
-                }
-            }
-            catch (Exception e)
-            {
-                Grenada grenade = (Grenada) this.arena.getItemManager().getItemByName("grenade");
-                grenade.setUses(1);
-                grenade.setOwner(this);
-
-                this.stuff.put(2, grenade);
-            }
-
-            /*
-             * Grappling hook
-             */
-
-            try
-            {
-                String dataRaw = shopsManager.getItemLevelForPlayer(this.player, "grapin");
-                String[] data = dataRaw.split("-");
-
-                if (data[0].equals("grapin"))
-                {
-                    int add = Integer.parseInt(data[1]);
-
-                    GrapplingHook grapin = (GrapplingHook) this.arena.getItemManager().getItemByName("grapin");
-                    grapin.setOrigin(1 + add);
-                    grapin.setUses(1 + add);
-                    grapin.setOwner(this);
-
-                    this.stuff.put(3, grapin);
-                }
-            }
-            catch (Exception e)
-            {
-                GrapplingHook grapin = (GrapplingHook) this.arena.getItemManager().getItemByName("grapin");
-                grapin.setOrigin(1);
-                grapin.setUses(1);
-                grapin.setOwner(this);
-
-                this.stuff.put(3, grapin);
-            }
+            this.stuff.put(3, grapplingHook);
         });
-	}
+    }
 
-	public void giveStuff()
+    public void giveStuff()
     {
-		for (int slot : this.stuff.keySet())
-			this.player.getInventory().setItem(slot, this.stuff.get(slot).getItem());
+        this.stuff.entrySet().forEach(slot -> this.stuff.get(slot.getKey()).getItem());
+        this.player.updateInventory();
+    }
 
-		this.player.updateInventory();
-	}
-
-	public void updateScoreboard()
-	{
+    public void updateScoreboard()
+    {
         this.objective.setLine(0, ChatColor.RED + "");
         this.objective.setLine(1, ChatColor.GRAY + "Pièces " + ChatColor.WHITE + ":" + ChatColor.GOLD + " " + this.coins);
         this.objective.setLine(2, ChatColor.GRAY + "Joueurs " + ChatColor.WHITE + ": " + this.arena.getInGamePlayers().size());
         this.objective.updateLines();
-	}
-
-    public void updateLastChangeBlock()
-    {
-        this.lastChangeBlock = System.currentTimeMillis();
     }
 
     public void setScoreboard()
@@ -169,12 +104,12 @@ public class ArenaPlayer extends GamePlayer
         this.objective.addReceiver(this.player);
     }
 
-	public void setReloading(long ticks)
+    public void setReloading(long ticks)
     {
         final long temp = ticks;
 
-		this.reloading = true;
-		this.player.setExp(0);
+        this.reloading = true;
+        this.player.setExp(0);
 
         BukkitTask xpDisplaying = this.plugin.getServer().getScheduler().runTaskTimer(this.plugin, () ->
         {
@@ -193,74 +128,41 @@ public class ArenaPlayer extends GamePlayer
             this.player.setExp(1);
             xpDisplaying.cancel();
         }, ticks);
-	}
+    }
 
     public Stuff getStuff()
     {
         return this.stuff.get(this.player.getInventory().getHeldItemSlot());
     }
 
-	private Location getPlayerStandOnBlockLocation(Location locationUnderPlayer)
+    public boolean isOnSameBlock()
     {
-		Location b11 = locationUnderPlayer.clone().add(0.3, 0, -0.3);
+        Location location = this.player.getLocation();
 
-		if (b11.getBlock().getType() != Material.AIR)
-			return b11;
-
-		Location b12 = locationUnderPlayer.clone().add(-0.3, 0, -0.3);
-
-		if (b12.getBlock().getType() != Material.AIR)
-			return b12;
-
-		Location b21 = locationUnderPlayer.clone().add(0.3, 0, 0.3);
-
-		if (b21.getBlock().getType() != Material.AIR)
-			return b21;
-
-		Location b22 = locationUnderPlayer.clone().add(-0.3, 0, +0.3);
-
-		if (b22.getBlock().getType() != Material.AIR)
-			return b22;
-
-		return locationUnderPlayer;
-	}
-
-	public boolean isOnSameBlock()
-    {
-		Location location = this.player.getLocation();
-
-		if (this.lastLoc == null)
+        if (this.lastLoc == null)
         {
             this.lastLoc = location;
 
-			return true;
-		}
+            return true;
+        }
 
         boolean result = true;
 
-		if (location.getBlockX() != this.lastLoc.getBlockX())
+        if (location.getBlockX() != this.lastLoc.getBlockX())
             result = false;
 
-		if (location.getBlockY() != this.lastLoc.getBlockY())
+        if (location.getBlockY() != this.lastLoc.getBlockY())
             result = false;
 
-		if (location.getBlockZ() != this.lastLoc.getBlockZ())
+        if (location.getBlockZ() != this.lastLoc.getBlockZ())
             result = false;
 
-		if (!result)
+        if (!result)
         {
             this.lastLoc = location;
         }
 
-		return result;
-	}
-
-    public boolean isOnline()
-    {
-        if(this.player == null)
-            return false;
-
-        return this.player.isOnline();
+        return result;
     }
 
     public boolean isReloading()

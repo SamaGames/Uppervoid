@@ -1,6 +1,8 @@
 package com.geekpower14.uppervoid.arena;
 
 import com.geekpower14.uppervoid.block.BlockManager;
+import com.geekpower14.uppervoid.powerups.BlindnessPowerup;
+import com.geekpower14.uppervoid.powerups.SwapPowerup;
 import com.geekpower14.uppervoid.stuff.ItemManager;
 import com.geekpower14.uppervoid.Uppervoid;
 import com.geekpower14.uppervoid.tasks.ItemChecker;
@@ -11,23 +13,26 @@ import net.samagames.api.games.Game;
 import net.samagames.api.games.IGameProperties;
 import net.samagames.api.games.Status;
 import net.samagames.tools.LocationUtils;
+import net.samagames.tools.powerups.PowerupManager;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Arena extends Game<ArenaPlayer>
 {
     private final Uppervoid plugin;
-    private final ArrayList<Location> spawns;
+    private final List<Location> spawns;
     private final World.Environment dimension;
     private final Location lobby;
     private final BlockManager blockManager;
     private final ItemManager itemManager;
     private final ItemChecker itemChecker;
+    private final PowerupManager powerupManager;
 
     private Player second;
     private Player third;
@@ -57,6 +62,15 @@ public class Arena extends Game<ArenaPlayer>
 
         this.itemManager = new ItemManager(plugin);
         this.itemChecker = new ItemChecker(plugin);
+
+        this.powerupManager = new PowerupManager(plugin);
+        this.powerupManager.registerPowerup(new BlindnessPowerup());
+        this.powerupManager.registerPowerup(new SwapPowerup());
+
+        JsonArray powerupsJson = properties.getOption("power-ups", spawnDefault).getAsJsonArray();
+
+        for(int i = 0; i < powerupsJson.size(); i++)
+            this.powerupManager.registerLocation(LocationUtils.str2loc(powerupsJson.get(i).getAsString()));
 
         SamaGamesAPI.get().getSkyFactory().setDimension(this.plugin.getServer().getWorld("world"), this.dimension);
     }
@@ -109,6 +123,8 @@ public class Arena extends Game<ArenaPlayer>
         int time = 5;
 
         this.blockManager.setActive(false);
+        this.powerupManager.start();
+
         this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () -> this.blockManager.setActive(true), time * 20L);
     }
 
@@ -124,6 +140,7 @@ public class Arena extends Game<ArenaPlayer>
         this.setStatus(Status.FINISHED);
 
         this.blockManager.setActive(false);
+        this.powerupManager.stop();
 
         Player player = this.getWinner();
 

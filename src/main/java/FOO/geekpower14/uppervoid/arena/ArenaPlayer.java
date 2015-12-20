@@ -142,7 +142,6 @@ public class ArenaPlayer extends GamePlayer
         if (this.lastLoc == null)
         {
             this.lastLoc = location;
-
             return true;
         }
 
@@ -158,9 +157,7 @@ public class ArenaPlayer extends GamePlayer
             result = false;
 
         if (!result)
-        {
             this.lastLoc = location;
-        }
 
         return result;
     }

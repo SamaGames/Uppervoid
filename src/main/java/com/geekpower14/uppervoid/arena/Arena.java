@@ -67,7 +67,7 @@ public class Arena extends Game<ArenaPlayer>
         this.powerupManager.registerPowerup(new BlindnessPowerup());
         this.powerupManager.registerPowerup(new SwapPowerup());
 
-        JsonArray powerupsJson = properties.getOption("power-ups", spawnDefault).getAsJsonArray();
+        JsonArray powerupsJson = properties.getOption("spawns", spawnDefault).getAsJsonArray();
 
         for(int i = 0; i < powerupsJson.size(); i++)
             this.powerupManager.registerLocation(LocationUtils.str2loc(powerupsJson.get(i).getAsString()));

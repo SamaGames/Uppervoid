@@ -23,7 +23,7 @@ public class BlindnessPowerup extends UppervoidPowerup
     {
         for (ArenaPlayer gamePlayer : this.arena.getInGamePlayers().values())
         {
-            if (gamePlayer == null)
+            if (gamePlayer.getPlayerIfOnline() == null)
                 continue;
 
             if (gamePlayer.getUUID().equals(player.getUniqueId()))

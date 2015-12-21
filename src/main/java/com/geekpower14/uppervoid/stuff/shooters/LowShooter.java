@@ -9,6 +9,6 @@ public class LowShooter extends Shooter
 {
     public LowShooter(Uppervoid plugin)
     {
-        super(plugin, "shooter", new ItemStack(Material.STICK, 1), ChatColor.GOLD + "Shooter " + ChatColor.GRAY + "(Clique-Droit)", 1, 20L * 2, false);
+        super(plugin, "shooter", new ItemStack(Material.STICK, 1), "Shooter", 1, 20L * 2, false);
     }
 }

@@ -21,7 +21,7 @@ public class GrapplingHook extends Stuff
 
     public GrapplingHook(Uppervoid plugin)
     {
-        super(plugin, "grapin", new ItemStack(Material.FISHING_ROD, 1), ChatColor.GOLD + "Grapin " + ChatColor.GRAY + "(Clique-Droit)", "Vise vite la couche et clic une fois tombé pour remonter !", 2, 5L, true);
+        super(plugin, "grapin", new ItemStack(Material.FISHING_ROD, 1), "Grapin", "Vise vite la couche et clic une fois tombé pour remonter !", 2, 5L, true);
 
         this.origin = 2;
     }

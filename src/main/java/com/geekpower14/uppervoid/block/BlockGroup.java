@@ -27,7 +27,6 @@ public class BlockGroup
         this.blockCritical = new SimpleBlock(Material.matchMaterial(blockCriticalData[0]), Integer.valueOf(blockCriticalData[1]));
     }
 
-
     public boolean isThis(Block block)
     {
         if (block == null)

@@ -18,6 +18,7 @@ import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,8 @@ public class Arena extends Game<ArenaPlayer>
     private final ItemChecker itemChecker;
     private final PowerupManager powerupManager;
 
+    private BukkitTask gameTime;
+    private BukkitTask antiAFK;
     private Player second;
     private Player third;
 
@@ -91,14 +94,14 @@ public class Arena extends Game<ArenaPlayer>
     {
         super.handleLogout(player);
 
-        this.updateScorebords();
-
         if(this.getStatus() == Status.IN_GAME)
         {
             if(this.getInGamePlayers().size() == 1)
                 this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, this::win, 1L);
             else if(this.getConnectedPlayers() <= 0)
                 this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, this::handleGameEnd, 1L);
+            else
+                this.lose(player);
         }
     }
 
@@ -126,13 +129,38 @@ public class Arena extends Game<ArenaPlayer>
         this.blockManager.setActive(false);
         this.powerupManager.start();
 
+        this.antiAFK = this.plugin.getServer().getScheduler().runTaskTimer(this.plugin, () -> this.getInGamePlayers().values().forEach(ArenaPlayer::checkAntiAFK), time * 20L, 20L);
         this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () -> this.blockManager.setActive(true), time * 20L);
+
+        this.gameTime = this.plugin.getServer().getScheduler().runTaskTimerAsynchronously(this.plugin, new Runnable()
+        {
+            private int time = 0;
+
+            @Override
+            public void run()
+            {
+                this.time++;
+                updateScoreboards(this.formatTime(this.time));
+            }
+
+            public String formatTime(int time)
+            {
+                int mins = time / 60;
+                int secs = time - mins * 60;
+
+                String secsSTR = (secs < 10) ? "0" + Integer.toString(secs) : Integer.toString(secs);
+
+                return mins + ":" + secsSTR;
+            }
+        }, 0L, 20L);
     }
 
     @Override
     public void handleGameEnd()
     {
         this.blockManager.setActive(false);
+        this.gameTime.cancel();
+
         super.handleGameEnd();
     }
 
@@ -190,12 +218,18 @@ public class Arena extends Game<ArenaPlayer>
         else if (this.getInGamePlayers().size() == 3 && getStatus().equals(Status.IN_GAME))
             this.third = player;
 
-        this.updateScorebords();
+        this.updateScoreboards();
     }
 
-    public void updateScorebords()
+    public void updateScoreboards()
     {
         this.gamePlayers.values().forEach(ArenaPlayer::updateScoreboard);
+    }
+
+    public void updateScoreboards(String time)
+    {
+        for (ArenaPlayer arena : this.gamePlayers.values())
+            arena.setScoreboardTime(time);
     }
 
     public void teleportRandomSpawn(Player p)

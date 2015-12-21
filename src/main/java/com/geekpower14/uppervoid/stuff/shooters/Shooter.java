@@ -21,7 +21,7 @@ public class Shooter extends Stuff
 {
     public Shooter(Uppervoid plugin, String name, ItemStack stack, String display, int amount, long reloadTime, boolean glow)
     {
-        super(plugin, name, stack, display, "Un lance", amount, reloadTime, glow);
+        super(plugin, name, stack, display, "Votre magnificate canon à TNT", amount, reloadTime, glow);
     }
 
     @Override
@@ -112,7 +112,7 @@ public class Shooter extends Stuff
 
         List<String> lores = meta.getLore();
         lores.add("");
-        lores.add(ChatColor.GRAY + "se recharge en " + ChatColor.GOLD + reloadTime/20L + ChatColor.GRAY  + ".");
+        lores.add(ChatColor.GRAY + "Se recharge en " + ChatColor.GOLD + this.reloadTime / 20L + ChatColor.GRAY  + " secondes .");
 
         meta.setLore(lores);
         base.setItemMeta(meta);

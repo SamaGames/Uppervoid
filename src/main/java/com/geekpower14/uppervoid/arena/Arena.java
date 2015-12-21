@@ -211,12 +211,15 @@ public class Arena extends Game<ArenaPlayer>
             }
         });
 
-        if (this.getInGamePlayers().size() <= 1 && getStatus().equals(Status.IN_GAME))
-            this.win();
-        else if (this.getInGamePlayers().size() == 2 && getStatus().equals(Status.IN_GAME))
+        if (this.getInGamePlayers().size() == 1 && getStatus().equals(Status.IN_GAME))
+        {
             this.second = player;
-        else if (this.getInGamePlayers().size() == 3 && getStatus().equals(Status.IN_GAME))
+            this.win();
+        }
+        else if (this.getInGamePlayers().size() == 2 && getStatus().equals(Status.IN_GAME))
+        {
             this.third = player;
+        }
 
         this.updateScoreboards();
     }

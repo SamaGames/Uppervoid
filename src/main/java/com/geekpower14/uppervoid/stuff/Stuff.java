@@ -28,9 +28,9 @@ public abstract class Stuff implements Cloneable
     public Stuff(Uppervoid plugin, String name, ItemStack stack, String display, String lore, int uses, long reloadTime, boolean glow)
     {
         this.plugin = plugin;
-        this.name = ChatColor.GOLD + name + ChatColor.GRAY + " (Clique-Droit)";
+        this.name = name;
         this.stack = stack;
-        this.display = display;
+        this.display = ChatColor.GOLD + display + ChatColor.GRAY + " (Clique-Droit)";
         this.lore = lore;
         this.uses = uses;
         this.reloadTime = reloadTime;

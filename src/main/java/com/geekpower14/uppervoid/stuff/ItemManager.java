@@ -31,12 +31,10 @@ public class ItemManager
     public Stuff getItemByName(String name)
     {
         for(Stuff stuff : this.stuffs)
-        {
             if(stuff.getName().equals(name))
                 return (Stuff) stuff.clone();
-        }
 
-        return getItemByName("shooter");
+        return this.getItemByName("shooter");
     }
 
 }

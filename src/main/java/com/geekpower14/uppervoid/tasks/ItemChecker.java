@@ -17,8 +17,6 @@ public class ItemChecker implements Runnable
     {
         this.plugin = plugin;
         this.items = new ArrayList<>();
-
-        plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, this, 1L, 1L);
     }
 
     @Override
@@ -36,7 +34,7 @@ public class ItemChecker implements Runnable
 
             if (stock.getItem().isOnGround())
             {
-                this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, () -> check(stock));
+                this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, () -> this.check(stock));
             }
         }
 

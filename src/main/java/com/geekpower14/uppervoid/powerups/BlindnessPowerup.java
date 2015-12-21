@@ -7,9 +7,13 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Squid;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BlindnessPowerup extends UppervoidPowerup
 {
@@ -21,6 +25,8 @@ public class BlindnessPowerup extends UppervoidPowerup
     @Override
     public void onPickup(Player player)
     {
+        List<Squid> squids = new ArrayList<>();
+
         for (ArenaPlayer gamePlayer : this.arena.getInGamePlayers().values())
         {
             if (gamePlayer.getPlayerIfOnline() == null)
@@ -31,7 +37,18 @@ public class BlindnessPowerup extends UppervoidPowerup
 
             gamePlayer.getPlayerIfOnline().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 3 * 20, 0));
             gamePlayer.getPlayerIfOnline().playSound(player.getLocation(), Sound.GHAST_SCREAM, 1.0F, 1.0F);
+
+            Squid squid = gamePlayer.getPlayerIfOnline().getWorld().spawn(gamePlayer.getPlayerIfOnline().getLocation(), Squid.class);
+            gamePlayer.getPlayerIfOnline().setPassenger(squid);
+
+            squids.add(squid);
         }
+
+        this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () ->
+        {
+            squids.forEach(Squid::remove);
+            squids.clear();
+        }, 3 * 20L);
     }
 
     @Override

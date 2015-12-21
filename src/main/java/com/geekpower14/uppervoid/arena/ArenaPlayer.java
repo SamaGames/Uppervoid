@@ -107,7 +107,7 @@ public class ArenaPlayer extends GamePlayer
 
     public void giveStuff()
     {
-        this.stuff.entrySet().forEach(slot -> this.stuff.get(slot.getKey()).getItem());
+        this.stuff.keySet().forEach(slot -> this.player.getInventory().setItem(slot, this.stuff.get(slot).getItem()));
         this.player.updateInventory();
     }
 

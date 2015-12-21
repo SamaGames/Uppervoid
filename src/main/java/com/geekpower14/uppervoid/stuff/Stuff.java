@@ -92,7 +92,7 @@ public abstract class Stuff implements Cloneable
 
     public boolean canUse()
     {
-        return !(this.arenaPlayer.isSpectator() || this.arenaPlayer.isReloading() || this.reloading);
+        return this.arenaPlayer != null && !(this.arenaPlayer.isSpectator() || this.arenaPlayer.isReloading() || this.reloading);
     }
 
     public boolean isActiveItem()

@@ -1,11 +1,17 @@
 package com.geekpower14.uppervoid.powerups;
 
-import net.samagames.tools.powerups.Powerup;
+import com.geekpower14.uppervoid.Uppervoid;
+import com.geekpower14.uppervoid.arena.Arena;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public class SwapPowerup implements Powerup
+public class SwapPowerup extends UppervoidPowerup
 {
+    public SwapPowerup(Uppervoid plugin, Arena arena)
+    {
+        super(plugin, arena);
+    }
+
     @Override
     public void onPickup(Player player)
     {

@@ -64,8 +64,8 @@ public class Arena extends Game<ArenaPlayer>
         this.itemChecker = new ItemChecker(plugin);
 
         this.powerupManager = new PowerupManager(plugin);
-        this.powerupManager.registerPowerup(new BlindnessPowerup());
-        this.powerupManager.registerPowerup(new SwapPowerup());
+        this.powerupManager.registerPowerup(new BlindnessPowerup(plugin, this));
+        this.powerupManager.registerPowerup(new SwapPowerup(plugin, this));
 
         JsonArray powerupsJson = properties.getOption("spawns", spawnDefault).getAsJsonArray();
 

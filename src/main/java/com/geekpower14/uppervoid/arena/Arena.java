@@ -81,6 +81,7 @@ public class Arena extends Game<ArenaPlayer>
         super.handleLogin(player);
 
         player.teleport(this.lobby);
+        player.setGameMode(GameMode.ADVENTURE);
         player.getInventory().setItem(8, this.coherenceMachine.getLeaveItem());
         player.getInventory().setHeldItemSlot(0);
     }

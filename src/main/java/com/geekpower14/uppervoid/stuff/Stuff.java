@@ -72,6 +72,8 @@ public abstract class Stuff implements Cloneable
         meta.setDisplayName(this.name);
         meta.setLore(Collections.singletonList(ChatColor.GRAY + this.lore));
 
+        modifiedStack.setItemMeta(meta);
+
         if (this.isGlow)
             GlowEffect.addGlow(modifiedStack);
 

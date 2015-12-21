@@ -187,6 +187,8 @@ public class Arena extends Game<ArenaPlayer>
         this.increaseStat(player.getUniqueId(), "wins", 1);
 
         this.getPlayer(player.getUniqueId()).updateScoreboard();
+
+        this.handleGameEnd();
     }
 
     public void lose(Player player)

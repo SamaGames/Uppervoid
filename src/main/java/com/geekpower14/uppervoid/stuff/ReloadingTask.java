@@ -1,23 +1,21 @@
 package com.geekpower14.uppervoid.stuff;
 
+import com.geekpower14.uppervoid.Uppervoid;
 import com.geekpower14.uppervoid.arena.ArenaPlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 
 public class ReloadingTask implements Runnable
 {
+    private final Uppervoid plugin;
     private final ArenaPlayer arenaPlayer;
     private final Stuff stuff;
-    private final long initialTime;
 
-    private boolean activeInHand;
-
-    public ReloadingTask(ArenaPlayer arenaPlayer, Stuff stuff)
+    public ReloadingTask(Uppervoid plugin, ArenaPlayer arenaPlayer, Stuff stuff)
     {
+        this.plugin = plugin;
         this.arenaPlayer = arenaPlayer;
         this.stuff = stuff;
-        this.initialTime = System.currentTimeMillis();
-
-        this.activeInHand = stuff.isActiveItem();
     }
 
     @Override
@@ -26,37 +24,29 @@ public class ReloadingTask implements Runnable
         this.stuff.setReloading(true);
 
         Player player = this.arenaPlayer.getPlayerIfOnline();
+        player.setExp(0);
 
-        while (true)
+        BukkitTask infoxp = this.plugin.getServer().getScheduler().runTaskTimer(this.plugin, () ->
         {
-            boolean isActualActiveItem = this.stuff.isActiveItem();
+            float xp = player.getExp();
+            xp += this.getCooldown();
 
-            float timePassed = System.currentTimeMillis() - this.initialTime;
-            float reloadTimeMillis = this.stuff.reloadTime * 50;
+            if (xp >= 1)
+                xp = 1;
 
-            float prc = timePassed / reloadTimeMillis;
+            player.setExp(xp);
+        }, 0L, 2L);
 
-            if (prc >= 1)
-                break;
+        this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () ->
+        {
+            this.stuff.setReloading(false);
+            player.setExp(1);
+            infoxp.cancel();
+        }, this.stuff.getReloadTime());
+    }
 
-            if (this.activeInHand && !isActualActiveItem)
-            {
-                this.activeInHand = isActualActiveItem;
-                player.setExp(0);
-
-                continue;
-            }
-            else if (!this.activeInHand && isActualActiveItem)
-            {
-                if (isActualActiveItem)
-                    this.activeInHand = isActualActiveItem;
-                else
-                    continue;
-            }
-
-            player.setExp(prc);
-        }
-
-        this.stuff.setReloading(false);
+    private float getCooldown()
+    {
+        return (100 / (this.stuff.getReloadTime() / 2)) / 100;
     }
 }

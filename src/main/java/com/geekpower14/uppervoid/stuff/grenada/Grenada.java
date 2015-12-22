@@ -16,7 +16,7 @@ public class Grenada extends Stuff
 {
     public Grenada(Uppervoid plugin)
     {
-        super(plugin, "grenade", new ItemStack(Material.CLAY_BALL, 1), ChatColor.RED + "Grenada " + ChatColor.GRAY + "(Clique-Droit)", "Greeenaaadaa!", 2, 10L, false);
+        super(plugin, "grenade", new ItemStack(Material.CLAY_BALL, 1), ChatColor.RED + "Grenada", "Greeenaaadaa!", 2, 10L, false);
     }
 
     @Override

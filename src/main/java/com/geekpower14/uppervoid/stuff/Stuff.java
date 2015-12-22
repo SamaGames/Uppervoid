@@ -54,7 +54,7 @@ public abstract class Stuff implements Cloneable
 
     public void setReloading()
     {
-        this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, new ReloadingTask(this.arenaPlayer, this));
+        this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, new ReloadingTask(this.plugin, this.arenaPlayer, this));
     }
 
     public void setReloading(boolean reloading)
@@ -88,6 +88,11 @@ public abstract class Stuff implements Cloneable
     public int getUses()
     {
         return this.uses;
+    }
+
+    public long getReloadTime()
+    {
+        return this.reloadTime;
     }
 
     public boolean canUse()

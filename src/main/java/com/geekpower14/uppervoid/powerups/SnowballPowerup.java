@@ -36,24 +36,24 @@ public class SnowballPowerup extends UppervoidPowerup
                     public void run()
                     {
                         if (!snowball.isDead())
-                            ParticleEffect.FLAME.display(0.0F, 0.0F, 0.0F, 0.05F, 2, snowball.getLocation(), 120.0D);
+                            ParticleEffect.FLAME.display(0.05F, 0.05F, 0.05F, 0.1F, 4, snowball.getLocation(), 120.0D);
                         else
                             this.cancel();
                     }
-                }.runTaskTimer(plugin, 2L, 2L);
+                }.runTaskTimer(plugin, 1L, 1L);
 
-                this.ticks += 5;
+                this.ticks += 10;
 
-                if (this.ticks == 3 * 20)
+                if (this.ticks == 6 * 20)
                     this.cancel();
             }
-        }.runTaskTimer(this.plugin, 5L, 5L);
+        }.runTaskTimer(this.plugin, 10L, 10L);
     }
 
     @Override
     public String getName()
     {
-        return ChatColor.WHITE + "Canon à boule de neige : 3 secondes";
+        return ChatColor.WHITE + "Canon à boule de neige : 6 secondes";
     }
 
     @Override

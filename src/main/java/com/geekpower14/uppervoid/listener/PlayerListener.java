@@ -41,7 +41,7 @@ public class PlayerListener implements Listener
         if (!this.arena.getStatus().equals(Status.IN_GAME))
             return;
 
-        Stuff item = arenaPlayer.getStuff();
+        Stuff item = arenaPlayer.getStuffInHand();
 
         if (item == null)
             return;

@@ -69,7 +69,7 @@ public abstract class Stuff implements Cloneable
 
         ItemMeta meta = modifiedStack.getItemMeta();
 
-        meta.setDisplayName(this.name);
+        meta.setDisplayName(this.display);
         meta.setLore(Collections.singletonList(ChatColor.GRAY + this.lore));
 
         modifiedStack.setItemMeta(meta);

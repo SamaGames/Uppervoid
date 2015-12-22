@@ -34,7 +34,7 @@ public class ItemChecker implements Runnable
 
             if (stock.getItem().isOnGround())
             {
-                this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, () -> this.check(stock));
+                this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, () -> this.finish(stock));
             }
         }
 
@@ -46,7 +46,7 @@ public class ItemChecker implements Runnable
         this.items.add(new Stock(item, stuff));
     }
 
-    public void check(Stock stock)
+    public void finish(Stock stock)
     {
         Arena arena = this.plugin.getArena();
         Item item = stock.getItem();

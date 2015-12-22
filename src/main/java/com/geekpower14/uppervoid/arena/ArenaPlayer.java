@@ -170,7 +170,7 @@ public class ArenaPlayer extends GamePlayer
         }, ticks);
     }
 
-    public Stuff getStuff()
+    public Stuff getStuffInHand()
     {
         return this.stuff.get(this.getPlayerIfOnline().getInventory().getHeldItemSlot());
     }

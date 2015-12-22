@@ -50,12 +50,12 @@ public class SpeedPowerup extends UppervoidPowerup
                     ParticleEffect.REDSTONE.display(color, location, 120.0D);
                 }
 
-                this.ticks += 2;
+                this.ticks += 1;
 
                 if (this.ticks == 5 * 20)
                     this.cancel();
             }
-        }.runTaskTimerAsynchronously(this.plugin, 2L, 2L);
+        }.runTaskTimerAsynchronously(this.plugin, 1L, 1L);
     }
 
     @Override

@@ -30,11 +30,17 @@ public class SnowballPowerup extends UppervoidPowerup
                 Snowball snowball = player.launchProjectile(Snowball.class);
                 snowball.setVelocity(snowball.getVelocity().multiply(1.75));
 
-                plugin.getServer().getScheduler().runTaskTimer(plugin, () ->
+                new BukkitRunnable()
                 {
-                    while (!snowball.isDead())
-                        ParticleEffect.FLAME.display(0.10F, 0.10F, 0.10F, 0.05F, 3, snowball.getLocation(), 120.0D);
-                }, 2L, 2L);
+                    @Override
+                    public void run()
+                    {
+                        if (!snowball.isDead())
+                            ParticleEffect.FLAME.display(0.10F, 0.10F, 0.10F, 0.05F, 3, snowball.getLocation(), 120.0D);
+                        else
+                            this.cancel();
+                    }
+                }.runTaskTimer(plugin, 2L, 2L);
 
                 this.ticks += 5;
 
@@ -47,7 +53,7 @@ public class SnowballPowerup extends UppervoidPowerup
     @Override
     public String getName()
     {
-        return ChatColor.WHITE + "Cannon à boule de neige : 3 secondes";
+        return ChatColor.WHITE + "Canon à boule de neige : 3 secondes";
     }
 
     @Override

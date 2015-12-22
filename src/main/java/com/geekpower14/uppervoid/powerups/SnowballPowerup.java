@@ -36,7 +36,7 @@ public class SnowballPowerup extends UppervoidPowerup
                     public void run()
                     {
                         if (!snowball.isDead())
-                            ParticleEffect.FLAME.display(0.10F, 0.10F, 0.10F, 0.05F, 3, snowball.getLocation(), 120.0D);
+                            ParticleEffect.FLAME.display(0.0F, 0.0F, 0.0F, 0.05F, 2, snowball.getLocation(), 120.0D);
                         else
                             this.cancel();
                     }

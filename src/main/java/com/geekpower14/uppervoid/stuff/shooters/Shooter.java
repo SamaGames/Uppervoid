@@ -34,6 +34,7 @@ public class Shooter extends Stuff
 
         Item tnt = player.getWorld().dropItem(player.getEyeLocation(), new ItemStack(Material.TNT));
         tnt.setVelocity(player.getEyeLocation().getDirection().multiply(1.5));
+        tnt.setPickupDelay(Integer.MAX_VALUE);
 
         this.plugin.getArena().getItemChecker().addItem(tnt, this);
 

@@ -1,8 +1,7 @@
 package com.geekpower14.uppervoid.arena;
 
 import com.geekpower14.uppervoid.block.BlockManager;
-import com.geekpower14.uppervoid.powerups.BlindnessPowerup;
-import com.geekpower14.uppervoid.powerups.SwapPowerup;
+import com.geekpower14.uppervoid.powerups.*;
 import com.geekpower14.uppervoid.stuff.ItemManager;
 import com.geekpower14.uppervoid.Uppervoid;
 import com.geekpower14.uppervoid.tasks.ItemChecker;
@@ -71,6 +70,9 @@ public class Arena extends Game<ArenaPlayer>
         this.powerupManager = new PowerupManager(plugin);
         this.powerupManager.registerPowerup(new BlindnessPowerup(plugin, this));
         this.powerupManager.registerPowerup(new SwapPowerup(plugin, this));
+        this.powerupManager.registerPowerup(new SpeedPowerup(plugin, this));
+        this.powerupManager.registerPowerup(new JumpPowerup(plugin, this));
+        this.powerupManager.registerPowerup(new SnowballPowerup(plugin, this));
 
         for(int i = 0; i < spawnsJson.size(); i++)
             this.powerupManager.registerLocation(LocationUtils.str2loc(spawnsJson.get(i).getAsString()));

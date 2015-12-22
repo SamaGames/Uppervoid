@@ -35,8 +35,8 @@ public class SwapPowerup extends UppervoidPowerup
         player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1.0F, 1.0F);
         randomized.playSound(randomized.getLocation(), Sound.ENDERMAN_TELEPORT, 1.0F, 1.0F);
 
-        ParticleEffect.PORTAL.display(0.5F, 0.5F, 0.5F, 1.0F, 5, player.getLocation(), 150.0D);
-        ParticleEffect.PORTAL.display(0.5F, 0.5F, 0.5F, 1.0F, 5, randomized.getLocation(), 150.0D);
+        ParticleEffect.PORTAL.display(0.5F, 0.5F, 0.5F, 1.0F, 5, player.getLocation(), 120.0D);
+        ParticleEffect.PORTAL.display(0.5F, 0.5F, 0.5F, 1.0F, 5, randomized.getLocation(), 120.0D);
 
         Location back = player.getLocation();
         player.teleport(randomized.getLocation());

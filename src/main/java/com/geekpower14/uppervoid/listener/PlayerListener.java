@@ -9,10 +9,13 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 
@@ -31,7 +34,6 @@ public class PlayerListener implements Listener
     public void onPlayerInteract(PlayerInteractEvent event)
     {
         Player player = event.getPlayer();
-
         ArenaPlayer arenaPlayer = this.arena.getPlayer(player.getUniqueId());
 
         event.setCancelled(true);
@@ -52,7 +54,7 @@ public class PlayerListener implements Listener
     {
         event.setCancelled(true);
 
-        if(event.getEntity() instanceof Player && event.getCause() == EntityDamageEvent.DamageCause.VOID)
+        if (event.getEntity() instanceof Player && event.getCause() == EntityDamageEvent.DamageCause.VOID)
         {
             Player player = (Player) event.getEntity();
 
@@ -72,6 +74,17 @@ public class PlayerListener implements Listener
 
             if (this.arena.getStatus().equals(Status.IN_GAME))
                 this.arena.lose(player);
+        }
+    }
+
+    @EventHandler
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event)
+    {
+        event.setCancelled(true);
+
+        if (event.getEntity() instanceof Player && event.getDamager() instanceof Snowball)
+        {
+            event.getEntity().setVelocity(event.getDamager().getVelocity());
         }
     }
 

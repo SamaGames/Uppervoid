@@ -34,6 +34,8 @@ public class ItemManager
             if(stuff.getName().equals(name))
                 return (Stuff) stuff.clone();
 
+        this.plugin.getLogger().severe("Stuff not found: " + name);
+
         return this.getItemByName("shooter");
     }
 

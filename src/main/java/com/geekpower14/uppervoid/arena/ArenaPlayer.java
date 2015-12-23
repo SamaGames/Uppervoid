@@ -18,7 +18,7 @@ import java.util.HashMap;
 public class ArenaPlayer extends GamePlayer
 {
     private static final String SHOOTER_ID = "shooter";
-    private static final String GRENADA_ID = "granade";
+    private static final String GRENADA_ID = "grenade";
     private static final String GRAPPLING_HOOK_ID = "grapin";
 
     private final Uppervoid plugin;

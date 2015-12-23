@@ -67,7 +67,7 @@ public class ArenaPlayer extends GamePlayer
 
                 this.stuff.put(0, itemByName);
             }
-            catch (NullPointerException e)
+            catch (NullPointerException ignored)
             {
                 this.stuff.put(0, this.arena.getItemManager().getItemByName(SHOOTER_ID));
             }
@@ -83,7 +83,7 @@ public class ArenaPlayer extends GamePlayer
 
                 this.stuff.put(1, grenada);
             }
-            catch (NullPointerException e)
+            catch (NullPointerException ignored)
             {
                 Grenada grenada = (Grenada) this.arena.getItemManager().getItemByName(GRENADA_ID);
                 grenada.setUses(1);
@@ -104,7 +104,7 @@ public class ArenaPlayer extends GamePlayer
 
                 this.stuff.put(2, grapplingHook);
             }
-            catch (NullPointerException e)
+            catch (NullPointerException ignored)
             {
                 GrapplingHook grapplingHook = (GrapplingHook) this.arena.getItemManager().getItemByName(GRAPPLING_HOOK_ID);
                 grapplingHook.setOrigin(1);
@@ -124,7 +124,7 @@ public class ArenaPlayer extends GamePlayer
         Location location = this.getPlayerIfOnline().getLocation();
 
         double x = location.getX();
-        double y = location.getBlockY() - 1;
+        double y = location.getBlockY() - 1.0D;
         double z = location.getZ();
 
         this.arena.getBlockManager().damage(new Location(location.getWorld(), x, y, z).getBlock());

@@ -56,9 +56,7 @@ public class GrapplingHook extends Stuff
             if(!block.getType().equals(Material.AIR))
             {
                 if (block.getType().equals(Material.QUARTZ_BLOCK))
-                {
                     end = eyeLocation;
-                }
 
                 break;
             }

@@ -41,6 +41,8 @@ public class SwapPowerup extends UppervoidPowerup
         Location back = player.getLocation();
         player.teleport(randomized.getLocation());
         randomized.teleport(back);
+
+        this.arena.getCoherenceMachine().getMessageManager().writeCustomMessage(ChatColor.RED + player.getName() + ChatColor.YELLOW + " a échangé sa position avec " + ChatColor.RED + randomized.getName() + ChatColor.YELLOW + ".", true);
     }
 
     @Override

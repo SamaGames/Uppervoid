@@ -68,15 +68,17 @@ public class Arena extends Game<ArenaPlayer>
         this.plugin.getServer().getScheduler().runTaskTimer(this.plugin, this.itemChecker, 1L, 1L);
 
         this.powerupManager = new PowerupManager(plugin);
-        this.powerupManager.setInverseFrequency(500);
+        this.powerupManager.setInverseFrequency(250);
         this.powerupManager.registerPowerup(new BlindnessPowerup(plugin, this));
         this.powerupManager.registerPowerup(new SwapPowerup(plugin, this));
         this.powerupManager.registerPowerup(new SpeedPowerup(plugin, this));
         this.powerupManager.registerPowerup(new JumpPowerup(plugin, this));
         this.powerupManager.registerPowerup(new SnowballPowerup(plugin, this));
 
-        for(int i = 0; i < spawnsJson.size(); i++)
-            this.powerupManager.registerLocation(LocationUtils.str2loc(spawnsJson.get(i).getAsString()));
+        JsonArray powerupsSpawnsJson = properties.getOption("powerups-spawns", spawnDefault).getAsJsonArray();
+
+        for(int i = 0; i < powerupsSpawnsJson.size(); i++)
+            this.powerupManager.registerLocation(LocationUtils.str2loc(powerupsSpawnsJson.get(i).getAsString()));
 
         SamaGamesAPI.get().getSkyFactory().setDimension(this.plugin.getServer().getWorld("world"), this.dimension);
     }

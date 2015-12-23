@@ -29,7 +29,7 @@ public class JumpPowerup extends UppervoidPowerup
     @Override
     public void onPickup(Player player)
     {
-        player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 5 * 20, 0));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 8 * 20, 2));
 
         new BukkitRunnable()
         {
@@ -38,14 +38,14 @@ public class JumpPowerup extends UppervoidPowerup
             @Override
             public void run()
             {
-                final Location location = player.getLocation().subtract(0.0D, 1.0D, 0.0D);
+                final Location location = player.getLocation().subtract(0.0D, 0.75D, 0.0D);
 
                 for(int i = 0; i < 20; i++)
                     ParticleEffect.CLOUD.display(0.25F, 0.25F, 0.25F, 0.0F, 2, location.clone().add(random.nextFloat() - 0.5F, 0.25F, random.nextFloat() - 0.5F), 120.0D);
 
                 this.ticks += 2;
 
-                if (this.ticks == 5 * 20)
+                if (this.ticks == 8 * 20)
                     this.cancel();
             }
         }.runTaskTimerAsynchronously(this.plugin, 2L, 2L);
@@ -54,7 +54,7 @@ public class JumpPowerup extends UppervoidPowerup
     @Override
     public String getName()
     {
-        return ChatColor.GREEN + "Saut amélioré : 5 secondes";
+        return ChatColor.GREEN + "Saut amélioré : 8 secondes";
     }
 
     @Override

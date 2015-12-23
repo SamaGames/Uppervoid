@@ -4,8 +4,10 @@ import com.geekpower14.uppervoid.stuff.Stuff;
 import com.geekpower14.uppervoid.Uppervoid;
 import com.geekpower14.uppervoid.arena.Arena;
 import com.geekpower14.uppervoid.arena.ArenaPlayer;
+import com.geekpower14.uppervoid.utils.TNTExplosion;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -24,34 +26,20 @@ public class Shooter extends Stuff
     @Override
     public void use(ArenaPlayer arenaPlayer)
     {
-        Bukkit.broadcastMessage("1");
-
         Player player = arenaPlayer.getPlayerIfOnline();
-
-        Bukkit.broadcastMessage("2");
 
         if (!this.canUse() || !this.plugin.getArena().getBlockManager().isActive())
             return;
-
-        Bukkit.broadcastMessage("3");
 
         Item tnt = player.getWorld().dropItem(player.getEyeLocation(), new ItemStack(Material.TNT));
         tnt.setVelocity(player.getEyeLocation().getDirection().multiply(1.5));
         tnt.setPickupDelay(Integer.MAX_VALUE);
 
-        Bukkit.broadcastMessage("4 -> " + tnt.getLocation().toString());
-
         this.plugin.getArena().getItemChecker().addItem(tnt, this);
-
-        Bukkit.broadcastMessage("5");
 
         this.setReloading();
 
-        Bukkit.broadcastMessage("6");
-
         this.plugin.getArena().increaseStat(player.getUniqueId(), "tntlaunch", 1);
-
-        Bukkit.broadcastMessage("7");
     }
 
     @Override
@@ -114,7 +102,7 @@ public class Shooter extends Stuff
         for (Block block : levelThree)
             arena.getBlockManager().damage(block, 3);
 
-        center.getWorld().createExplosion(center.getX(), center.getY(), center.getZ(), 2.5F, false, false);
+        new TNTExplosion(((CraftWorld) center.getWorld()).getHandle(), null, center.getX(), center.getY(), center.getZ(), 3F, false, false).explode();
     }
 
     @Override

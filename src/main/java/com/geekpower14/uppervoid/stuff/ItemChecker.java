@@ -1,4 +1,4 @@
-package com.geekpower14.uppervoid.tasks;
+package com.geekpower14.uppervoid.stuff;
 
 import com.geekpower14.uppervoid.Uppervoid;
 import com.geekpower14.uppervoid.arena.Arena;

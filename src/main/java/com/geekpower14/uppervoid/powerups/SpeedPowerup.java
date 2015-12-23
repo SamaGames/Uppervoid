@@ -29,7 +29,7 @@ public class SpeedPowerup extends UppervoidPowerup
     @Override
     public void onPickup(Player player)
     {
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 5 * 20, 0));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 8 * 20, 2));
 
         new BukkitRunnable()
         {
@@ -52,7 +52,7 @@ public class SpeedPowerup extends UppervoidPowerup
 
                 this.ticks += 1;
 
-                if (this.ticks == 5 * 20)
+                if (this.ticks == 8 * 20)
                     this.cancel();
             }
         }.runTaskTimerAsynchronously(this.plugin, 1L, 1L);
@@ -61,7 +61,7 @@ public class SpeedPowerup extends UppervoidPowerup
     @Override
     public String getName()
     {
-        return ChatColor.AQUA + "Vitesse : 5 secondes";
+        return ChatColor.AQUA + "Vitesse : 8 secondes";
     }
 
     @Override

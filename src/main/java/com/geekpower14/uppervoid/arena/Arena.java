@@ -4,7 +4,7 @@ import com.geekpower14.uppervoid.block.BlockManager;
 import com.geekpower14.uppervoid.powerups.*;
 import com.geekpower14.uppervoid.stuff.ItemManager;
 import com.geekpower14.uppervoid.Uppervoid;
-import com.geekpower14.uppervoid.tasks.ItemChecker;
+import com.geekpower14.uppervoid.stuff.ItemChecker;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
 import net.samagames.api.SamaGamesAPI;
@@ -68,6 +68,7 @@ public class Arena extends Game<ArenaPlayer>
         this.plugin.getServer().getScheduler().runTaskTimer(this.plugin, this.itemChecker, 1L, 1L);
 
         this.powerupManager = new PowerupManager(plugin);
+        this.powerupManager.setInverseFrequency(500);
         this.powerupManager.registerPowerup(new BlindnessPowerup(plugin, this));
         this.powerupManager.registerPowerup(new SwapPowerup(plugin, this));
         this.powerupManager.registerPowerup(new SpeedPowerup(plugin, this));

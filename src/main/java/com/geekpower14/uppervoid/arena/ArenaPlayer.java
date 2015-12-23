@@ -17,6 +17,10 @@ import java.util.HashMap;
 
 public class ArenaPlayer extends GamePlayer
 {
+    private static final String SHOOTER_ID = "shooter";
+    private static final String GRENADA_ID = "granade";
+    private static final String GRAPPLING_HOOK_ID = "grapin";
+
     private final Uppervoid plugin;
     private final Arena arena;
 
@@ -53,46 +57,56 @@ public class ArenaPlayer extends GamePlayer
     {
         this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
         {
+            AbstractShopsManager shopsManager = SamaGamesAPI.get().getShopsManager(this.arena.getGameCodeName());
+
             try
             {
-                AbstractShopsManager shopsManager = SamaGamesAPI.get().getShopsManager(this.arena.getGameCodeName());
-
-                String dataRaw = shopsManager.getItemLevelForPlayer(this.getUUID(), "shooter");
+                String dataRaw = shopsManager.getItemLevelForPlayer(this.getUUID(), SHOOTER_ID);
                 Stuff itemByName = this.arena.getItemManager().getItemByName(dataRaw);
                 itemByName.setOwner(this);
 
                 this.stuff.put(0, itemByName);
+            }
+            catch (NullPointerException e)
+            {
+                this.stuff.put(0, this.arena.getItemManager().getItemByName(SHOOTER_ID));
+            }
 
-                dataRaw = shopsManager.getItemLevelForPlayer(this.getUUID(), "grenade");
+            try
+            {
+                String dataRaw = shopsManager.getItemLevelForPlayer(this.getUUID(), GRENADA_ID);
                 String[] data = dataRaw.split("-");
 
-                Grenada grenada = (Grenada) this.arena.getItemManager().getItemByName("grenade");
+                Grenada grenada = (Grenada) this.arena.getItemManager().getItemByName(GRENADA_ID);
                 grenada.setUses(1 + Integer.parseInt(data[1]));
                 grenada.setOwner(this);
 
                 this.stuff.put(1, grenada);
+            }
+            catch (NullPointerException e)
+            {
+                Grenada grenada = (Grenada) this.arena.getItemManager().getItemByName(GRENADA_ID);
+                grenada.setUses(1);
+                grenada.setOwner(this);
 
-                dataRaw = shopsManager.getItemLevelForPlayer(this.getUUID(), "grapin");
-                data = dataRaw.split("-");
+                this.stuff.put(1, grenada);
+            }
 
-                GrapplingHook grapplingHook = (GrapplingHook) this.arena.getItemManager().getItemByName("grapin");
+            try
+            {
+                String dataRaw = shopsManager.getItemLevelForPlayer(this.getUUID(), GRAPPLING_HOOK_ID);
+                String[] data = dataRaw.split("-");
+
+                GrapplingHook grapplingHook = (GrapplingHook) this.arena.getItemManager().getItemByName(GRAPPLING_HOOK_ID);
                 grapplingHook.setOrigin(1 + Integer.parseInt(data[1]));
                 grapplingHook.setUses(1 + Integer.parseInt(data[1]));
                 grapplingHook.setOwner(this);
 
                 this.stuff.put(2, grapplingHook);
             }
-            catch (Exception e)
+            catch (NullPointerException e)
             {
-                this.stuff.put(0, this.arena.getItemManager().getItemByName("shooter"));
-
-                Grenada grenada = (Grenada) this.arena.getItemManager().getItemByName("grenade");
-                grenada.setUses(1);
-                grenada.setOwner(this);
-
-                this.stuff.put(1, grenada);
-
-                GrapplingHook grapplingHook = (GrapplingHook) this.arena.getItemManager().getItemByName("grapin");
+                GrapplingHook grapplingHook = (GrapplingHook) this.arena.getItemManager().getItemByName(GRAPPLING_HOOK_ID);
                 grapplingHook.setOrigin(1);
                 grapplingHook.setUses(1);
                 grapplingHook.setOwner(this);

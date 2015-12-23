@@ -23,30 +23,51 @@ public class ReloadingTask implements Runnable
     {
         this.stuff.setReloading(true);
 
-        Player player = this.arenaPlayer.getPlayerIfOnline();
-        player.setExp(0);
+        final long reloadingTimeStart = System.currentTimeMillis();
 
-        BukkitTask infoxp = this.plugin.getServer().getScheduler().runTaskTimer(this.plugin, () ->
+        this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, new Runnable()
         {
-            float xp = player.getExp();
-            xp += this.getCooldown();
+            public boolean activeInHand = stuff.isActiveItem();
 
-            if (xp >= 1)
-                xp = 1;
+            @Override
+            public void run()
+            {
+                Player player = arenaPlayer.getPlayerIfOnline();
 
-            player.setExp(xp);
-        }, 0L, 2L);
+                while (true)
+                {
+                    boolean isActualActiveItem = stuff.isActiveItem();
 
-        this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () ->
-        {
-            this.stuff.setReloading(false);
-            player.setExp(1);
-            infoxp.cancel();
-        }, this.stuff.getReloadTime());
-    }
+                    float timePassed = (System.currentTimeMillis() - reloadingTimeStart);
+                    float reloadtimeMillis = stuff.getReloadTime() * 50;
 
-    private float getCooldown()
-    {
-        return (100 / (this.stuff.getReloadTime() / 2)) / 100;
+                    float prc = timePassed / reloadtimeMillis;
+
+                    if (prc >= 1)
+                        break;
+
+                    if (this.activeInHand && !isActualActiveItem)
+                    {
+                        this.activeInHand = isActualActiveItem;
+                        player.setExp(0);
+
+                        continue;
+                    }
+                    else if (!this.activeInHand && isActualActiveItem)
+                    {
+                        this.activeInHand = isActualActiveItem;
+                    }
+                    else if (!this.activeInHand)
+                    {
+                        continue;
+                    }
+
+                    player.setExp(prc);
+
+                }
+
+                stuff.setReloading(false);
+            }
+        });
     }
 }

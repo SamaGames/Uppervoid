@@ -29,13 +29,10 @@ public class BlindnessPowerup extends UppervoidPowerup
 
         for (ArenaPlayer gamePlayer : this.arena.getInGamePlayers().values())
         {
-            if (gamePlayer.getPlayerIfOnline() == null)
+            if (gamePlayer.getPlayerIfOnline() == null || gamePlayer.getUUID().equals(player.getUniqueId()))
                 continue;
 
-            if (gamePlayer.getUUID().equals(player.getUniqueId()))
-                continue;
-
-            gamePlayer.getPlayerIfOnline().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 3 * 20, 0));
+            gamePlayer.getPlayerIfOnline().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 0));
             gamePlayer.getPlayerIfOnline().playSound(player.getLocation(), Sound.GHAST_SCREAM, 1.0F, 1.0F);
 
             Squid squid = gamePlayer.getPlayerIfOnline().getWorld().spawn(gamePlayer.getPlayerIfOnline().getLocation(), Squid.class);
@@ -48,13 +45,13 @@ public class BlindnessPowerup extends UppervoidPowerup
         {
             squids.forEach(Squid::remove);
             squids.clear();
-        }, 3 * 20L);
+        }, 20L);
     }
 
     @Override
     public String getName()
     {
-        return ChatColor.BLACK + "Crachat de poulpe : 3 secondes";
+        return ChatColor.BLACK + "Ninja Poulpe";
     }
 
     @Override

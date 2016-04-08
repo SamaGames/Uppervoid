@@ -38,6 +38,8 @@ public class Grenada extends Stuff
 
         new GrenadaExplosionTask(this.plugin, this, tnt).runTaskTimerAsynchronously(this.plugin, 0L, 5L);
 
+        this.plugin.getServer().getScheduler().runTaskLater(this.plugin, tnt::remove, 5L);
+
         this.setUses(this.getUses() - 1);
 
         stack.setAmount(stack.getAmount() - 1);

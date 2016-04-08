@@ -3,7 +3,7 @@ apply plugin: 'idea'
 apply plugin: 'sonar-runner'
 
 group = 'net.samagames'
-version = '3.0.0'
+version = '1.0.0'
 archivesBaseName = 'Uppervoid'
 
 sourceCompatibility = 1.8

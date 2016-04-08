@@ -2,7 +2,6 @@ package com.geekpower14.uppervoid.stuff;
 
 import com.geekpower14.uppervoid.Uppervoid;
 import com.geekpower14.uppervoid.arena.Arena;
-import com.geekpower14.uppervoid.stuff.Stuff;
 import org.bukkit.entity.Item;
 
 import java.util.ArrayList;

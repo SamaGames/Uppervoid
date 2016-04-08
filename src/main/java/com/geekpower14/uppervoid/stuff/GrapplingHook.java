@@ -102,7 +102,7 @@ public class GrapplingHook extends Stuff
     @Override
     public ItemStack getItem(ItemStack base)
     {
-        base.setDurability((short) (63 - ((64 * this.getUses()) / this.origin)));
+        base.setDurability((short) (64 - ((64 * this.getUses()) / this.origin)));
         return base;
     }
 }

@@ -14,7 +14,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
-import java.util.logging.Level;
 
 public class ArenaPlayer extends GamePlayer
 {
@@ -104,7 +103,6 @@ public class ArenaPlayer extends GamePlayer
                 grapplingHook.setOwner(this);
 
                 this.stuff.put(2, grapplingHook);
-                this.plugin.getLogger().info("Grappling level " + (1 + Integer.parseInt(data[1])) + " loaded for player " + this.uuid);
             }
             catch (Exception ignored)
             {
@@ -114,8 +112,6 @@ public class ArenaPlayer extends GamePlayer
                 grapplingHook.setOwner(this);
 
                 this.stuff.put(2, grapplingHook);
-
-                this.plugin.getLogger().log(Level.SEVERE, "Error while getting grappling for player " + this.uuid, ignored);
             }
         });
     }

@@ -115,7 +115,7 @@ public class ArenaPlayer extends GamePlayer
 
                 this.stuff.put(2, grapplingHook);
 
-                this.plugin.getLogger().log(Level.WARNING, "Error while getting grappling for player " + this.uuid, ignored);
+                this.plugin.getLogger().log(Level.SEVERE, "Error while getting grappling for player " + this.uuid, ignored);
             }
         });
     }

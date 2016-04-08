@@ -45,6 +45,7 @@ public class GrenadaExplosionTask extends BukkitRunnable
         {
             this.cancel();
             this.plugin.getServer().getScheduler().runTask(this.plugin, () -> this.grenada.onItemTouchGround(this.plugin.getArena(), this.tnt));
+            this.tnt.remove();
 
             return;
         }

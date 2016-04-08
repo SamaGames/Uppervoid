@@ -3,7 +3,6 @@ package com.geekpower14.uppervoid.stuff;
 import com.geekpower14.uppervoid.Uppervoid;
 import com.geekpower14.uppervoid.arena.ArenaPlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitTask;
 
 public class ReloadingTask implements Runnable
 {

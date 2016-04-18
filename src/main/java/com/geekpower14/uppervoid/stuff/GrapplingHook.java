@@ -2,14 +2,14 @@ package com.geekpower14.uppervoid.stuff;
 
 import com.geekpower14.uppervoid.Uppervoid;
 import com.geekpower14.uppervoid.arena.ArenaPlayer;
-import net.minecraft.server.v1_8_R3.EntityFishingHook;
-import net.minecraft.server.v1_8_R3.EntityHuman;
-import net.minecraft.server.v1_8_R3.World;
+import net.minecraft.server.v1_9_R1.EntityFishingHook;
+import net.minecraft.server.v1_9_R1.EntityHuman;
+import net.minecraft.server.v1_9_R1.World;
 import net.samagames.tools.ParticleEffect;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_9_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_9_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -78,7 +78,7 @@ public class GrapplingHook extends Stuff
 
         ParticleEffect.FIREWORKS_SPARK.display(1F, 2F, 1F, 0.00005F, 10, end, 50);
 
-        player.getWorld().playSound(end, Sound.FIREWORK_LAUNCH, 1.F, 0.01F);
+        player.getWorld().playSound(end, Sound.ENTITY_FIREWORK_LAUNCH, 1.F, 0.01F);
         player.teleport(end);
         player.setVelocity(new Vector(0, 0.5, 0));
 
@@ -88,7 +88,7 @@ public class GrapplingHook extends Stuff
     public Entity spawnFish(EntityHuman entityhuman)
     {
         World world = ((CraftWorld) Bukkit.getWorld("world")).getHandle();
-        net.minecraft.server.v1_8_R3.Entity hook = new EntityFishingHook(world, entityhuman);
+        net.minecraft.server.v1_9_R1.Entity hook = new EntityFishingHook(world, entityhuman);
         world.addEntity(hook);
 
         return hook.getBukkitEntity();

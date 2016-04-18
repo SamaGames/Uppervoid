@@ -42,6 +42,7 @@ public class BlockGroup
         return false;
     }
 
+    @SuppressWarnings("deprecation")
     public boolean damage(Block block, int damage)
     {
         boolean result = false;
@@ -84,12 +85,14 @@ public class BlockGroup
         return false;
     }
 
+    @SuppressWarnings("deprecation")
     private void setNext(Block block, SimpleBlock simpleBlock)
     {
         block.setType(simpleBlock.getType());
         block.setData(simpleBlock.getData());
     }
 
+    @SuppressWarnings("deprecation")
     private boolean is(Block block, SimpleBlock modal)
     {
         return block.getType() == modal.getType() && block.getData() == modal.getData();

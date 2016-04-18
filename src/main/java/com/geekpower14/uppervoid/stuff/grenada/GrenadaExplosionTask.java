@@ -36,7 +36,7 @@ public class GrenadaExplosionTask extends BukkitRunnable
         float pitch = this.time % 2 == 0 ? 1.5F : 0.5F;
 
         for(Player p : this.plugin.getServer().getOnlinePlayers())
-            p.getWorld().playSound(this.tnt.getLocation(), Sound.NOTE_STICKS, 0.8F, pitch);
+            p.getWorld().playSound(this.tnt.getLocation(), Sound.BLOCK_NOTE_PLING, 0.8F, pitch);
 
         if(this.tnt.isOnGround())
             ParticleEffect.FIREWORKS_SPARK.display(1F, 2F, 1F, 0.00005F, 5, this.tnt.getLocation(), 50);

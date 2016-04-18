@@ -33,7 +33,7 @@ public class BlindnessPowerup extends UppervoidPowerup
                 continue;
 
             gamePlayer.getPlayerIfOnline().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 0));
-            gamePlayer.getPlayerIfOnline().playSound(player.getLocation(), Sound.GHAST_SCREAM, 1.0F, 1.0F);
+            gamePlayer.getPlayerIfOnline().playSound(player.getLocation(), Sound.ENTITY_GHAST_SCREAM, 1.0F, 1.0F);
 
             Squid squid = gamePlayer.getPlayerIfOnline().getWorld().spawn(gamePlayer.getPlayerIfOnline().getLocation(), Squid.class);
             gamePlayer.getPlayerIfOnline().setPassenger(squid);

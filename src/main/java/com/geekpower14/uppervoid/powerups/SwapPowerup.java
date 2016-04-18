@@ -32,8 +32,8 @@ public class SwapPowerup extends UppervoidPowerup
         List<ArenaPlayer> players = this.arena.getInGamePlayers().values().stream().filter(arenaPlayer -> !arenaPlayer.getUUID().equals(player.getUniqueId())).collect(Collectors.toList());
         Player randomized = players.get(this.random.nextInt(players.size())).getPlayerIfOnline();
 
-        player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1.0F, 1.0F);
-        randomized.playSound(randomized.getLocation(), Sound.ENDERMAN_TELEPORT, 1.0F, 1.0F);
+        player.playSound(player.getLocation(), Sound.ENTITY_ENDERMEN_TELEPORT, 1.0F, 1.0F);
+        randomized.playSound(randomized.getLocation(), Sound.ENTITY_ENDERMEN_TELEPORT, 1.0F, 1.0F);
 
         ParticleEffect.PORTAL.display(0.5F, 0.5F, 0.5F, 1.0F, 5, player.getLocation(), 120.0D);
         ParticleEffect.PORTAL.display(0.5F, 0.5F, 0.5F, 1.0F, 5, randomized.getLocation(), 120.0D);

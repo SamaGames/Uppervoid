@@ -100,6 +100,7 @@ public abstract class Stuff implements Cloneable
         return this.arenaPlayer != null && !(this.arenaPlayer.isSpectator() || this.arenaPlayer.isReloading() || this.reloading);
     }
 
+    @SuppressWarnings("deprecation")
     public boolean isActiveItem()
     {
         return this.arenaPlayer != null && this.getItem().isSimilar(this.arenaPlayer.getPlayerIfOnline().getItemInHand());

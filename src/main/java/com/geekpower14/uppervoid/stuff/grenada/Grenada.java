@@ -19,6 +19,7 @@ public class Grenada extends Stuff
         super(plugin, "grenade", new ItemStack(Material.CLAY_BALL, 1), ChatColor.RED + "Grenada", "Greeenaaadaa!", 2, 10L, false);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void use(ArenaPlayer arenaPlayer)
     {
@@ -30,7 +31,7 @@ public class Grenada extends Stuff
 
         this.setReloading();
 
-        player.getWorld().playSound(player.getLocation(), Sound.STEP_SNOW, 3F, 2.0F);
+        player.getWorld().playSound(player.getLocation(), Sound.BLOCK_SNOW_STEP, 3F, 2.0F);
 
         Item tnt = player.getWorld().dropItem(player.getEyeLocation(), new ItemStack(Material.CLAY_BALL));
         tnt.setVelocity(player.getEyeLocation().getDirection().normalize().multiply(1.5));

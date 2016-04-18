@@ -2,7 +2,7 @@ package com.geekpower14.uppervoid.utils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.minecraft.server.v1_8_R3.*;
+import net.minecraft.server.v1_9_R1.*;
 
 import java.util.List;
 import java.util.Map;
@@ -95,7 +95,7 @@ public class TNTExplosion
 
     public void a(boolean flag)
     {
-        this.world.makeSound(this.posX, this.posY, this.posZ, "random.explode", 4.0F, (1.0F + (this.world.random.nextFloat() - this.world.random.nextFloat()) * 0.2F) * 0.7F);
+        this.world.a(this.posX, this.posY, this.posZ, SoundEffects.bD, SoundCategory.HOSTILE, 4.0F, (1.0F + (this.world.random.nextFloat() - this.world.random.nextFloat()) * 0.2F) * 0.7F, false);
 
         if(this.size >= 2.0F && this.b)
             this.world.addParticle(EnumParticle.EXPLOSION_HUGE, this.posX, this.posY, this.posZ, 1.0D, 0.0D, 0.0D, new int[0]);

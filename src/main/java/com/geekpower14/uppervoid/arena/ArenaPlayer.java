@@ -6,7 +6,7 @@ import com.geekpower14.uppervoid.stuff.grenada.Grenada;
 import com.geekpower14.uppervoid.Uppervoid;
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.GamePlayer;
-import net.samagames.api.shops.AbstractShopsManager;
+import net.samagames.api.shops.IShopsManager;
 import net.samagames.tools.scoreboards.ObjectiveSign;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -57,11 +57,11 @@ public class ArenaPlayer extends GamePlayer
     {
         this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
         {
-            AbstractShopsManager shopsManager = SamaGamesAPI.get().getShopsManager(this.arena.getGameCodeName());
+            IShopsManager shopsManager = SamaGamesAPI.get().getShopsManager();
 
             try
             {
-                String dataRaw = shopsManager.getItemLevelForPlayer(this.getUUID(), SHOOTER_ID);
+                String dataRaw = null;//shopsManager.getItemLevelForPlayer(this.getUUID(), SHOOTER_ID);
                 Stuff itemByName = this.arena.getItemManager().getItemByName(dataRaw);
                 itemByName.setOwner(this);
 
@@ -74,7 +74,7 @@ public class ArenaPlayer extends GamePlayer
 
             try
             {
-                String dataRaw = shopsManager.getItemLevelForPlayer(this.getUUID(), GRENADA_ID);
+                String dataRaw = null;//shopsManager.getItemLevelForPlayer(this.getUUID(), GRENADA_ID);
                 String[] data = dataRaw.split("-");
 
                 Grenada grenada = (Grenada) this.arena.getItemManager().getItemByName(GRENADA_ID);
@@ -94,7 +94,7 @@ public class ArenaPlayer extends GamePlayer
 
             try
             {
-                String dataRaw = shopsManager.getItemLevelForPlayer(this.getUUID(), GRAPPLING_HOOK_ID);
+                String dataRaw = null;//shopsManager.getItemLevelForPlayer(this.getUUID(), GRAPPLING_HOOK_ID);
                 String[] data = dataRaw.split("-");
 
                 GrapplingHook grapplingHook = (GrapplingHook) this.arena.getItemManager().getItemByName(GRAPPLING_HOOK_ID);

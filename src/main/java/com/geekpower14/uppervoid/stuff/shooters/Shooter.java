@@ -5,6 +5,7 @@ import com.geekpower14.uppervoid.Uppervoid;
 import com.geekpower14.uppervoid.arena.Arena;
 import com.geekpower14.uppervoid.arena.ArenaPlayer;
 import com.geekpower14.uppervoid.utils.TNTExplosion;
+import net.samagames.api.SamaGamesAPI;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_9_R1.CraftWorld;
@@ -39,7 +40,7 @@ public class Shooter extends Stuff
 
         this.setReloading();
 
-        this.plugin.getArena().increaseStat(player.getUniqueId(), "tntlaunch", 1);
+        SamaGamesAPI.get().getStatsManager().getPlayerStats(player.getUniqueId()).getUppervoidStatistics().incrByTntLaunched(1);
     }
 
     @Override

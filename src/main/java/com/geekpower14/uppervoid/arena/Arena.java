@@ -190,7 +190,7 @@ public class Arena extends Game<ArenaPlayer>
 
         this.addStars(player, 1, "Victoire !");
         this.addCoins(player, 30, "Victoire !");
-        this.increaseStat(player.getUniqueId(), "wins", 1);
+        SamaGamesAPI.get().getStatsManager().getPlayerStats(player.getUniqueId()).getUppervoidStatistics().incrByWins(1);
 
         this.getPlayer(player.getUniqueId()).updateScoreboard();
 

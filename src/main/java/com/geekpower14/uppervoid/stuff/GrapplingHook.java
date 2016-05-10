@@ -19,11 +19,12 @@ public class GrapplingHook extends Stuff
 {
     private int origin;
 
-    public GrapplingHook(Uppervoid plugin)
+    public GrapplingHook(Uppervoid plugin, int id, int uses)
     {
-        super(plugin, "grapin", new ItemStack(Material.FISHING_ROD, 1), "Grapin", "Vise vite la couche et clic une fois tombé pour remonter !", 2, 5L, true);
+        super(plugin, id, new ItemStack(Material.FISHING_ROD, 1), "Grapin", "Vise vite la couche et clic une fois tombé pour remonter !", 2, 5L, true);
 
-        this.origin = 2;
+        setOrigin(uses);
+        setUses(uses);
     }
 
     @Override

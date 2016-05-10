@@ -9,6 +9,6 @@ public class BladespinnerShooter extends Shooter
 {
     public BladespinnerShooter(Uppervoid plugin)
     {
-        super(plugin, "bladespinner", new ItemStack(Material.BLAZE_ROD, 1), ChatColor.GOLD + "Bladespinner", 1, (long) (1.5 * 20), true);
+        super(plugin, 68, new ItemStack(Material.BLAZE_ROD, 1), ChatColor.GOLD + "Bladespinner", 1, (long) (1.5 * 20), true);
     }
 }

@@ -9,6 +9,6 @@ public class ChaosgrabberShooter extends Shooter
 {
     public ChaosgrabberShooter(Uppervoid plugin)
     {
-        super(plugin, "chaosgrabber", new ItemStack(Material.BONE, 1), ChatColor.BLUE + "Chaosgrabber", 1, (long) (1.7 * 20), true);
+        super(plugin, 67, new ItemStack(Material.BONE, 1), ChatColor.BLUE + "Chaosgrabber", 1, (long) (1.7 * 20), true);
     }
 }

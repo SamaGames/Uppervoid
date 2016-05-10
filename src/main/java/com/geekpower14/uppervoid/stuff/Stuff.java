@@ -14,7 +14,7 @@ import java.util.Collections;
 public abstract class Stuff implements Cloneable
 {
     protected final Uppervoid plugin;
-    protected final String name;
+    protected final int id;
     protected final ItemStack stack;
     protected final String display;
     protected final String lore;
@@ -25,10 +25,10 @@ public abstract class Stuff implements Cloneable
     protected int uses;
     protected boolean reloading = false;
 
-    public Stuff(Uppervoid plugin, String name, ItemStack stack, String display, String lore, int uses, long reloadTime, boolean glow)
+    public Stuff(Uppervoid plugin, int id, ItemStack stack, String display, String lore, int uses, long reloadTime, boolean glow)
     {
         this.plugin = plugin;
-        this.name = name;
+        this.id = id;
         this.stack = stack;
         this.display = ChatColor.GOLD + display + ChatColor.GRAY + " (Clique-Droit)";
         this.lore = lore;
@@ -80,9 +80,9 @@ public abstract class Stuff implements Cloneable
         return this.getItem(modifiedStack);
     }
 
-    public String getName()
+    public int getId()
     {
-        return this.name;
+        return this.id;
     }
 
     public int getUses()
@@ -107,18 +107,13 @@ public abstract class Stuff implements Cloneable
 
     }
 
-    @Override
-    public Object clone()
+    public Stuff clone()
     {
-        try
-        {
-            return super.clone();
-        }
-        catch (CloneNotSupportedException e)
-        {
+        try {
+            return (Stuff) super.clone();
+        } catch (CloneNotSupportedException e) {
             e.printStackTrace();
         }
-
         return null;
     }
 }

@@ -23,20 +23,31 @@ public class ItemManager
         this.stuffs.add(new BladespinnerShooter(plugin));
         this.stuffs.add(new ChaosgrabberShooter(plugin));
 
-        this.stuffs.add(new Grenada(plugin));
+        //All numbers of grenada possibles
+        this.stuffs.add(new Grenada(plugin, 69, 1));
+        this.stuffs.add(new Grenada(plugin, 70, 2));
+        this.stuffs.add(new Grenada(plugin, 71, 3));
+        this.stuffs.add(new Grenada(plugin, 72, 4));
+        this.stuffs.add(new Grenada(plugin, 73, 5));
+        this.stuffs.add(new Grenada(plugin, 74, 6));
 
-        this.stuffs.add(new GrapplingHook(plugin));
+        //All numbers of grapin possibles
+        this.stuffs.add(new GrapplingHook(plugin, 75, 1));
+        this.stuffs.add(new GrapplingHook(plugin, 76, 2));
+        this.stuffs.add(new GrapplingHook(plugin, 77, 3));
+        this.stuffs.add(new GrapplingHook(plugin, 78, 4));
+        this.stuffs.add(new GrapplingHook(plugin, 79, 5));
     }
 
-    public Stuff getItemByName(String name)
+    public Stuff getItemByID(int id)
     {
         for(Stuff stuff : this.stuffs)
-            if(stuff.getName().equals(name))
-                return (Stuff) stuff.clone();
+            if(stuff.getId() == id)
+                return stuff.clone();
 
-        this.plugin.getLogger().severe("Stuff not found: " + name);
+        this.plugin.getLogger().severe("Stuff not found: " + id);
 
-        return this.getItemByName("shooter");
+        return this.getItemByID(66);
     }
 
 }

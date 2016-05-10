@@ -14,9 +14,10 @@ import java.util.ArrayList;
 
 public class Grenada extends Stuff
 {
-    public Grenada(Uppervoid plugin)
+    public Grenada(Uppervoid plugin, int id, int uses)
     {
-        super(plugin, "grenade", new ItemStack(Material.CLAY_BALL, 1), ChatColor.RED + "Grenada", "Greeenaaadaa!", 2, 10L, false);
+        super(plugin, id, new ItemStack(Material.CLAY_BALL, 1), ChatColor.RED + "Grenada", "Greeenaaadaa!", 2, 10L, false);
+        this.uses = uses;
     }
 
     @SuppressWarnings("deprecation")

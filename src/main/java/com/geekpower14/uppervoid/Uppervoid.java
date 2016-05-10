@@ -19,6 +19,7 @@ public class Uppervoid extends JavaPlugin
         Bukkit.getPluginManager().registerEvents(new PlayerListener(this, this.arena), this);
         SamaGamesAPI.get().getGameManager().registerGame(this.arena);
         SamaGamesAPI.get().getStatsManager().setStatsToLoad(GamesNames.UPPERVOID, true);
+        SamaGamesAPI.get().getShopsManager().setShopToLoad(GamesNames.UPPERVOID, true);
     }
 
     public Arena getArena()

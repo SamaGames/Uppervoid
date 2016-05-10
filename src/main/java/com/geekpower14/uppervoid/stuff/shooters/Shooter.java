@@ -19,9 +19,9 @@ import java.util.List;
 
 public class Shooter extends Stuff
 {
-    public Shooter(Uppervoid plugin, String name, ItemStack stack, String display, int amount, long reloadTime, boolean glow)
+    public Shooter(Uppervoid plugin, int id, ItemStack stack, String display, int amount, long reloadTime, boolean glow)
     {
-        super(plugin, name, stack, display, "Votre magnificate canon à TNT", amount, reloadTime, glow);
+        super(plugin, id, stack, display, "Votre magnificate canon à TNT", amount, reloadTime, glow);
     }
 
     @Override

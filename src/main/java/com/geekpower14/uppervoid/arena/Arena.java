@@ -1,10 +1,10 @@
 package com.geekpower14.uppervoid.arena;
 
+import com.geekpower14.uppervoid.Uppervoid;
 import com.geekpower14.uppervoid.block.BlockManager;
 import com.geekpower14.uppervoid.powerups.*;
-import com.geekpower14.uppervoid.stuff.ItemManager;
-import com.geekpower14.uppervoid.Uppervoid;
 import com.geekpower14.uppervoid.stuff.ItemChecker;
+import com.geekpower14.uppervoid.stuff.ItemManager;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
 import net.samagames.api.SamaGamesAPI;
@@ -12,8 +12,12 @@ import net.samagames.api.games.Game;
 import net.samagames.api.games.IGameProperties;
 import net.samagames.api.games.Status;
 import net.samagames.tools.LocationUtils;
+import net.samagames.tools.PlayerUtils;
 import net.samagames.tools.powerups.PowerupManager;
-import org.bukkit.*;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -205,7 +209,7 @@ public class Arena extends Game<ArenaPlayer>
         if (this.getStatus().equals(Status.IN_GAME))
         {
             int left = this.getInGamePlayers().size();
-            this.coherenceMachine.getMessageManager().writeCustomMessage(player.getName() + ChatColor.YELLOW + " a perdu ! (" + left + " joueur" + ((left > 1) ? "s" : "") + " restant" + ((left > 1) ? "s" : "") + ")", true);
+            this.coherenceMachine.getMessageManager().writeCustomMessage(PlayerUtils.getColoredFormattedPlayerName(player) + ChatColor.YELLOW + " a perdu ! (" + left + " joueur" + ((left > 1) ? "s" : "") + " restant" + ((left > 1) ? "s" : "") + ")", true);
         }
 
         this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
@@ -215,7 +219,7 @@ public class Arena extends Game<ArenaPlayer>
                 if(arenaPlayer.getUUID().equals(player.getUniqueId()))
                     continue;
 
-                this.addCoins(arenaPlayer.getPlayerIfOnline(), 3, "Mort de " + player.getName());
+                this.addCoins(arenaPlayer.getPlayerIfOnline(), 3, "Mort de " + PlayerUtils.getColoredFormattedPlayerName(player));
             }
         });
 

@@ -4,6 +4,7 @@ import com.geekpower14.uppervoid.Uppervoid;
 import com.geekpower14.uppervoid.arena.Arena;
 import com.geekpower14.uppervoid.arena.ArenaPlayer;
 import net.samagames.tools.ParticleEffect;
+import net.samagames.tools.PlayerUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -42,7 +43,7 @@ public class SwapPowerup extends UppervoidPowerup
         player.teleport(randomized.getLocation());
         randomized.teleport(back);
 
-        this.arena.getCoherenceMachine().getMessageManager().writeCustomMessage(ChatColor.RED + player.getName() + ChatColor.YELLOW + " a échangé sa position avec " + ChatColor.RED + randomized.getName() + ChatColor.YELLOW + ".", true);
+        this.arena.getCoherenceMachine().getMessageManager().writeCustomMessage(ChatColor.RED + PlayerUtils.getColoredFormattedPlayerName(player) + ChatColor.YELLOW + " a échangé sa position avec " + ChatColor.RED + PlayerUtils.getColoredFormattedPlayerName(randomized) + ChatColor.YELLOW + ".", true);
     }
 
     @Override

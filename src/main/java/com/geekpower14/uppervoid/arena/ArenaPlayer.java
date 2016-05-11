@@ -1,9 +1,9 @@
 package com.geekpower14.uppervoid.arena;
 
+import com.geekpower14.uppervoid.Uppervoid;
 import com.geekpower14.uppervoid.stuff.GrapplingHook;
 import com.geekpower14.uppervoid.stuff.Stuff;
 import com.geekpower14.uppervoid.stuff.grenada.Grenada;
-import com.geekpower14.uppervoid.Uppervoid;
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.GamePlayer;
 import net.samagames.api.shops.IPlayerShop;
@@ -11,6 +11,7 @@ import net.samagames.api.shops.IShopsManager;
 import net.samagames.tools.scoreboards.ObjectiveSign;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -33,6 +34,8 @@ public class ArenaPlayer extends GamePlayer
 
     private Location lastLoc;
     private boolean reloading;
+
+    private long lastChangeBlock = System.currentTimeMillis();
 
     public ArenaPlayer(Player player)
     {
@@ -101,18 +104,63 @@ public class ArenaPlayer extends GamePlayer
         });
     }
 
+    public void updateLastChangeBlock()
+    {
+        this.lastChangeBlock = System.currentTimeMillis();
+    }
+
     public void checkAntiAFK()
     {
-        if(!this.arena.getBlockManager().isActive())
+        long time = System.currentTimeMillis();
+
+        if(!arena.getBlockManager().isActive())
+        {
+            updateLastChangeBlock();
             return;
+        }
 
-        Location location = this.getPlayerIfOnline().getLocation();
+        long duration = time - lastChangeBlock;
 
-        double x = location.getX();
-        double y = location.getBlockY() - 1.0D;
-        double z = location.getZ();
+        if (duration > 900) {
+            Location loc = getPlayerIfOnline().getLocation();
 
-        this.arena.getBlockManager().damage(new Location(location.getWorld(), x, y, z).getBlock());
+            double X = loc.getX();
+            double Y = loc.getBlockY() - 1;
+            double Z = loc.getZ();
+
+            Location b = getPlayerStandOnBlockLocation(new Location(
+                    loc.getWorld(), X, Y, Z));
+
+            if(arena.getBlockManager().damage(b.getBlock()))
+            {
+                updateLastChangeBlock();
+                return;
+            }
+        }
+
+        if (duration > 1000 * 7L) {
+            SamaGamesAPI.get().getGameManager().kickPlayer(getPlayerIfOnline(), ChatColor.RED + "Vous avez été kick pour inactivité.");
+        }
+    }
+
+    private Location getPlayerStandOnBlockLocation(Location locationUnderPlayer) {
+        Location b11 = locationUnderPlayer.clone().add(0.3, 0, -0.3);
+        if (b11.getBlock().getType() != Material.AIR) {
+            return b11;
+        }
+        Location b12 = locationUnderPlayer.clone().add(-0.3, 0, -0.3);
+        if (b12.getBlock().getType() != Material.AIR) {
+            return b12;
+        }
+        Location b21 = locationUnderPlayer.clone().add(0.3, 0, 0.3);
+        if (b21.getBlock().getType() != Material.AIR) {
+            return b21;
+        }
+        Location b22 = locationUnderPlayer.clone().add(-0.3, 0, +0.3);
+        if (b22.getBlock().getType() != Material.AIR) {
+            return b22;
+        }
+        return locationUnderPlayer;
     }
 
     public void giveStuff()

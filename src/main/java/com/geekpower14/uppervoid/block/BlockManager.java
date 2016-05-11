@@ -72,6 +72,6 @@ public class BlockManager
         JsonArray blockGroups = SamaGamesAPI.get().getGameManager().getGameProperties().getOption("blocks", defaultBlockGroups).getAsJsonArray();
 
         for(JsonElement data : blockGroups)
-            this.groups.add(new BlockGroup(data));
+            this.groups.add(new BlockGroup(data.getAsJsonArray()));
     }
 }

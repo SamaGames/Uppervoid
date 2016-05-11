@@ -1,6 +1,6 @@
 package com.geekpower14.uppervoid.block;
 
-import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import net.samagames.tools.ParticleEffect;
 import net.samagames.tools.SimpleBlock;
 import org.bukkit.Material;
@@ -15,15 +15,16 @@ public class BlockGroup
     private final SimpleBlock blockWarning;
     private final SimpleBlock blockCritical;
 
-    public BlockGroup(JsonArray group)
+    public BlockGroup(JsonElement group)
     {
-        String[] blockFineData = group.get(0).getAsString().split(", ");
+        String[] blocks = group.getAsString().split(", ");
+        String[] blockFineData = blocks[0].split(":");
         this.blockFine = new SimpleBlock(Material.matchMaterial(blockFineData[0]), Integer.valueOf(blockFineData[1]));
 
-        String[] blockWarningData = group.get(1).getAsString().split(", ");
+        String[] blockWarningData = blocks[1].split(":");
         this.blockWarning = new SimpleBlock(Material.matchMaterial(blockWarningData[0]), Integer.valueOf(blockWarningData[1]));
 
-        String[] blockCriticalData = group.get(2).getAsString().split(", ");
+        String[] blockCriticalData = blocks[2].split(":");
         this.blockCritical = new SimpleBlock(Material.matchMaterial(blockCriticalData[0]), Integer.valueOf(blockCriticalData[1]));
     }
 

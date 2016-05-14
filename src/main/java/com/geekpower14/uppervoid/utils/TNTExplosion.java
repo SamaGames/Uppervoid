@@ -3,6 +3,8 @@ package com.geekpower14.uppervoid.utils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.minecraft.server.v1_9_R1.*;
+import org.bukkit.Location;
+import org.bukkit.Sound;
 
 import java.util.List;
 import java.util.Map;
@@ -36,8 +38,10 @@ public class TNTExplosion
         a();
         a(true);
 
-        this.world.players.stream().filter(entityHuman -> entityHuman.e(this.posX, this.posY, this.posZ) < 4096.0D).forEach(entityHuman ->
-                ((EntityPlayer) entityHuman).playerConnection.sendPacket(new PacketPlayOutExplosion(this.posX, this.posY, this.posZ, this.size, Lists.newArrayList(), k.get(entityHuman))));
+        this.world.players.stream().filter(entityHuman -> entityHuman.e(this.posX, this.posY, this.posZ) < 4096.0D).forEach(entityHuman -> {
+            ((EntityPlayer) entityHuman).playerConnection.sendPacket(new PacketPlayOutExplosion(this.posX, this.posY, this.posZ, this.size, Lists.newArrayList(), k.get(entityHuman)));
+            this.world.getWorld().playSound(new Location(this.world.getWorld(), this.posX, this.posY, this.posZ), Sound.ENTITY_GENERIC_EXPLODE, 1F, 1F);
+        });
     }
 
     public void a()

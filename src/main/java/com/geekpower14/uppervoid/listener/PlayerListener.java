@@ -4,6 +4,7 @@ import com.geekpower14.uppervoid.Uppervoid;
 import com.geekpower14.uppervoid.arena.Arena;
 import com.geekpower14.uppervoid.stuff.Stuff;
 import com.geekpower14.uppervoid.arena.ArenaPlayer;
+import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.Status;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -37,6 +38,12 @@ public class PlayerListener implements Listener
         ArenaPlayer arenaPlayer = this.arena.getPlayer(player.getUniqueId());
 
         event.setCancelled(true);
+
+        if (event.getItem() != null && event.getItem().getType() == SamaGamesAPI.get().getGameManager().getCoherenceMachine().getLeaveItem().getType())
+        {
+            SamaGamesAPI.get().getGameManager().kickPlayer(event.getPlayer(), "");
+            return;
+        }
 
         if (!this.arena.getStatus().equals(Status.IN_GAME))
             return;

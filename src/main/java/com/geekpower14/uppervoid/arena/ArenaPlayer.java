@@ -199,6 +199,9 @@ public class ArenaPlayer extends GamePlayer
 
         BukkitTask xpDisplaying = this.plugin.getServer().getScheduler().runTaskTimer(this.plugin, () ->
         {
+            if (this.getPlayerIfOnline() == null)
+                return;
+
             float xp = this.getPlayerIfOnline().getExp();
             xp += (100 / (temp / 2)) / 100;
 
@@ -210,6 +213,9 @@ public class ArenaPlayer extends GamePlayer
 
         this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () ->
         {
+            if (this.getPlayerIfOnline() == null)
+                return;
+
             this.reloading = false;
             this.getPlayerIfOnline().setExp(1);
 

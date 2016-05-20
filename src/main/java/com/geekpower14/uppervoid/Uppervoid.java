@@ -20,6 +20,7 @@ public class Uppervoid extends JavaPlugin
         SamaGamesAPI.get().getGameManager().registerGame(this.arena);
         SamaGamesAPI.get().getStatsManager().setStatsToLoad(GamesNames.UPPERVOID, true);
         SamaGamesAPI.get().getShopsManager().setShopToLoad(GamesNames.UPPERVOID, true);
+        SamaGamesAPI.get().getGameManager().setKeepPlayerCache(true);
     }
 
     public Arena getArena()

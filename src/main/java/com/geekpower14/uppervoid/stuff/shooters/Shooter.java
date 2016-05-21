@@ -8,7 +8,7 @@ import com.geekpower14.uppervoid.utils.TNTExplosion;
 import net.samagames.api.SamaGamesAPI;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_9_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_9_R2.CraftWorld;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -17,9 +17,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Shooter extends Stuff
+class Shooter extends Stuff
 {
-    public Shooter(Uppervoid plugin, int id, ItemStack stack, String display, int amount, long reloadTime, boolean glow)
+    Shooter(Uppervoid plugin, int id, ItemStack stack, String display, int amount, long reloadTime, boolean glow)
     {
         super(plugin, id, stack, display, "Votre magnificate canon à TNT", amount, reloadTime, glow);
     }

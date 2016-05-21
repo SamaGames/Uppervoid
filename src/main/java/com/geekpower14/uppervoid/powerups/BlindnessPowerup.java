@@ -32,7 +32,7 @@ public class BlindnessPowerup extends UppervoidPowerup
             if (gamePlayer.getPlayerIfOnline() == null || gamePlayer.getUUID().equals(player.getUniqueId()))
                 continue;
 
-            gamePlayer.getPlayerIfOnline().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 0));
+            gamePlayer.getPlayerIfOnline().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20 * 3, 0));
             gamePlayer.getPlayerIfOnline().playSound(player.getLocation(), Sound.ENTITY_GHAST_SCREAM, 1.0F, 1.0F);
 
             Squid squid = gamePlayer.getPlayerIfOnline().getWorld().spawn(gamePlayer.getPlayerIfOnline().getLocation(), Squid.class);
@@ -51,7 +51,7 @@ public class BlindnessPowerup extends UppervoidPowerup
     @Override
     public String getName()
     {
-        return ChatColor.BLACK + "Ninja Poulpe";
+        return ChatColor.DARK_GRAY + "Ninja Poulpe";
     }
 
     @Override

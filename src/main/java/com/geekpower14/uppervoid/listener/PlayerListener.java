@@ -162,4 +162,10 @@ public class PlayerListener implements Listener
     {
         event.setCancelled(true);
     }
+
+    @EventHandler
+    public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event)
+    {
+        event.setCancelled(true);
+    }
 }

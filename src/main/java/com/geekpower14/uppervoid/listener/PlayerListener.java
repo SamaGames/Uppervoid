@@ -45,7 +45,7 @@ public class PlayerListener implements Listener
             return;
         }
 
-        if (!this.arena.getStatus().equals(Status.IN_GAME))
+        if (!this.arena.getStatus().equals(Status.IN_GAME) || arenaPlayer == null)
             return;
 
         Stuff item = arenaPlayer.getStuffInHand();
@@ -73,7 +73,7 @@ public class PlayerListener implements Listener
 
             ArenaPlayer arenaPlayer = this.arena.getPlayer(player.getUniqueId());
 
-            if (arenaPlayer.isSpectator() || this.arena.getStatus().equals(Status.FINISHED))
+            if (arenaPlayer == null || arenaPlayer.isSpectator() || this.arena.getStatus().equals(Status.FINISHED))
             {
                 this.arena.teleportRandomSpawn(player);
                 return;
@@ -108,7 +108,7 @@ public class PlayerListener implements Listener
         if (!this.arena.getStatus().equals(Status.IN_GAME))
             return;
 
-        if (arenaPlayer.isSpectator())
+        if (arenaPlayer == null || arenaPlayer.isSpectator())
             return;
 
 

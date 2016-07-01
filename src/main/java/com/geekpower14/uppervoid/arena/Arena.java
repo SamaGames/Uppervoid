@@ -138,6 +138,7 @@ public class Arena extends Game<ArenaPlayer>
         this.blockManager.setActive(false);
         this.powerupManager.start();
 
+        this.getInGamePlayers().values().forEach(ArenaPlayer::updateLastChangeBlock);
         this.antiAFK = this.plugin.getServer().getScheduler().runTaskTimer(this.plugin, () -> this.getInGamePlayers().values().forEach(ArenaPlayer::checkAntiAFK), time * 20L, 20L);
         this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () -> this.blockManager.setActive(true), time * 20L);
 

@@ -133,7 +133,7 @@ public class Arena extends Game<ArenaPlayer>
             this.teleportRandomSpawn(player);
         }
 
-        int time = 5;
+        int time = 4;
 
         this.blockManager.setActive(false);
         this.powerupManager.start();

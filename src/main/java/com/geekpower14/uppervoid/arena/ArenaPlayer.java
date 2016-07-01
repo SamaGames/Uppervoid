@@ -139,6 +139,7 @@ public class ArenaPlayer extends GamePlayer
         }
 
         if (duration > 1000 * 7L) {
+            this.arena.getPlugin().getLogger().info("Player " + getPlayerIfOnline().getName() + " kicked for afk.");
             SamaGamesAPI.get().getGameManager().kickPlayer(getPlayerIfOnline(), ChatColor.RED + "Vous avez été kick pour inactivité.");
         }
     }

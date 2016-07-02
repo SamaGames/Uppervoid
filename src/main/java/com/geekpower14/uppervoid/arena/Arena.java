@@ -104,7 +104,7 @@ public class Arena extends Game<ArenaPlayer>
         ArenaPlayer arenaPlayer = this.getPlayer(player.getUniqueId());
         super.handleLogout(player);
 
-        if(this.getStatus() == Status.IN_GAME && !arenaPlayer.isSpectator())
+        if(this.getStatus() == Status.IN_GAME && arenaPlayer != null && !arenaPlayer.isSpectator())
         {
             if(this.getInGamePlayers().size() == 1)
                 this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, this::win, 1L);

@@ -101,9 +101,10 @@ public class Arena extends Game<ArenaPlayer>
     @Override
     public void handleLogout(Player player)
     {
+        ArenaPlayer arenaPlayer = this.getPlayer(player.getUniqueId());
         super.handleLogout(player);
 
-        if(this.getStatus() == Status.IN_GAME)
+        if(this.getStatus() == Status.IN_GAME && !arenaPlayer.isSpectator())
         {
             if(this.getInGamePlayers().size() == 1)
                 this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, this::win, 1L);
@@ -204,8 +205,6 @@ public class Arena extends Game<ArenaPlayer>
 
     public void lose(Player player)
     {
-        if (this.isSpectator(player))
-            return ;
         this.setSpectator(player);
         this.teleportRandomSpawn(player);
 

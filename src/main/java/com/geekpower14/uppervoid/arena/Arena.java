@@ -204,6 +204,8 @@ public class Arena extends Game<ArenaPlayer>
 
     public void lose(Player player)
     {
+        if (this.isSpectator(player))
+            return ;
         this.setSpectator(player);
         this.teleportRandomSpawn(player);
 

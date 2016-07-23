@@ -185,18 +185,24 @@ public class Arena extends Game<ArenaPlayer>
 
         Player player = this.getWinner();
 
-        if(player == null)
+        if (player == null)
         {
             this.handleGameEnd();
             return;
         }
 
         this.effectsOnWinner(player);
-        this.coherenceMachine.getTemplateManager().getPlayerLeaderboardWinTemplate().execute(player, this.second, this.third);
+        try
+        {
+            this.coherenceMachine.getTemplateManager().getPlayerLeaderboardWinTemplate().execute(player, this.second, this.third);
+        } catch (Exception ignored) {}
 
         this.addStars(player, 1, "Victoire !");
         this.addCoins(player, 30, "Victoire !");
-        SamaGamesAPI.get().getStatsManager().getPlayerStats(player.getUniqueId()).getUppervoidStatistics().incrByWins(1);
+        try
+        {
+            SamaGamesAPI.get().getStatsManager().getPlayerStats(player.getUniqueId()).getUppervoidStatistics().incrByWins(1);
+        } catch (Exception ignored) {}
 
         this.getPlayer(player.getUniqueId()).updateScoreboard();
 

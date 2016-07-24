@@ -103,8 +103,10 @@ public abstract class Stuff implements Cloneable
     @SuppressWarnings("deprecation")
     public boolean isActiveItem()
     {
-        return this.arenaPlayer != null && this.getItem().isSimilar(this.arenaPlayer.getPlayerIfOnline().getItemInHand());
-
+        if (this.arenaPlayer == null)
+            return false;
+        ItemStack itemStack = this.getItem();
+        return itemStack != null && itemStack.isSimilar(this.arenaPlayer.getPlayerIfOnline().getItemInHand());
     }
 
     public Stuff clone()

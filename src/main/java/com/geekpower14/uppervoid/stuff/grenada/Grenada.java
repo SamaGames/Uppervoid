@@ -11,8 +11,10 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class Grenada extends Stuff
 {
@@ -37,6 +39,7 @@ public class Grenada extends Stuff
         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_SNOW_STEP, 3F, 2.0F);
 
         Item tnt = player.getWorld().dropItem(player.getEyeLocation(), new ItemStack(Material.CLAY_BALL));
+        tnt.setMetadata("uv-owner", new FixedMetadataValue(this.plugin, arenaPlayer.getUUID().toString()));
         tnt.setVelocity(player.getEyeLocation().getDirection().normalize().multiply(1.5));
         tnt.setPickupDelay(Integer.MAX_VALUE);
 
@@ -56,6 +59,7 @@ public class Grenada extends Stuff
     public void onItemTouchGround(Arena arena, Item item)
     {
         Location center = item.getLocation();
+        UUID launcher = UUID.fromString(item.getMetadata("uv-owner").get(0).asString());
         Block real = center.add(0, -0.5, 0).getBlock();
         World world = center.getWorld();
 
@@ -110,13 +114,13 @@ public class Grenada extends Stuff
         }
 
         for (Block block : levelOne)
-            arena.getBlockManager().damage(block, 1);
+            arena.getBlockManager().damage(launcher, block, 1);
 
         for (Block block : levelTwo)
-            arena.getBlockManager().damage(block, 2);
+            arena.getBlockManager().damage(launcher, block, 2);
 
         for (Block block : levelThree)
-            arena.getBlockManager().damage(block, 3);
+            arena.getBlockManager().damage(launcher, block, 3);
 
         center.getWorld().createExplosion(center.getX(), center.getY(), center.getZ(), 2.5F, false, false);
     }

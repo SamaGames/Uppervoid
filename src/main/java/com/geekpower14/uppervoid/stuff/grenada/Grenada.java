@@ -3,7 +3,9 @@ package com.geekpower14.uppervoid.stuff.grenada;
 import com.geekpower14.uppervoid.Uppervoid;
 import com.geekpower14.uppervoid.arena.Arena;
 import com.geekpower14.uppervoid.arena.ArenaPlayer;
+import com.geekpower14.uppervoid.arena.ArenaStatisticsHelper;
 import com.geekpower14.uppervoid.stuff.Stuff;
+import net.samagames.api.SamaGamesAPI;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
@@ -46,6 +48,8 @@ public class Grenada extends Stuff
         player.getInventory().setItemInHand(stack);
 
         arenaPlayer.giveStuff();
+
+        ((ArenaStatisticsHelper) SamaGamesAPI.get().getGameManager().getGameStatisticsHelper()).increaseGrenades(arenaPlayer.getUUID());
     }
 
     @Override

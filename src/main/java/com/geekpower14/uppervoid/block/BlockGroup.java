@@ -1,11 +1,15 @@
 package com.geekpower14.uppervoid.block;
 
+import com.geekpower14.uppervoid.arena.ArenaStatisticsHelper;
 import com.google.gson.JsonArray;
+import net.samagames.api.SamaGamesAPI;
 import net.samagames.tools.ParticleEffect;
 import net.samagames.tools.SimpleBlock;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+
+import java.util.UUID;
 
 public class BlockGroup
 {
@@ -42,13 +46,12 @@ public class BlockGroup
         return false;
     }
 
-    @SuppressWarnings("deprecation")
-    public boolean damage(Block block, int damage)
+    public boolean damage(UUID damager, Block block, int damage)
     {
         boolean result = false;
 
         for (int i = 0; i < damage; i++)
-            if (this.setNext(block))
+            if (this.setNext(damager, block))
                 result = true;
 
         if(result)
@@ -60,7 +63,7 @@ public class BlockGroup
         return result;
     }
 
-    private boolean setNext(Block block)
+    private boolean setNext(UUID damager, Block block)
     {
         if (block == null)
             return false;
@@ -79,6 +82,10 @@ public class BlockGroup
         {
             this.setNext(block, VOID);
             this.setNext(block.getRelative(BlockFace.DOWN), VOID);
+
+            if (damager != null)
+                ((ArenaStatisticsHelper) SamaGamesAPI.get().getGameManager().getGameStatisticsHelper()).increaseBlocks(damager);
+
             return true;
         }
 

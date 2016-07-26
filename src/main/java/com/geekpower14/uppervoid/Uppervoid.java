@@ -1,6 +1,7 @@
 package com.geekpower14.uppervoid;
 
 import com.geekpower14.uppervoid.arena.Arena;
+import com.geekpower14.uppervoid.arena.ArenaStatisticsHelper;
 import com.geekpower14.uppervoid.listener.PlayerListener;
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.GamesNames;
@@ -17,6 +18,8 @@ public class Uppervoid extends JavaPlugin
         this.arena = new Arena(this);
 
         Bukkit.getPluginManager().registerEvents(new PlayerListener(this, this.arena), this);
+
+        SamaGamesAPI.get().getGameManager().setGameStatisticsHelper(new ArenaStatisticsHelper());
         SamaGamesAPI.get().getGameManager().registerGame(this.arena);
         SamaGamesAPI.get().getStatsManager().setStatsToLoad(GamesNames.UPPERVOID, true);
         SamaGamesAPI.get().getShopsManager().setShopToLoad(GamesNames.UPPERVOID, true);

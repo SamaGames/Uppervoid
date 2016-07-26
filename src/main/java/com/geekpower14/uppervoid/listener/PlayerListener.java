@@ -111,15 +111,16 @@ public class PlayerListener implements Listener
         if (arenaPlayer == null || arenaPlayer.isSpectator())
             return;
 
-
         if (player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.AIR)
             return;
 
         if (!arenaPlayer.isOnSameBlock())
         {
             Block block = player.getLocation().getBlock().getRelative(BlockFace.DOWN);
-            this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
-                if (this.arena.getBlockManager().damage(block))
+
+            this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, () ->
+            {
+                if (this.arena.getBlockManager().damage(player.getUniqueId(), block))
                 {
                     arenaPlayer.updateLastChangeBlock();
                 }

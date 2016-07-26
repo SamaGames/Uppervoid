@@ -1,5 +1,6 @@
 package com.geekpower14.uppervoid.stuff.shooters;
 
+import com.geekpower14.uppervoid.arena.ArenaStatisticsHelper;
 import com.geekpower14.uppervoid.stuff.Stuff;
 import com.geekpower14.uppervoid.Uppervoid;
 import com.geekpower14.uppervoid.arena.Arena;
@@ -13,9 +14,11 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 class Shooter extends Stuff
 {
@@ -33,6 +36,7 @@ class Shooter extends Stuff
             return;
 
         Item tnt = player.getWorld().dropItem(player.getEyeLocation(), new ItemStack(Material.TNT));
+        tnt.setMetadata("uv-owner", new FixedMetadataValue(this.plugin, arenaPlayer.getUUID().toString()));
         tnt.setVelocity(player.getEyeLocation().getDirection().multiply(1.5));
         tnt.setPickupDelay(Integer.MAX_VALUE);
 
@@ -40,13 +44,14 @@ class Shooter extends Stuff
 
         this.setReloading();
 
-        SamaGamesAPI.get().getStatsManager().getPlayerStats(player.getUniqueId()).getUppervoidStatistics().incrByTntLaunched(1);
+        ((ArenaStatisticsHelper) SamaGamesAPI.get().getGameManager().getGameStatisticsHelper()).increaseTntLaunched(arenaPlayer.getUUID());
     }
 
     @Override
     public void onItemTouchGround(Arena arena, Item item)
     {
         Location center = item.getLocation();
+        UUID launcher = UUID.fromString(item.getMetadata("uv-owner").get(0).asString());
         Block real = center.add(0, -0.5, 0).getBlock();
         World world = center.getWorld();
 
@@ -95,13 +100,13 @@ class Shooter extends Stuff
         }
 
         for (Block block : levelOne)
-            arena.getBlockManager().damage(block, 1);
+            arena.getBlockManager().damage(launcher, block, 1);
 
         for (Block block : levelTwo)
-            arena.getBlockManager().damage(block, 2);
+            arena.getBlockManager().damage(launcher, block, 2);
 
         for (Block block : levelThree)
-            arena.getBlockManager().damage(block, 3);
+            arena.getBlockManager().damage(launcher, block, 3);
 
         new TNTExplosion(((CraftWorld) center.getWorld()).getHandle(), null, center.getX(), center.getY(), center.getZ(), 3F, false, false).explode();
     }

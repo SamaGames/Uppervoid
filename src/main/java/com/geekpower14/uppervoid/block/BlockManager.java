@@ -10,6 +10,7 @@ import org.bukkit.block.BlockFace;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class BlockManager
 {
@@ -22,12 +23,12 @@ public class BlockManager
         this.loadGroups();
     }
 
-    public boolean damage(Block block)
+    public boolean damage(UUID damager, Block block)
     {
-        return this.damage(block, 1);
+        return this.damage(damager, block, 1);
     }
 
-    public boolean damage(Block block, int damage)
+    public boolean damage(UUID damager, Block block, int damage)
     {
         if (!this.active)
             return false;
@@ -37,7 +38,7 @@ public class BlockManager
 
         BlockGroup blockGroup = this.getBlockGroup(block);
 
-        return blockGroup != null && blockGroup.damage(block, damage);
+        return blockGroup != null && blockGroup.damage(damager, block, damage);
     }
 
     public void setActive(boolean active)

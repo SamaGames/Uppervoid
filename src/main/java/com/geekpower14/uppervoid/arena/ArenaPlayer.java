@@ -131,7 +131,7 @@ public class ArenaPlayer extends GamePlayer
             Location b = getPlayerStandOnBlockLocation(new Location(
                     loc.getWorld(), X, Y, Z));
 
-            if(arena.getBlockManager().damage(b.getBlock()))
+            if(arena.getBlockManager().damage(this.uuid, b.getBlock()))
             {
                 updateLastChangeBlock();
                 return;

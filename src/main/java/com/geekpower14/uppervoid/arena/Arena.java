@@ -191,11 +191,14 @@ public class Arena extends Game<ArenaPlayer>
             return;
         }
 
+        this.handleWinner(player);
         this.effectsOnWinner(player);
+
         try
         {
             this.coherenceMachine.getTemplateManager().getPlayerLeaderboardWinTemplate().execute(player, this.second, this.third);
-        } catch (Exception ignored) {}
+        }
+        catch (Exception ignored) {}
 
         this.addStars(player, 1, "Victoire !");
         this.addCoins(player, 30, "Victoire !");

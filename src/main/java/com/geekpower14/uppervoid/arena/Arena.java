@@ -191,7 +191,7 @@ public class Arena extends Game<ArenaPlayer>
             return;
         }
 
-        this.handleWinner(player);
+        this.handleWinner(player.getUniqueId());
         this.effectsOnWinner(player);
 
         try

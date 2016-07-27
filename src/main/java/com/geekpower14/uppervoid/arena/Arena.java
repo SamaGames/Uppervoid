@@ -202,10 +202,6 @@ public class Arena extends Game<ArenaPlayer>
 
         this.addStars(player, 1, "Victoire !");
         this.addCoins(player, 30, "Victoire !");
-        try
-        {
-            SamaGamesAPI.get().getStatsManager().getPlayerStats(player.getUniqueId()).getUppervoidStatistics().incrByWins(1);
-        } catch (Exception ignored) {}
 
         this.getPlayer(player.getUniqueId()).updateScoreboard();
 

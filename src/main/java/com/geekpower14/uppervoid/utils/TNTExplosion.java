@@ -2,7 +2,7 @@ package com.geekpower14.uppervoid.utils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.minecraft.server.v1_9_R2.*;
+import net.minecraft.server.v1_10_R1.*;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 

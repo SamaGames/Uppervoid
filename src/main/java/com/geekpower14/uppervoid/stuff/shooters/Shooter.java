@@ -9,7 +9,7 @@ import com.geekpower14.uppervoid.utils.TNTExplosion;
 import net.samagames.api.SamaGamesAPI;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_9_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_10_R1.CraftWorld;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

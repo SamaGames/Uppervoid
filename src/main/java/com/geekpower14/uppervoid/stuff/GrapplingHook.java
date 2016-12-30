@@ -2,14 +2,14 @@ package com.geekpower14.uppervoid.stuff;
 
 import com.geekpower14.uppervoid.Uppervoid;
 import com.geekpower14.uppervoid.arena.ArenaPlayer;
-import net.minecraft.server.v1_9_R2.EntityFishingHook;
-import net.minecraft.server.v1_9_R2.EntityHuman;
-import net.minecraft.server.v1_9_R2.World;
+import net.minecraft.server.v1_10_R1.EntityFishingHook;
+import net.minecraft.server.v1_10_R1.EntityHuman;
+import net.minecraft.server.v1_10_R1.World;
 import net.samagames.tools.ParticleEffect;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_9_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_9_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_10_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -89,7 +89,7 @@ public class GrapplingHook extends Stuff
     public Entity spawnFish(EntityHuman entityhuman)
     {
         World world = ((CraftWorld) Bukkit.getWorld("world")).getHandle();
-        net.minecraft.server.v1_9_R2.Entity hook = new EntityFishingHook(world, entityhuman);
+        net.minecraft.server.v1_10_R1.Entity hook = new EntityFishingHook(world, entityhuman);
         world.addEntity(hook);
 
         return hook.getBukkitEntity();

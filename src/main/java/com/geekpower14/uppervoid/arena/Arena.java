@@ -200,7 +200,6 @@ public class Arena extends Game<ArenaPlayer>
         }
         catch (Exception ignored) {}
 
-        this.addStars(player, 1, "Victoire !");
         this.addCoins(player, 30, "Victoire !");
 
         this.getPlayer(player.getUniqueId()).updateScoreboard();

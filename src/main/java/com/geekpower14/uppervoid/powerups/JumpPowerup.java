@@ -29,7 +29,7 @@ public class JumpPowerup extends UppervoidPowerup
     @Override
     public void onPickup(Player player)
     {
-        player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 8 * 20, 3));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 8 * 20, 5));
 
         new BukkitRunnable()
         {

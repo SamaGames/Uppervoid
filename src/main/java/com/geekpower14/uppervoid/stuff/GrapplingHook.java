@@ -80,6 +80,7 @@ public class GrapplingHook extends Stuff
         ParticleEffect.FIREWORKS_SPARK.display(1F, 2F, 1F, 0.00005F, 10, end, 50);
 
         player.getWorld().playSound(end, Sound.ENTITY_FIREWORK_LAUNCH, 1.F, 0.01F);
+        player.setPassenger(null);
         player.teleport(end);
         player.setVelocity(new Vector(0, 0.5, 0));
 

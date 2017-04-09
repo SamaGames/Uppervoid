@@ -47,7 +47,10 @@ public class Arena extends Game<ArenaPlayer>
 
     public Arena(Uppervoid plugin)
     {
-        super("uppervoid", "Uppervoid", "Restez au dessus du vide", ArenaPlayer.class);
+        super("uppervoid", "Uppervoid", "Restez au dessus du vide", ArenaPlayer.class, new UUID[] {
+                UUID.fromString("ad345a5e-5ae3-45bf-aba4-94f4102f37c0"),
+                UUID.fromString("29b2b527-1b59-45df-b7b0-d5ab20d8731a")
+        });
 
         this.plugin = plugin;
         this.spawns = new ArrayList<>();

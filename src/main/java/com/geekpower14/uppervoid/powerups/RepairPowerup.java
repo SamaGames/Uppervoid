@@ -45,7 +45,7 @@ public class RepairPowerup extends UppervoidPowerup
     @Override
     public double getWeight()
     {
-        return 10;
+        return 40;
     }
 
     @Override

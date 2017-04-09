@@ -33,7 +33,6 @@ public class Arena extends Game<ArenaPlayer>
     private final Uppervoid plugin;
     private final List<Location> spawns;
     private final List<UUID> builders;
-    private final World.Environment dimension;
     private final Location lobby;
     private final BlockManager blockManager;
     private final ItemManager itemManager;
@@ -66,7 +65,7 @@ public class Arena extends Game<ArenaPlayer>
         for(int i = 0; i < spawnsJson.size(); i++)
             this.spawns.add(LocationUtils.str2loc(spawnsJson.get(i).getAsString()));
 
-        this.dimension = World.Environment.valueOf(properties.getOption("dimension", new JsonPrimitive(World.Environment.NORMAL.toString())).getAsString());
+        World.Environment dimension = World.Environment.valueOf(properties.getOption("dimension", new JsonPrimitive(World.Environment.NORMAL.toString())).getAsString());
         this.lobby = LocationUtils.str2loc(properties.getOption("waiting-lobby", new JsonPrimitive("world, 0, 0, 0, 0, 0")).getAsString());
 
         this.blockManager = new BlockManager();
@@ -94,7 +93,7 @@ public class Arena extends Game<ArenaPlayer>
         for(int i = 0; i < powerupsSpawnsJson.size(); i++)
             this.powerupManager.registerLocation(LocationUtils.str2loc(powerupsSpawnsJson.get(i).getAsString()));
 
-        SamaGamesAPI.get().getSkyFactory().setDimension(this.plugin.getServer().getWorld("world"), this.dimension);
+        SamaGamesAPI.get().getSkyFactory().setDimension(this.plugin.getServer().getWorld("world"), dimension);
     }
 
     @Override

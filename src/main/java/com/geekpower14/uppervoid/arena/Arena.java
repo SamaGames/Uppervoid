@@ -75,7 +75,7 @@ public class Arena extends Game<ArenaPlayer>
         this.plugin.getServer().getScheduler().runTaskTimer(this.plugin, this.itemChecker, 1L, 1L);
 
         this.powerupManager = new PowerupManager(plugin);
-        this.powerupManager.setInverseFrequency(250);
+        this.powerupManager.setInverseFrequency(200);
         this.powerupManager.registerPowerup(new BlindnessPowerup(plugin, this));
         this.powerupManager.registerPowerup(new SwapPowerup(plugin, this));
         this.powerupManager.registerPowerup(new SpeedPowerup(plugin, this));

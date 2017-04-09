@@ -122,8 +122,45 @@ public class PlayerListener implements Listener
             {
                 if (this.arena.isBuilder(player.getUniqueId()))
                 {
-                    if (this.arena.getBlockManager().repair(player.getUniqueId(), block))
-                        arenaPlayer.updateLastChangeBlock();
+                    String[] schema = new String[] {
+                            "00100",
+                            "01210",
+                            "12321",
+                            "01210",
+                            "00100"
+                    };
+
+                    int middle = (schema.length - 1) / 2;
+
+                    int refX = block.getX() - middle;
+                    int refY = block.getY();
+                    int refZ = block.getZ() - middle;
+
+                    int incrX;
+                    int incrZ = 0;
+
+                    for (String str : schema)
+                    {
+                        incrX = 0;
+
+                        for (int i = 0; i < str.length(); i++)
+                        {
+                            char c = str.charAt(i);
+
+                            if (c == '1')
+                                this.arena.getBlockManager().repair(block.getWorld().getBlockAt(refX + incrX, refY, refZ + incrZ), 1);
+                            else if (c == '2')
+                                this.arena.getBlockManager().repair(block.getWorld().getBlockAt(refX + incrX, refY, refZ + incrZ), 2);
+                            else if (c == '3')
+                                this.arena.getBlockManager().repair(block.getWorld().getBlockAt(refX + incrX, refY, refZ + incrZ), 3);
+
+                            incrX++;
+                        }
+
+                        incrZ++;
+                    }
+
+                    arenaPlayer.updateLastChangeBlock();
                 }
                 else
                 {

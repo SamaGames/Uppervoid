@@ -99,11 +99,9 @@ public class Grenada extends Stuff
 
                 if (c == '1')
                     levelOne.add(world.getBlockAt(refX + incrX, refY, refZ + incrZ));
-
-                if (c == '2')
+                else if (c == '2')
                     levelTwo.add(world.getBlockAt(refX + incrX, refY, refZ + incrZ));
-
-                if (c == '3')
+                else if (c == '3')
                     levelThree.add(world.getBlockAt(refX + incrX, refY, refZ + incrZ));
 
                 incrX++;

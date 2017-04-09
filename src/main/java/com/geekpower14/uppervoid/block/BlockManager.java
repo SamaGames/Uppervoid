@@ -41,7 +41,7 @@ public class BlockManager
         return blockGroup != null && blockGroup.damage(damager, block, damage);
     }
 
-    public boolean repair(UUID damager, Block block)
+    public boolean repair(Block block, int damage)
     {
         if (!this.active)
             return false;
@@ -51,7 +51,7 @@ public class BlockManager
 
         BlockGroup blockGroup = this.getBlockGroup(block);
 
-        return blockGroup != null && blockGroup.repair(damager, block);
+        return blockGroup != null && blockGroup.repair(block, damage);
     }
 
     public void setActive(boolean active)

@@ -63,9 +63,13 @@ public class BlockGroup
         return result;
     }
 
-    public boolean repair(UUID damager, Block block)
+    public boolean repair(Block block, int damage)
     {
-        boolean result = this.setPrevious(block);
+        boolean result = false;
+
+        for (int i = 0; i < damage; i++)
+            if (this.setPrevious(block))
+                result = true;
 
         if (result)
         {

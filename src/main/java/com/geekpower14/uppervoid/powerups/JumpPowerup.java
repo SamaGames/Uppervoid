@@ -29,6 +29,7 @@ public class JumpPowerup extends UppervoidPowerup
     @Override
     public void onPickup(Player player)
     {
+        player.removePotionEffect(PotionEffectType.JUMP);
         player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 8 * 20, 5));
 
         new BukkitRunnable()
@@ -46,7 +47,10 @@ public class JumpPowerup extends UppervoidPowerup
                 this.ticks += 2;
 
                 if (this.ticks == 8 * 20)
+                {
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 0, false, false));
                     this.cancel();
+                }
             }
         }.runTaskTimerAsynchronously(this.plugin, 2L, 2L);
     }

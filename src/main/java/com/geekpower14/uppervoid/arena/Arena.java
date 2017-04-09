@@ -123,6 +123,7 @@ public class Arena extends Game<ArenaPlayer>
         for (ArenaPlayer arenaPlayer : this.gamePlayers.values())
         {
             Player player = arenaPlayer.getPlayerIfOnline();
+            player.getInventory().clear();
 
             player.setWalkSpeed(0.25F);
             player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 0, false, false));
@@ -211,6 +212,9 @@ public class Arena extends Game<ArenaPlayer>
     {
         this.setSpectator(player);
         this.teleportRandomSpawn(player);
+
+        player.getInventory().setItem(8, this.coherenceMachine.getLeaveItem());
+        player.getInventory().setHeldItemSlot(0);
 
         if (this.getStatus().equals(Status.IN_GAME))
         {

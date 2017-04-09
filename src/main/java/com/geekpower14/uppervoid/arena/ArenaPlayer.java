@@ -62,40 +62,50 @@ public class ArenaPlayer extends GamePlayer
 
     public void loadShop()
     {
-        BukkitTask bukkitTask = this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
+        this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
         {
             IShopsManager shopsManager = SamaGamesAPI.get().getShopsManager();
             IPlayerShop player = shopsManager.getPlayer(getUUID());
-            try {
+
+            try
+            {
                 Stuff itemByName = this.arena.getItemManager().getItemByID(player.getSelectedItemFromList(SHOOTER_IDs));
                 itemByName.setOwner(this);
 
                 this.stuff.put(0, itemByName);
-            } catch (Exception ignored) {
+            }
+            catch (Exception ignored)
+            {
                 Stuff itemByID = this.arena.getItemManager().getItemByID(SHOOTER_DEFAULT_ID);
                 itemByID.setOwner(this);
                 this.stuff.put(0, itemByID);
             }
 
-            try {
+            try
+            {
 
                 Grenada grenada = (Grenada) this.arena.getItemManager().getItemByID(player.getSelectedItemFromList(GRENADA_IDs));
                 grenada.setOwner(this);
 
                 this.stuff.put(1, grenada);
-            } catch (Exception ignored) {
+            }
+            catch (Exception ignored)
+            {
                 Grenada grenada = (Grenada) this.arena.getItemManager().getItemByID(GRENADA_DEFAULT_ID);
                 grenada.setOwner(this);
 
                 this.stuff.put(1, grenada);
             }
 
-            try {
+            try
+            {
                 GrapplingHook grapplingHook = (GrapplingHook) this.arena.getItemManager().getItemByID(player.getSelectedItemFromList(GRAPPLING_HOOK_IDs));
                 grapplingHook.setOwner(this);
 
                 this.stuff.put(2, grapplingHook);
-            } catch (Exception ignored) {
+            }
+            catch (Exception ignored)
+            {
                 GrapplingHook grapplingHook = (GrapplingHook) this.arena.getItemManager().getItemByID(GRAPPLING_HOOK_DEFAULT_ID);
                 grapplingHook.setOwner(this);
 
@@ -113,54 +123,51 @@ public class ArenaPlayer extends GamePlayer
     {
         long time = System.currentTimeMillis();
 
-        if(!arena.getBlockManager().isActive())
+        if (!this.arena.getBlockManager().isActive())
         {
-            updateLastChangeBlock();
+            this.updateLastChangeBlock();
             return;
         }
 
         long duration = time - lastChangeBlock;
 
-        if (duration > 900) {
+        if (duration > 900)
+        {
             Location loc = getPlayerIfOnline().getLocation();
 
-            double X = loc.getX();
-            double Y = loc.getBlockY() - 1;
-            double Z = loc.getZ();
+            double x = loc.getX();
+            double y = loc.getBlockY() - 1;
+            double z = loc.getZ();
 
-            Location b = getPlayerStandOnBlockLocation(new Location(
-                    loc.getWorld(), X, Y, Z));
+            Location block = this.getPlayerStandOnBlockLocation(new Location(loc.getWorld(), x, y, z));
 
-            if(arena.getBlockManager().damage(this.uuid, b.getBlock()))
-            {
-                updateLastChangeBlock();
-                return;
-            }
-        }
-
-        if (duration > 1000 * 8L) {
-            this.arena.getPlugin().getLogger().info("Player " + getPlayerIfOnline().getName() + " kicked for afk.");
-            SamaGamesAPI.get().getGameManager().kickPlayer(getPlayerIfOnline(), ChatColor.RED + "Vous avez été kick pour inactivité.");
+            if(this.arena.getBlockManager().damage(this.uuid, block.getBlock()))
+                this.updateLastChangeBlock();
         }
     }
 
-    private Location getPlayerStandOnBlockLocation(Location locationUnderPlayer) {
-        Location b11 = locationUnderPlayer.clone().add(0.3, 0, -0.3);
-        if (b11.getBlock().getType() != Material.AIR) {
-            return b11;
-        }
-        Location b12 = locationUnderPlayer.clone().add(-0.3, 0, -0.3);
-        if (b12.getBlock().getType() != Material.AIR) {
-            return b12;
-        }
-        Location b21 = locationUnderPlayer.clone().add(0.3, 0, 0.3);
-        if (b21.getBlock().getType() != Material.AIR) {
-            return b21;
-        }
-        Location b22 = locationUnderPlayer.clone().add(-0.3, 0, +0.3);
-        if (b22.getBlock().getType() != Material.AIR) {
-            return b22;
-        }
+    private Location getPlayerStandOnBlockLocation(Location locationUnderPlayer)
+    {
+        Location block = locationUnderPlayer.clone().add(0.3, 0, -0.3);
+
+        if (block.getBlock().getType() != Material.AIR)
+            return block;
+
+        block = locationUnderPlayer.clone().add(-0.3, 0, -0.3);
+
+        if (block.getBlock().getType() != Material.AIR)
+            return block;
+
+        block = locationUnderPlayer.clone().add(0.3, 0, 0.3);
+
+        if (block.getBlock().getType() != Material.AIR)
+            return block;
+
+        block = locationUnderPlayer.clone().add(-0.3, 0, 0.3);
+
+        if (block.getBlock().getType() != Material.AIR)
+            return block;
+
         return locationUnderPlayer;
     }
 

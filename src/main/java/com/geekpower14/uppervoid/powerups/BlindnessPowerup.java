@@ -43,7 +43,14 @@ public class BlindnessPowerup extends UppervoidPowerup
 
         this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () ->
         {
-            squids.forEach(Squid::remove);
+            squids.forEach(squid ->
+            {
+                if (squid == null || squid.isDead())
+                    return;
+
+                squid.remove();
+            });
+
             squids.clear();
         }, 20L);
     }

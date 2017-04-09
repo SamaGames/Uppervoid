@@ -26,11 +26,13 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 public class Arena extends Game<ArenaPlayer>
 {
     private final Uppervoid plugin;
     private final List<Location> spawns;
+    private final List<UUID> builders;
     private final World.Environment dimension;
     private final Location lobby;
     private final BlockManager blockManager;
@@ -49,6 +51,7 @@ public class Arena extends Game<ArenaPlayer>
 
         this.plugin = plugin;
         this.spawns = new ArrayList<>();
+        this.builders = new ArrayList<>();
 
         IGameProperties properties = SamaGamesAPI.get().getGameManager().getGameProperties();
 
@@ -82,6 +85,7 @@ public class Arena extends Game<ArenaPlayer>
         this.powerupManager.registerPowerup(new InvisibilityPowerup(plugin, this));
         this.powerupManager.registerPowerup(new NauseaPowerup(plugin, this));
         this.powerupManager.registerPowerup(new SlownessPowerup(plugin, this));
+        this.powerupManager.registerPowerup(new RepairPowerup(plugin, this));
 
         JsonArray powerupsSpawnsJson = properties.getOption("powerups-spawns", spawnDefault).getAsJsonArray();
 
@@ -217,6 +221,9 @@ public class Arena extends Game<ArenaPlayer>
         this.setSpectator(player);
         this.teleportRandomSpawn(player);
 
+        if (this.builders.contains(player.getUniqueId()))
+            this.removeBuilder(player);
+
         player.getInventory().setItem(8, this.coherenceMachine.getLeaveItem());
         player.getInventory().setHeldItemSlot(0);
 
@@ -261,6 +268,16 @@ public class Arena extends Game<ArenaPlayer>
             arena.setScoreboardTime(time);
     }
 
+    public void addBuilder(Player player)
+    {
+        this.builders.add(player.getUniqueId());
+    }
+
+    public void removeBuilder(Player player)
+    {
+        this.builders.remove(player.getUniqueId());
+    }
+
     public void teleportRandomSpawn(Player p)
     {
         p.teleport(this.spawns.get(new Random().nextInt(this.spawns.size())));
@@ -294,5 +311,10 @@ public class Arena extends Game<ArenaPlayer>
     public Location getLobby()
     {
         return this.lobby;
+    }
+
+    public boolean isBuilder(UUID uuid)
+    {
+        return this.builders.contains(uuid);
     }
 }

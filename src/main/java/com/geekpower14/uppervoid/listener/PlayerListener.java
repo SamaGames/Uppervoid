@@ -120,9 +120,15 @@ public class PlayerListener implements Listener
 
             this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, () ->
             {
-                if (this.arena.getBlockManager().damage(player.getUniqueId(), block))
+                if (this.arena.isBuilder(player.getUniqueId()))
                 {
-                    arenaPlayer.updateLastChangeBlock();
+                    if (this.arena.getBlockManager().repair(player.getUniqueId(), block))
+                        arenaPlayer.updateLastChangeBlock();
+                }
+                else
+                {
+                    if (this.arena.getBlockManager().damage(player.getUniqueId(), block))
+                        arenaPlayer.updateLastChangeBlock();
                 }
             }, 5L);
         }

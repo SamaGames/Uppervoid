@@ -63,6 +63,42 @@ public class BlockGroup
         return result;
     }
 
+    public boolean repair(UUID damager, Block block)
+    {
+        boolean result = this.setPrevious(block);
+
+        if (result)
+        {
+            ParticleEffect.VILLAGER_HAPPY.display(0.2F, 0.1F, 0.2F, 10F, 1, block.getLocation().add(0.5D, 1.1D, 0.5D), 50);
+            ParticleEffect.HEART.display(0.2F, 0.3F, 0.2F, 10F, 5, block.getLocation().add(0.5D, 1.1D, 0.5D), 50);
+        }
+
+        return result;
+    }
+
+    private boolean setPrevious(Block block)
+    {
+        if (block == null)
+            return false;
+
+        if (this.is(block, this.blockFine))
+        {
+            return true;
+        }
+        else if (this.is(block, this.blockWarning))
+        {
+            this.set(block, this.blockFine);
+            return true;
+        }
+        else if (this.is(block, this.blockCritical))
+        {
+            this.set(block, this.blockWarning);
+            return true;
+        }
+
+        return false;
+    }
+
     private boolean setNext(UUID damager, Block block)
     {
         if (block == null)
@@ -70,18 +106,18 @@ public class BlockGroup
 
         if (this.is(block, this.blockFine))
         {
-            this.setNext(block, this.blockWarning);
+            this.set(block, this.blockWarning);
             return true;
         }
         else if (this.is(block, this.blockWarning))
         {
-            this.setNext(block, this.blockCritical);
+            this.set(block, this.blockCritical);
             return true;
         }
         else if (this.is(block, this.blockCritical))
         {
-            this.setNext(block, VOID);
-            this.setNext(block.getRelative(BlockFace.DOWN), VOID);
+            this.set(block, VOID);
+            this.set(block.getRelative(BlockFace.DOWN), VOID);
 
             if (damager != null)
                 ((ArenaStatisticsHelper) SamaGamesAPI.get().getGameManager().getGameStatisticsHelper()).increaseBlocks(damager);
@@ -93,7 +129,7 @@ public class BlockGroup
     }
 
     @SuppressWarnings("deprecation")
-    private void setNext(Block block, SimpleBlock simpleBlock)
+    private void set(Block block, SimpleBlock simpleBlock)
     {
         block.setType(simpleBlock.getType());
         block.setData(simpleBlock.getData());

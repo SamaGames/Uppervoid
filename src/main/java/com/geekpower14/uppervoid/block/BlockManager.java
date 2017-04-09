@@ -41,6 +41,19 @@ public class BlockManager
         return blockGroup != null && blockGroup.damage(damager, block, damage);
     }
 
+    public boolean repair(UUID damager, Block block)
+    {
+        if (!this.active)
+            return false;
+
+        if (block.getRelative(BlockFace.DOWN).getType() != Material.QUARTZ_BLOCK)
+            return false;
+
+        BlockGroup blockGroup = this.getBlockGroup(block);
+
+        return blockGroup != null && blockGroup.repair(damager, block);
+    }
+
     public void setActive(boolean active)
     {
         this.active = active;

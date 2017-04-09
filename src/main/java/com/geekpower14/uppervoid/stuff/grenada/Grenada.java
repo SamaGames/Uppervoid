@@ -31,7 +31,7 @@ public class Grenada extends Stuff
         Player player = arenaPlayer.getPlayerIfOnline();
         ItemStack stack = player.getInventory().getItemInHand();
 
-        if (stack == null || !this.canUse() || !this.plugin.getArena().getBlockManager().isActive() || stack.getAmount() <= 0)
+        if (stack == null || !this.canUse(true) || !this.plugin.getArena().getBlockManager().isActive() || stack.getAmount() <= 0)
             return;
 
         this.setReloading();

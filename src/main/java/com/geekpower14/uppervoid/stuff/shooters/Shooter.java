@@ -32,7 +32,7 @@ class Shooter extends Stuff
     {
         Player player = arenaPlayer.getPlayerIfOnline();
 
-        if (!this.canUse() || !this.plugin.getArena().getBlockManager().isActive())
+        if (!this.canUse(true) || !this.plugin.getArena().getBlockManager().isActive())
             return;
 
         this.setReloading();

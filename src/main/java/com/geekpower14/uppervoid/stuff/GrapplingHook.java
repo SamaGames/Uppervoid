@@ -32,7 +32,7 @@ public class GrapplingHook extends Stuff
     {
         Player player = arenaPlayer.getPlayerIfOnline();
 
-        if (!this.canUse() || this.getUses() <= 0)
+        if (!this.canUse(false) || this.getUses() <= 0)
             return;
 
         this.setReloading();

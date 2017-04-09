@@ -95,9 +95,12 @@ public abstract class Stuff implements Cloneable
         return this.reloadTime;
     }
 
-    public boolean canUse()
+    public boolean canUse(boolean playerDependant)
     {
-        return this.arenaPlayer != null && !(this.arenaPlayer.isSpectator() || this.arenaPlayer.isReloading() || this.reloading);
+        if (playerDependant)
+            return this.arenaPlayer != null && !(this.arenaPlayer.isSpectator() || this.arenaPlayer.isReloading() || this.reloading);
+        else
+            return this.arenaPlayer != null && !this.reloading;
     }
 
     @SuppressWarnings("deprecation")
@@ -105,6 +108,7 @@ public abstract class Stuff implements Cloneable
     {
         if (this.arenaPlayer == null)
             return false;
+
         ItemStack itemStack = this.getItem();
         return itemStack != null && itemStack.isSimilar(this.arenaPlayer.getPlayerIfOnline().getItemInHand());
     }

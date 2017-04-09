@@ -35,14 +35,14 @@ class Shooter extends Stuff
         if (!this.canUse() || !this.plugin.getArena().getBlockManager().isActive())
             return;
 
+        this.setReloading();
+
         Item tnt = player.getWorld().dropItem(player.getEyeLocation(), new ItemStack(Material.TNT));
         tnt.setMetadata("uv-owner", new FixedMetadataValue(this.plugin, arenaPlayer.getUUID().toString()));
         tnt.setVelocity(player.getEyeLocation().getDirection().multiply(1.5));
         tnt.setPickupDelay(Integer.MAX_VALUE);
 
         this.plugin.getArena().getItemChecker().addItem(tnt, this);
-
-        this.setReloading();
 
         ((ArenaStatisticsHelper) SamaGamesAPI.get().getGameManager().getGameStatisticsHelper()).increaseTntLaunched(arenaPlayer.getUUID());
     }
@@ -55,9 +55,9 @@ class Shooter extends Stuff
         Block real = center.add(0, -0.5, 0).getBlock();
         World world = center.getWorld();
 
-        ArrayList<Block> levelOne = new ArrayList<>();
-        ArrayList<Block> levelTwo = new ArrayList<>();
-        ArrayList<Block> levelThree = new ArrayList<>();
+        List<Block> levelOne = new ArrayList<>();
+        List<Block> levelTwo = new ArrayList<>();
+        List<Block> levelThree = new ArrayList<>();
 
         String[] schema = new String[] {
                 "01110",

@@ -78,6 +78,10 @@ public class Arena extends Game<ArenaPlayer>
         this.powerupManager.registerPowerup(new SpeedPowerup(plugin, this));
         this.powerupManager.registerPowerup(new JumpPowerup(plugin, this));
         this.powerupManager.registerPowerup(new SnowballPowerup(plugin, this));
+        this.powerupManager.registerPowerup(new GluePowerup(plugin, this));
+        this.powerupManager.registerPowerup(new InvisibilityPowerup(plugin, this));
+        this.powerupManager.registerPowerup(new NauseaPowerup(plugin, this));
+        this.powerupManager.registerPowerup(new SlownessPowerup(plugin, this));
 
         JsonArray powerupsSpawnsJson = properties.getOption("powerups-spawns", spawnDefault).getAsJsonArray();
 

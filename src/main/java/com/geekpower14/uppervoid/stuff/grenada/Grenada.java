@@ -35,6 +35,7 @@ public class Grenada extends Stuff
             return;
 
         this.setReloading();
+        this.setUses(this.getUses() - 1);
 
         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_SNOW_STEP, 3F, 2.0F);
 
@@ -44,8 +45,6 @@ public class Grenada extends Stuff
         tnt.setPickupDelay(Integer.MAX_VALUE);
 
         new GrenadaExplosionTask(this.plugin, this, tnt).runTaskTimerAsynchronously(this.plugin, 0L, 5L);
-
-        this.setUses(this.getUses() - 1);
 
         stack.setAmount(stack.getAmount() - 1);
         player.getInventory().setItemInHand(stack);
